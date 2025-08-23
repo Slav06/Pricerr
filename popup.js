@@ -43,37 +43,75 @@ document.addEventListener('DOMContentLoaded', function() {
             loginBtn.textContent = 'Logging in...';
             loginBtn.disabled = true;
             
-            // Get users from Supabase
-            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&secretKey=eq.' + encodeURIComponent(secretKey), {
+            console.log('🔐 Attempting login with key:', secretKey);
+            
+            // First, let's test the connection and see what tables exist
+            const testResponse = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/', {
                 headers: {
                     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
                 }
             });
             
-            if (response.ok) {
-                const users = await response.json();
-                const user = users[0]; // Should be only one user with this secret key
-                
-                if (user && user.isActive) {
-                    // Store user info in Chrome storage
-                    currentUserData = user;
-                    chrome.storage.local.set({ popupUser: user }, () => {
-                        showUserInfo(user);
-                        console.log('User logged in:', user.name, 'Role:', user.role);
-                        
-                        // Clear input
-                        secretKeyInput.value = '';
-                        
-                        // Show success notification
-                        showNotification(`Welcome, ${user.name}!`, 'success');
+            console.log('🔗 Supabase connection test:', testResponse.status, testResponse.statusText);
+            
+            // Try different possible table names
+            const possibleTables = ['dashboard_users', 'users', 'user_management', 'dashboard_users_table'];
+            
+            for (const tableName of possibleTables) {
+                try {
+                    console.log(`🔍 Trying table: ${tableName}`);
+                    
+                    const response = await fetch(`https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/${tableName}?select=*`, {
+                        headers: {
+                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                        }
                     });
-                } else {
-                    showNotification('Invalid or inactive secret key', 'error');
+                    
+                    if (response.ok) {
+                        const users = await response.json();
+                        console.log(`✅ Found table ${tableName} with ${users.length} users:`, users);
+                        
+                        // Now try to find user by secret key
+                        const user = users.find(u => u.secretKey === secretKey || u.secret_key === secretKey);
+                        
+                        if (user) {
+                            console.log('✅ User found:', user);
+                            
+                            // Check if user is active (handle different possible field names)
+                            const isActive = user.isActive !== false && user.is_active !== false;
+                            
+                            if (isActive) {
+                                // Store user info in Chrome storage
+                                currentUserData = user;
+                                chrome.storage.local.set({ popupUser: user }, () => {
+                                    showUserInfo(user);
+                                    console.log('User logged in:', user.name, 'Role:', user.role);
+                                    
+                                    // Clear input
+                                    secretKeyInput.value = '';
+                                    
+                                    // Show success notification
+                                    showNotification(`Welcome, ${user.name}!`, 'success');
+                                });
+                                return; // Exit the loop
+                            } else {
+                                showNotification('User account is inactive', 'error');
+                                return;
+                            }
+                        }
+                    } else {
+                        console.log(`❌ Table ${tableName} not accessible:`, response.status, response.statusText);
+                    }
+                } catch (error) {
+                    console.log(`❌ Error accessing table ${tableName}:`, error);
                 }
-            } else {
-                showNotification('Login failed. Please try again.', 'error');
             }
+            
+            // If we get here, no user was found
+            showNotification('Invalid secret key or user not found', 'error');
+            
         } catch (error) {
             console.error('Login error:', error);
             showNotification('Network error. Please check your connection.', 'error');
