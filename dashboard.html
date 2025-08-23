@@ -524,7 +524,10 @@
                     <button class="btn" onclick="createUser()">Create User</button>
                 </div>
 
-                <h2>Current Users</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Current Users</h2>
+                    <button class="btn btn-secondary" onclick="loadUsers()">🔄 Refresh Users</button>
+                </div>
                 <div id="usersGrid" class="users-grid">
                     <!-- Users will be populated here -->
                 </div>
@@ -796,23 +799,73 @@
             return result;
         }
 
-        // Load users
-        function loadUsers() {
-            const savedUsers = localStorage.getItem('dashboardUsers');
-            if (savedUsers) {
-                users = JSON.parse(savedUsers);
-            } else {
-                // Create default admin user
-                users = [{
-                    id: '1',
-                    name: 'Admin User',
-                    role: 'admin',
-                    secretKey: 'ADMIN123456789',
-                    createdAt: new Date().toISOString(),
-                    isActive: true
-                }];
-                saveUsers();
+        // Load users from Supabase
+        async function loadUsers() {
+            try {
+                console.log('🔄 Loading users from Supabase...');
+                
+                const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&order=created_at.desc', {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                    }
+                });
+                
+                if (response.ok) {
+                    const supabaseUsers = await response.json();
+                    console.log(`✅ Loaded ${supabaseUsers.length} users from Supabase:`, supabaseUsers);
+                    
+                    // Convert Supabase format to dashboard format
+                    users = supabaseUsers.map(user => ({
+                        id: user.id.toString(),
+                        name: user.name,
+                        role: user.role,
+                        secretKey: user.secretkey,
+                        createdAt: user.created_at,
+                        isActive: user.is_active
+                    }));
+                    
+                    // Also save to localStorage as backup
+                    localStorage.setItem('dashboardUsers', JSON.stringify(users));
+                } else {
+                    console.log('❌ Could not load users from Supabase, using localStorage fallback');
+                    // Fallback to localStorage
+                    const savedUsers = localStorage.getItem('dashboardUsers');
+                    if (savedUsers) {
+                        users = JSON.parse(savedUsers);
+                    } else {
+                        // Create default admin user
+                        users = [{
+                            id: '1',
+                            name: 'Admin User',
+                            role: 'admin',
+                            secretKey: 'ADMIN123456789',
+                            createdAt: new Date().toISOString(),
+                            isActive: true
+                        }];
+                        saveUsers();
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error loading users from Supabase:', error);
+                // Fallback to localStorage
+                const savedUsers = localStorage.getItem('dashboardUsers');
+                if (savedUsers) {
+                    users = JSON.parse(savedUsers);
+                } else {
+                    // Create default admin user
+                    users = [{
+                        id: '1',
+                        name: 'Admin User',
+                        role: 'admin',
+                        secretKey: 'ADMIN123456789',
+                        createdAt: new Date().toISOString(),
+                        isActive: true
+                    }];
+                    saveUsers();
+                }
             }
+            
             displayUsers();
         }
 
@@ -822,11 +875,40 @@
                 // Save to localStorage as backup
                 localStorage.setItem('dashboardUsers', JSON.stringify(users));
                 
-                // Also save to Supabase if we have users
+                // Sync with Supabase
                 if (users.length > 0) {
-                    // For now, we'll just log that we're saving to Supabase
-                    // In a full implementation, you'd want to sync with Supabase
-                    console.log('Users saved to localStorage. Supabase sync would happen here.');
+                    console.log('🔄 Syncing users to Supabase...');
+                    
+                    // For each user, upsert to Supabase
+                    for (const user of users) {
+                        try {
+                            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW4llPRVcrwBDOOIM',
+                                    'Prefer': 'resolution=merge-duplicates'
+                                },
+                                body: JSON.stringify({
+                                    id: user.id,
+                                    name: user.name,
+                                    role: user.role,
+                                    secretkey: user.secretKey,
+                                    created_at: user.createdAt,
+                                    is_active: user.isActive
+                                })
+                            });
+                            
+                            if (response.ok) {
+                                console.log(`✅ User ${user.name} synced to Supabase`);
+                            } else {
+                                console.error(`❌ Failed to sync user ${user.name}:`, response.status);
+                            }
+                        } catch (error) {
+                            console.error(`❌ Error syncing user ${user.name}:`, error);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error saving users:', error);
