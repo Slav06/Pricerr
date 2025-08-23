@@ -461,30 +461,62 @@
                 this.setupUserDropdownListeners();
             }
 
-            async loadData() {
-                try {
-                    this.showLoading();
-                    
-                    const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*,user_name&order=submitted_at.desc`, {
-                        headers: {
-                            'apikey': this.supabaseKey,
-                            'Authorization': `Bearer ${this.supabaseKey}`
-                        }
-                    });
+                         async loadData() {
+                 try {
+                     this.showLoading();
+                     
+                     console.log('Fetching data from:', `${this.supabaseUrl}/rest/v1/job_submissions`);
+                     
+                     // First, let's test if the table exists with a simple query
+                     const testResponse = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=id&limit=1`, {
+                         headers: {
+                             'apikey': this.supabaseKey,
+                             'Authorization': `Bearer ${this.supabaseKey}`
+                         }
+                     });
+                     
+                     console.log('Test response status:', testResponse.status);
+                     
+                     if (!testResponse.ok) {
+                         const errorText = await testResponse.text();
+                         console.error('Test query error:', errorText);
+                         
+                         if (testResponse.status === 400) {
+                             this.showError('Database table "job_submissions" not found. Please create it first using the SQL provided.');
+                             return;
+                         }
+                         
+                         throw new Error(`Database connection failed: ${testResponse.status} - ${errorText}`);
+                     }
+                     
+                     // Now fetch the full data
+                     const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`, {
+                         headers: {
+                             'apikey': this.supabaseKey,
+                             'Authorization': `Bearer ${this.supabaseKey}`
+                         }
+                     });
 
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch data: ${response.status}`);
-                    }
+                     console.log('Full data response status:', response.status);
+                     console.log('Response ok:', response.ok);
 
-                    this.allData = await response.json();
-                    this.filterData();
-                    this.updateStats();
-                    
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                    this.showError('Failed to load data: ' + error.message);
-                }
-            }
+                     if (!response.ok) {
+                         const errorText = await response.text();
+                         console.error('Error response:', errorText);
+                         throw new Error(`Failed to fetch data: ${response.status} - ${errorText}`);
+                     }
+
+                     this.allData = await response.json();
+                     console.log('Data loaded:', this.allData);
+                     
+                     this.filterData();
+                     this.updateStats();
+                     
+                 } catch (error) {
+                     console.error('Error loading data:', error);
+                     this.showError('Failed to load data: ' + error.message);
+                 }
+             }
 
             filterData() {
                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -689,13 +721,8 @@
                 try {
                     console.log('Setting up real-time subscription...');
                     
-                    // Create EventSource for real-time updates
-                    const eventSource = new EventSource(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=id.desc&limit=1`, {
-                        headers: {
-                            'apikey': this.supabaseKey,
-                            'Authorization': `Bearer ${this.supabaseKey}`
-                        }
-                    });
+                                         // Create EventSource for real-time updates
+                     const eventSource = new EventSource(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=id.desc&limit=1`);
 
                     eventSource.onmessage = (event) => {
                         try {
