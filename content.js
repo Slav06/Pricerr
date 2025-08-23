@@ -628,6 +628,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ success: true });
     }
     
+    if (request.action === 'setProfileInfo') {
+        console.log('Content script received profile info:', request.data);
+        // Store profile info in localStorage for transfer update polling
+        localStorage.setItem('chrome_profile_info', JSON.stringify(request.data));
+        sendResponse({ success: true });
+    }
+    
     if (request.action === 'insertMaxBinder') {
         console.log('Inserting Max Binder data:', request.data);
         
@@ -1375,3 +1382,67 @@ function showTransferOverlay(transferData) {
         }
     }, 1000);
 }
+
+// Start polling for transfer updates from dashboard
+function startTransferUpdatePolling() {
+    console.log('Starting transfer update polling...');
+    
+    // Check for transfer updates every 2 seconds
+    setInterval(() => {
+        try {
+            const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+            const currentProfileId = getCurrentChromeProfileId();
+            
+            // Look for updates for this profile
+            Object.keys(transferUpdates).forEach(key => {
+                const update = transferUpdates[key];
+                
+                // Check if this update is for the current profile and page
+                if (update.chrome_profile_id === currentProfileId && 
+                    update.page_url === window.location.href) {
+                    
+                    console.log('Found transfer update for current profile and page:', update);
+                    
+                    // Show the transfer overlay
+                    showTransferOverlay(update);
+                    
+                    // Remove this update from localStorage to prevent showing it again
+                    delete transferUpdates[key];
+                    localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                    
+                    console.log('Transfer overlay shown and update removed from storage');
+                }
+            });
+            
+        } catch (error) {
+            console.log('Error checking for transfer updates:', error);
+        }
+    }, 2000); // Check every 2 seconds
+}
+
+// Get current Chrome profile ID
+function getCurrentChromeProfileId() {
+    // Try to get from localStorage (set by background script)
+    try {
+        const profileInfo = JSON.parse(localStorage.getItem('chrome_profile_info') || '{}');
+        if (profileInfo.profileId) {
+            return profileInfo.profileId;
+        }
+    } catch (error) {
+        console.log('Could not parse profile info:', error);
+    }
+    
+    // Fallback: generate a profile ID based on current session
+    const sessionKey = 'chrome_profile_session_' + window.location.hostname;
+    let sessionId = localStorage.getItem(sessionKey);
+    
+    if (!sessionId) {
+        sessionId = 'profile_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem(sessionKey, sessionId);
+    }
+    
+    return sessionId;
+}
+
+// Start polling when content script loads
+startTransferUpdatePolling();

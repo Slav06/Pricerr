@@ -43,6 +43,22 @@ async function detectChromeProfile() {
         chrome.storage.local.set({ profileInfo: profileDetails });
         console.log('Chrome profile detected and stored:', profileDetails);
         
+        // Also store in localStorage for content scripts to access
+        try {
+            chrome.tabs.query({}, function(tabs) {
+                tabs.forEach(tab => {
+                    chrome.tabs.sendMessage(tab.id, {
+                        action: 'setProfileInfo',
+                        data: profileDetails
+                    }).catch(() => {
+                        // Tab might not have content script, ignore error
+                    });
+                });
+            });
+        } catch (error) {
+            console.log('Could not notify tabs about profile info:', error);
+        }
+        
     } catch (error) {
         console.error('Error detecting Chrome profile:', error);
         

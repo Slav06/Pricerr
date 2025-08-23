@@ -1682,13 +1682,8 @@
                         page_url: item.page_url // Include the page URL to find the correct tab
                     };
                     
-                    // Try to send a message to the Chrome extension
-                    if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-                        window.chrome.runtime.sendMessage({
-                            action: 'transferUpdated',
-                            data: transferData
-                        });
-                    }
+                    // Store transfer update in localStorage for Chrome extension to find
+                    this.storeTransferUpdateForExtension(transferData);
                     
                     // Show overlay on the current page
                     this.showTransferOverlayOnPage(transferData);
@@ -1931,6 +1926,25 @@
                  const sessionId = 'dashboard_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                  localStorage.setItem('currentUserProfileId', sessionId);
                  return sessionId;
+             }
+             
+             // Store transfer update in localStorage for Chrome extension to find
+             storeTransferUpdateForExtension(transferData) {
+                 try {
+                     const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+                     const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
+                     
+                     transferUpdates[key] = {
+                         ...transferData,
+                         timestamp: Date.now(),
+                         dashboard_origin: window.location.origin
+                     };
+                     
+                     localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                     console.log('Transfer update stored for Chrome extension:', transferUpdates[key]);
+                 } catch (error) {
+                     console.log('Could not store transfer update for extension:', error);
+                 }
              }
              
              // Show transfer overlay on the current page
