@@ -87,6 +87,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             return true;
             
+        case 'transferUpdated':
+            // Handle transfer updates from dashboard
+            console.log('Transfer update received:', request.data);
+            
+            // Store the transfer update in chrome.storage.local
+            chrome.storage.local.get(['transferUpdates'], (result) => {
+                const transferUpdates = result.transferUpdates || {};
+                const key = `${request.data.jobId}_${request.data.chrome_profile_id}`;
+                transferUpdates[key] = {
+                    jobId: request.data.jobId,
+                    user_name: request.data.user_name,
+                    job_number: request.data.job_number,
+                    chrome_profile_id: request.data.chrome_profile_id,
+                    updated_at: new Date().toISOString()
+                };
+                
+                chrome.storage.local.set({ transferUpdates }, () => {
+                    console.log('Transfer update stored:', transferUpdates[key]);
+                    
+                    // Notify all popups about the transfer update
+                    chrome.runtime.sendMessage({
+                        action: 'transferUpdateReceived',
+                        data: transferUpdates[key]
+                    }).catch(() => {
+                        // Ignore errors if no popups are listening
+                    });
+                });
+            });
+            
+            sendResponse({ success: true });
+            return true;
+            
 
             
         default:

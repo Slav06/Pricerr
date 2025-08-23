@@ -1629,6 +1629,9 @@
                         item.user_name = newUser;
                     }
                     
+                    // Notify Chrome extension about the transfer update
+                    this.notifyChromeExtension(jobId, newUser, item);
+                    
                     // Update stats
                     this.updateStats();
                     
@@ -1659,6 +1662,27 @@
 
                 if (!response.ok) {
                     throw new Error(`Failed to update user: ${response.status}`);
+                }
+            }
+
+            // Notify Chrome extension about transfer updates
+            notifyChromeExtension(jobId, newUser, item) {
+                try {
+                    // Try to send a message to the Chrome extension
+                    if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
+                        window.chrome.runtime.sendMessage({
+                            action: 'transferUpdated',
+                            data: {
+                                jobId: jobId,
+                                user_name: newUser,
+                                job_number: item.job_number,
+                                chrome_profile_id: item.chrome_profile_id
+                            }
+                        });
+                        console.log('Chrome extension notified about transfer update');
+                    }
+                } catch (error) {
+                    console.log('Could not notify Chrome extension:', error);
                 }
             }
 
