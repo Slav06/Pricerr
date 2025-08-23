@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Submissions Dashboard - Pricerr</title>
+    <title>Moving Company Dashboard - User Management</title>
     <style>
         * {
             margin: 0;
@@ -12,405 +12,362 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            padding: 20px;
         }
 
         .header {
-            background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
-            color: white;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
             padding: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
         .header-logo-text {
-            font-size: 4rem;
-            font-weight: 900;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-family: 'Arial Black', sans-serif;
-            min-width: 200px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .header-text {
-            text-align: left;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
             margin-bottom: 10px;
-            font-weight: 700;
         }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .header-text h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
         }
 
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 20px;
-                padding: 30px 20px;
-                text-align: center;
-            }
-            
-            .header-text {
-                text-align: center;
-            }
-            
-            .header-logo-text {
-                font-size: 3rem;
-                min-width: 150px;
-            }
+        .header-text p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
         }
 
+        .role-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
 
+        .role-admin {
+            background: #dc3545;
+            color: white;
+        }
 
-        .controls {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+        .role-fronter {
+            background: #28a745;
+            color: white;
+        }
+
+        .role-closer {
+            background: #007bff;
+            color: white;
+        }
+
+        .tabs {
             display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .search-box {
+        .tab {
             flex: 1;
-            min-width: 300px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
         }
 
-        .search-box input {
-            width: 100%;
-            padding: 12px 16px;
+        .tab.active {
+            background: #667eea;
+            color: white;
+            border-bottom-color: #fff;
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .user-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
             border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
         }
 
-        .search-box input:focus {
-            outline: none;
-            border-color: #6b46c1;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .filter-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .filter-group label {
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 600;
             color: #495057;
         }
 
-        .filter-group select {
-            padding: 10px 12px;
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
             border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 14px;
-            background: white;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
         }
 
-        .refresh-btn {
-            background: #6b46c1;
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
+            cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
+            transition: transform 0.2s ease;
         }
 
-        .refresh-btn:hover {
-            background: #553c9a;
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
-        .stats {
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .users-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 20px;
-            padding: 30px;
-            background: white;
+            margin-top: 20px;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 24px;
+        .user-card {
+            background: white;
             border-radius: 12px;
-            text-align: center;
-            border: 1px solid #dee2e6;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+            transition: transform 0.2s ease;
         }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #6b46c1;
-            margin-bottom: 8px;
+        .user-card:hover {
+            transform: translateY(-5px);
         }
 
-        .stat-label {
-            color: #6c757d;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-        }
-
-        .table-container {
-            padding: 30px;
-            background: white;
-        }
-
-        .table-header {
+        .user-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-details {
+            margin-bottom: 15px;
+        }
+
+        .user-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .user-detail .label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .user-detail .value {
+            color: #333;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .secret-key {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+            color: #856404;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
         }
 
         .table-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #212529;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
         }
 
         .table-count {
-            color: #6c757d;
-            font-weight: 600;
+            color: #666;
+            margin-top: 5px;
         }
 
-        .data-table {
+        table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .data-table th {
-            background: #f8f9fa;
-            padding: 16px;
+        th, td {
+            padding: 15px;
             text-align: left;
-            font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .data-table td {
-            padding: 16px;
             border-bottom: 1px solid #e9ecef;
-            color: #212529;
         }
 
-        .data-table tr:hover {
+        th {
             background: #f8f9fa;
-        }
-
-        .job-number {
-            font-weight: 600;
-            color: #6b46c1;
-        }
-
-        .timestamp {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-                 .source {
-             background: #e6d9ff;
-             color: #6b46c1;
-             padding: 4px 8px;
-             border-radius: 4px;
-             font-size: 0.8rem;
-             font-weight: 600;
-         }
-
-                 .job-link {
-             color: #6b46c1;
-             text-decoration: none;
-             font-weight: 600;
-             transition: all 0.3s ease;
-         }
-
-         .job-link:hover {
-             color: #553c9a;
-             text-decoration: underline;
-             transform: scale(1.05);
-         }
-
-         .transfer-header {
-             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-             color: white;
-             text-align: center;
-             font-weight: 800;
-             text-transform: uppercase;
-             letter-spacing: 2px;
-             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-         }
-
-         .transfer-cell {
-             background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
-             border-left: 4px solid #dc3545;
-         }
-
-         .transfer-container {
-             display: flex;
-             flex-direction: column;
-             align-items: center;
-             gap: 8px;
-             padding: 8px;
-         }
-
-         .transfer-label {
-             font-weight: 700;
-             color: #dc3545;
-             text-transform: uppercase;
-             font-size: 0.75rem;
-             letter-spacing: 1px;
-             text-align: center;
-         }
-
-         .transfer-dropdown {
-             padding: 8px 12px;
-             border: 2px solid #dc3545;
-             border-radius: 8px;
-             background: white;
-             font-size: 0.9rem;
-             font-weight: 600;
-             cursor: pointer;
-             transition: all 0.3s ease;
-             min-width: 120px;
-             text-align: center;
-         }
-
-         .transfer-dropdown:focus {
-             outline: none;
-             border-color: #c82333;
-             box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
-             transform: scale(1.02);
-         }
-
-         .transfer-dropdown:hover {
-             background: #dc3545;
-             color: white;
-             transform: translateY(-2px);
-             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-         }
-
-         .transfer-dropdown option {
-             background: white;
-             color: #495057;
-             font-weight: 600;
-         }
-
-         .chrome-profile-info {
-             display: flex;
-             flex-direction: column;
-             gap: 2px;
-         }
-
-         .profile-name {
-             font-weight: 600;
-             color: #495057;
-             font-size: 0.9rem;
-         }
-
-         .profile-email {
-             color: #6c757d;
-             font-size: 0.8rem;
-             font-style: italic;
-         }
-
-                  .profile-id {
-             color: #adb5bd;
-             font-size: 0.75rem;
-             font-family: monospace;
-             cursor: pointer;
-             transition: color 0.2s;
-         }
-
-         .profile-id:hover {
-             color: #007bff;
-             text-decoration: underline;
-         }
-
-                 .profile-id.editing {
-            color: #007bff;
-            font-weight: 600;
-        }
-
-        /* New moving details columns styling */
-        .customer-name {
             font-weight: 600;
             color: #495057;
         }
 
-        .moving-from, .moving-to {
-            color: #6c757d;
-            font-size: 0.9rem;
+        .transfer-cell {
+            position: relative;
         }
 
-        .cubes {
-            background: #e3f2fd;
-            color: #1976d2;
+        .transfer-dropdown {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .transfer-status {
             padding: 4px 8px;
             border-radius: 4px;
-            font-weight: 600;
-            text-align: center;
-            font-size: 0.9rem;
+            font-size: 12px;
+            font-weight: bold;
         }
 
-        .pickup-date {
-            color: #2e7d32;
-            font-weight: 600;
-            font-size: 0.9rem;
+        .transfer-status.pending {
+            background: #fff3cd;
+            color: #856404;
         }
 
-        .distance {
-            background: #fff3e0;
-            color: #f57c00;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-align: center;
-            font-size: 0.9rem;
+        .transfer-status.initiated {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .transfer-status.completed {
+            background: #d4edda;
+            color: #155724;
         }
 
         .loading {
             text-align: center;
-            padding: 60px;
-            color: #6c757d;
-            font-size: 1.1rem;
+            padding: 40px;
+            color: #666;
         }
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #6b46c1;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -423,1802 +380,707 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .error {
-            text-align: center;
-            padding: 60px;
-            color: #dc3545;
-            font-size: 1.1rem;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .pagination button {
-            padding: 8px 16px;
-            border: 1px solid #dee2e6;
-            background: white;
-            color: #495057;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .pagination button:hover {
-            background: #f8f9fa;
-            border-color: #6b46c1;
-            color: #6b46c1;
-        }
-
-        .pagination button.active {
-            background: #6b46c1;
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
             color: white;
-            border-color: #6b46c1;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
         }
 
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .notification.success {
+            background: #28a745;
         }
 
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-box {
-                min-width: auto;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .data-table {
-                font-size: 14px;
-            }
-            
-            .data-table th,
-            .data-table td {
-                padding: 12px 8px;
-            }
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr-code img {
+            max-width: 200px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #5a6268;
         }
     </style>
 </head>
 <body>
     <div class="container">
-                         <div class="header">
+        <div class="header">
             <div class="header-logo-text">PFM</div>
             <div class="header-text">
-                <h1>Transfer Log</h1>
-                <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
-                <button onclick="testTransferSystem()" style="background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: block; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;">
-                    🧪 Test Transfer System
-                </button>
+                <h1>Moving Company Dashboard</h1>
+                <p>User Management & Transfer System</p>
+                <div id="currentUserInfo" style="margin-top: 20px;">
+                    <span id="currentUserName">Not logged in</span>
+                    <span id="currentUserRole" class="role-badge" style="display: none;"></span>
+                </div>
             </div>
         </div>
 
-                 <div class="controls">
-             <div class="search-box">
-                 <input type="text" id="searchInput" placeholder="Search by job number, customer, location, cubes, date, or profile...">
-             </div>
-             <div class="filter-group">
-                 <label for="sourceFilter">Source:</label>
-                 <select id="sourceFilter">
-                     <option value="">All Sources</option>
-                     <option value="Page Price Analyzer Extension">Extension</option>
-                 </select>
-             </div>
-             <div class="filter-group">
-                 <label for="dateFilter">Date:</label>
-                 <select id="dateFilter">
-                     <option value="">All Time</option>
-                     <option value="today">Today</option>
-                     <option value="week">This Week</option>
-                     <option value="month">This Month</month>
-                 </select>
-             </div>
-
-             <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
-             <button onclick="testTransferSystem()" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold;">
-                 🧪 Test Transfer
-             </button>
-         </div>
-
-
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalJobs">-</div>
-                <div class="stat-label">Total Jobs</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="todayJobs">-</div>
-                <div class="stat-label">Today</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="weekJobs">-</div>
-                <div class="stat-label">This Week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="monthJobs">-</div>
-                <div class="stat-label">This Month</div>
+        <!-- Login Section -->
+        <div id="loginSection" class="tab-content active">
+            <div class="user-form">
+                <h2>🔐 Login</h2>
+                <div class="form-group">
+                    <label for="loginKey">Secret Key:</label>
+                    <input type="password" id="loginKey" placeholder="Enter your secret key">
+                </div>
+                <button class="btn" onclick="login()">Login</button>
             </div>
         </div>
 
-        <div class="table-container">
-            <div class="table-header">
-                <div class="table-title">Recent Submissions</div>
-                <div class="table-count" id="tableCount">Showing 0 records</div>
+        <!-- Main Dashboard Tabs -->
+        <div id="dashboardTabs" style="display: none;">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('users')">👥 User Management</div>
+                <div class="tab" onclick="showTab('submissions')">📋 Job Submissions</div>
+                <div class="tab" onclick="showTab('transfers')">🔄 Transfers</div>
+                <div class="tab" onclick="showTab('profile')">👤 Profile</div>
             </div>
 
-            <div id="tableContent">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    Loading job submissions...
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content active">
+                <div class="user-form">
+                    <h2>👥 Create New User</h2>
+                    <div class="form-group">
+                        <label for="newUserName">Full Name:</label>
+                        <input type="text" id="newUserName" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserRole">Role:</label>
+                        <select id="newUserRole">
+                            <option value="fronter">Fronter - Can submit jobs</option>
+                            <option value="closer">Closer - Can receive transfers</option>
+                            <option value="admin">Admin - Full access</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="createUser()">Create User</button>
+                </div>
+
+                <h2>Current Users</h2>
+                <div id="usersGrid" class="users-grid">
+                    <!-- Users will be populated here -->
                 </div>
             </div>
 
-            <div class="pagination" id="pagination"></div>
+            <!-- Submissions Tab -->
+            <div id="submissionsTab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSubmissions">-</div>
+                        <div class="stat-label">Total Submissions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="mySubmissions">-</div>
+                        <div class="stat-label">My Submissions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingTransfers">-</div>
+                        <div class="stat-label">Pending Transfers</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">Job Submissions</div>
+                        <div class="table-count" id="submissionsCount">Loading...</div>
+                    </div>
+                    <div id="submissionsTable">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading submissions...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfers Tab -->
+            <div id="transfersTab" class="tab-content">
+                <h2>🔄 Transfer Management</h2>
+                <div id="transfersList">
+                    <!-- Transfers will be populated here -->
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profileTab" class="tab-content">
+                <div class="user-form">
+                    <h2>👤 My Profile</h2>
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="profileName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Role:</label>
+                        <input type="text" id="profileRole" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Secret Key:</label>
+                        <div class="secret-key" id="profileSecretKey"></div>
+                        <button class="copy-btn" onclick="copySecretKey()">Copy Key</button>
+                    </div>
+                    <button class="btn btn-danger" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserModal()">&times;</span>
+            <h2 id="modalUserName">User Details</h2>
+            <div id="modalUserDetails"></div>
+            <div class="qr-code" id="modalQRCode"></div>
+            <div class="secret-key" id="modalSecretKey"></div>
+            <button class="copy-btn" onclick="copyModalSecretKey()">Copy Key</button>
         </div>
     </div>
 
     <script>
-        class JobDashboard {
-            constructor() {
-                this.supabaseUrl = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
-                this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
-                this.currentPage = 1;
-                this.itemsPerPage = 20;
-                                 this.allData = [];
-                 this.filteredData = [];
-                 this.pollingInterval = null;
-                
-                                 this.initializeEventListeners();
-                 this.loadData();
-                 this.setupWebSocket();
-                 this.loadProfileNames();
+        // Global variables
+        let currentUser = null;
+        let users = [];
+        let submissions = [];
+        let transfers = [];
 
-            }
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initialized');
+            loadUsers();
+            checkLoginStatus();
+        });
 
-            initializeEventListeners() {
-                document.getElementById('searchInput').addEventListener('input', (e) => {
-                    this.filterData();
-                });
-
-                document.getElementById('sourceFilter').addEventListener('change', () => {
-                    this.filterData();
-                });
-
-                document.getElementById('dateFilter').addEventListener('change', () => {
-                    this.filterData();
-                });
-
-                document.getElementById('refreshBtn').addEventListener('click', () => {
-                    this.loadData();
-                });
-
-                             // Set up transfer dropdown change listeners after data loads
-             this.setupTransferDropdownListeners();
-            }
-
-                         async loadData() {
-                 try {
-                     this.showLoading();
-                     
-                     console.log('Fetching data from:', `${this.supabaseUrl}/rest/v1/job_submissions`);
-                     
-                     // First, let's test if the table exists with a simple query
-                     const testResponse = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=id&limit=1`, {
-                         headers: {
-                             'apikey': this.supabaseKey,
-                             'Authorization': `Bearer ${this.supabaseKey}`
-                         }
-                     });
-                     
-                     console.log('Test response status:', testResponse.status);
-                     
-                     if (!testResponse.ok) {
-                         const errorText = await testResponse.text();
-                         console.error('Test query error:', errorText);
-                         
-                         if (testResponse.status === 400) {
-                             this.showError('Database table "job_submissions" not found. Please create it first using the SQL provided.');
-                             return;
-                         }
-                         
-                         throw new Error(`Database connection failed: ${testResponse.status} - ${errorText}`);
-                     }
-                     
-                                           // Now fetch the full data - order by newest first
-                      const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`, {
-                         headers: {
-                             'apikey': this.supabaseKey,
-                             'Authorization': `Bearer ${this.supabaseKey}`
-                         }
-                     });
-
-                     console.log('Full data response status:', response.status);
-                     console.log('Response ok:', response.ok);
-
-                     if (!response.ok) {
-                         const errorText = await response.text();
-                         console.error('Error response:', errorText);
-                         throw new Error(`Failed to fetch data: ${response.status} - ${errorText}`);
-                     }
-
-                     this.allData = await response.json();
-                     console.log('Data loaded:', this.allData);
-                     
-                     this.filterData();
-                     this.updateStats();
-                     
-                 } catch (error) {
-                     console.error('Error loading data:', error);
-                     this.showError('Failed to load data: ' + error.message);
-                 }
-             }
-
-            filterData() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                const sourceFilter = document.getElementById('sourceFilter').value;
-                const dateFilter = document.getElementById('dateFilter').value;
-
-                this.filteredData = this.allData.filter(item => {
-                    // Search filter
-                    const matchesSearch = !searchTerm || 
-                        item.job_number?.toLowerCase().includes(searchTerm) ||
-                        item.page_url?.toLowerCase().includes(searchTerm) ||
-                        item.source?.toLowerCase().includes(searchTerm) ||
-                        item.user_name?.toLowerCase().includes(searchTerm) ||
-                        item.customer_name?.toLowerCase().includes(searchTerm) ||
-                        item.moving_from?.toLowerCase().includes(searchTerm) ||
-                        item.moving_to?.toLowerCase().includes(searchTerm) ||
-                        item.cubes?.toLowerCase().includes(searchTerm) ||
-                        item.pickup_date?.toLowerCase().includes(searchTerm) ||
-                        item.distance?.toLowerCase().includes(searchTerm);
-
-                    // Source filter
-                    const matchesSource = !sourceFilter || item.source === sourceFilter;
-
-                    // Date filter
-                    let matchesDate = true;
-                    if (dateFilter) {
-                        const itemDate = new Date(item.submitted_at);
-                        const now = new Date();
-                        
-                        switch (dateFilter) {
-                            case 'today':
-                                matchesDate = itemDate.toDateString() === now.toDateString();
-                                break;
-                            case 'week':
-                                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                                matchesDate = itemDate >= weekAgo;
-                                break;
-                            case 'month':
-                                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                                matchesDate = itemDate >= monthAgo;
-                                break;
-                        }
-                    }
-
-                    return matchesSearch && matchesSource && matchesDate;
-                });
-
-                this.currentPage = 1;
-                this.displayData();
-            }
-
-            displayData() {
-                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-                const endIndex = startIndex + this.itemsPerPage;
-                const pageData = this.filteredData.slice(startIndex, endIndex);
-
-                const tableContent = document.getElementById('tableContent');
-                const tableCount = document.getElementById('tableCount');
-
-                if (this.filteredData.length === 0) {
-                    tableContent.innerHTML = `
-                        <div class="loading">
-                            <p>No job submissions found matching your criteria.</p>
-                        </div>
-                    `;
-                    tableCount.textContent = 'Showing 0 records';
-                    return;
-                }
-
-                const table = `
-                    <table class="data-table">
-                                                 <thead>
-                             <tr>
-                                 <th>Job Number</th>
-                                 <th>Customer</th>
-                                 <th>Moving From</th>
-                                 <th>Moving To</th>
-                                 <th>Cubes</th>
-                                 <th>Pickup Date</th>
-                                 <th>Distance</th>
-                                 <th>Submitted By</th>
-                                 <th>Submitted At</th>
-                                 <th class="transfer-header">TRANSFER TO</th>
-                             </tr>
-                         </thead>
-                        <tbody>
-                                                                                  ${pageData.map((item, index) => `
-                                  <tr data-job-id="${item.id || index}">
-                                      <td class="job-number">
-                                          <a href="${item.page_url || '#'}" target="_blank" class="job-link" title="View original page">
-                                              ${item.job_number || 'N/A'}
-                                          </a>
-                                      </td>
-                                      <td class="customer-name">${item.customer_name || 'N/A'}</td>
-                                      <td class="moving-from">${item.moving_from || 'N/A'}</td>
-                                      <td class="moving-to">${item.moving_to || 'N/A'}</td>
-                                      <td class="cubes">${item.cubes || 'N/A'}</td>
-                                      <td class="pickup-date">${item.pickup_date || 'N/A'}</td>
-                                      <td class="distance">${item.distance || 'N/A'}</td>
-                                      <td>
-                                          <div class="chrome-profile-info">
-                                              <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
-                                              ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
-                                              <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
-                                          </div>
-                                      </td>
-                                      <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
-                                      <td class="transfer-cell">
-                                          <div class="transfer-container">
-                                              <div class="transfer-label">TRANSFER TO:</div>
-                                              <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
-                                                  <option value="">Select User</option>
-                                                  <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                                  <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
-                                                  <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
-                                                  <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
-                                                  <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
-                                                  <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
-                                              </select>
-                                          </div>
-                                      </td>
-                                  </tr>
-                              `).join('')}
-                        </tbody>
-                    </table>
-                `;
-
-                tableContent.innerHTML = table;
-                tableCount.textContent = `Showing ${startIndex + 1}-${Math.min(endIndex, this.filteredData.length)} of ${this.filteredData.length} records`;
-                
-                                 this.updatePagination();
-                 this.setupTransferDropdownListeners();
-                 this.makeProfileIdClickable();
-            }
-
-            updatePagination() {
-                const totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
-                const pagination = document.getElementById('pagination');
-
-                if (totalPages <= 1) {
-                    pagination.innerHTML = '';
-                    return;
-                }
-
-                let paginationHTML = '';
-                
-                // Previous button
-                paginationHTML += `
-                    <button ${this.currentPage === 1 ? 'disabled' : ''} onclick="dashboard.goToPage(${this.currentPage - 1})">
-                        Previous
-                    </button>
-                `;
-
-                // Page numbers
-                for (let i = 1; i <= totalPages; i++) {
-                    if (i === 1 || i === totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
-                        paginationHTML += `
-                            <button class="${i === this.currentPage ? 'active' : ''}" onclick="dashboard.goToPage(${i})">
-                                ${i}
-                            </button>
-                        `;
-                    } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
-                        paginationHTML += '<span>...</span>';
-                    }
-                }
-
-                // Next button
-                paginationHTML += `
-                    <button ${this.currentPage === totalPages ? 'disabled' : ''} onclick="dashboard.goToPage(${this.currentPage + 1})">
-                        Next
-                    </button>
-                `;
-
-                pagination.innerHTML = paginationHTML;
-            }
-
-            goToPage(page) {
-                this.currentPage = page;
-                this.displayData();
-            }
-
-            updateStats() {
-                const now = new Date();
-                const today = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-                document.getElementById('totalJobs').textContent = this.allData.length;
-                document.getElementById('todayJobs').textContent = this.allData.filter(item => 
-                    new Date(item.submitted_at) >= today
-                ).length;
-                document.getElementById('weekJobs').textContent = this.allData.filter(item => 
-                    new Date(item.submitted_at) >= weekAgo
-                ).length;
-                document.getElementById('monthJobs').textContent = this.allData.filter(item => 
-                    new Date(item.submitted_at) >= monthAgo
-                ).length;
-            }
-
-            formatDate(dateString) {
-                if (!dateString) return 'N/A';
-                const date = new Date(dateString);
-                return date.toLocaleString();
-            }
-
-            showLoading() {
-                document.getElementById('tableContent').innerHTML = `
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        Loading job submissions...
-                    </div>
-                `;
-            }
-
-            showError(message) {
-                document.getElementById('tableContent').innerHTML = `
-                    <div class="error">
-                        <p>${message}</p>
-                        <button onclick="dashboard.loadData()" style="margin-top: 20px; padding: 10px 20px; background: #6b46c1; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                            Try Again
-                        </button>
-                    </div>
-                `;
-            }
-
-                         // Set up real-time subscription for updates
-             setupWebSocket() {
-                 try {
-                     console.log('Setting up real-time subscription...');
-                     
-                     // Use EventSource for Supabase real-time (more reliable than WebSocket)
-                     const realtimeUrl = `${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`;
-                     
-                     // Set up polling with shorter intervals for better real-time feel
-                     this.pollingInterval = setInterval(() => {
-                         this.checkForUpdates();
-                     }, 5000); // Check every 5 seconds
-                     
-                     console.log('Real-time subscription established');
-                     
-                 } catch (error) {
-                     console.error('Error setting up real-time subscription:', error);
-                 }
-             }
-             
-             // Check for updates without full refresh
-             async checkForUpdates() {
-                 try {
-                     const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc&limit=1`, {
-                         headers: {
-                             'apikey': this.supabaseKey,
-                             'Authorization': `Bearer ${this.supabaseKey}`
-                         }
-                     });
-                     
-                     if (!response.ok) return;
-                     
-                     const latestData = await response.json();
-                     if (latestData.length > 0) {
-                         const latestRecord = latestData[0];
-                         
-                         // Check if this is a new record
-                         const existingRecord = this.allData.find(item => item.id === latestRecord.id);
-                         if (!existingRecord) {
-                             console.log('New record detected:', latestRecord);
-                             this.handleNewRecord(latestRecord);
-                         }
-                     }
-                     
-                 } catch (error) {
-                     console.error('Error checking for updates:', error);
-                 }
-             }
-             
-             // Subscribe to table changes (removed - not needed with polling approach)
-             subscribeToTableChanges() {
-                 // This method is no longer needed with the new approach
-                 console.log('Real-time subscription active via polling');
-             }
-             
-             // Handle WebSocket messages (updated for new approach)
-             handleWebSocketMessage(data) {
-                 // This method is kept for compatibility but not used
-                 console.log('Real-time update received:', data);
-             }
-             
-                           // Handle new record without full refresh
-              handleNewRecord(newRecord) {
-                  console.log('New record received:', newRecord);
-                  
-                  // Add to beginning of data (newest first)
-                  this.allData.unshift(newRecord);
-                  
-                  // Auto-discover new profile if it doesn't exist
-                  if (newRecord.chrome_profile_id && !this.profiles[newRecord.chrome_profile_id]) {
-                      this.profiles[newRecord.chrome_profile_id] = newRecord.chrome_profile_name || 'Chrome Profile';
-                      this.saveProfileNames();
-                  }
-                  
-                  // Update filtered data if it matches current filters
-                  if (this.matchesCurrentFilters(newRecord)) {
-                      this.filteredData.unshift(newRecord);
-                      
-                      // Always update display for new records (they should appear at top)
-                      this.updateDisplayWithoutRefresh();
-                  }
-                  
-                  // Update stats
-                  this.updateStats();
-                  
-                  // Show notification
-                  this.showNotification(`New job submitted: ${newRecord.job_number}`);
-              }
-             
-             // Handle updated record without full refresh
-             handleUpdatedRecord(newRecord, oldRecord) {
-                 // Find and update in allData
-                 const allDataIndex = this.allData.findIndex(item => item.id === newRecord.id);
-                 if (allDataIndex !== -1) {
-                     this.allData[allDataIndex] = { ...this.allData[allDataIndex], ...newRecord };
-                 }
-                 
-                 // Find and update in filteredData
-                 const filteredIndex = this.filteredData.findIndex(item => item.id === newRecord.id);
-                 if (filteredIndex !== -1) {
-                     this.filteredData[filteredIndex] = { ...this.filteredData[filteredIndex], ...newRecord };
-                     
-                     // Update display without refresh
-                     this.updateDisplayWithoutRefresh();
-                 }
-             }
-             
-             // Handle deleted record without full refresh
-             handleDeletedRecord(oldRecord) {
-                 // Remove from allData
-                 this.allData = this.allData.filter(item => item.id !== oldRecord.id);
-                 
-                 // Remove from filteredData
-                 this.filteredData = this.filteredData.filter(item => item.id !== oldRecord.id);
-                 
-                 // Update display without refresh
-                 this.updateDisplayWithoutRefresh();
-                 
-                 // Update stats
-                 this.updateStats();
-             }
-             
-             // Check if record matches current filters
-             matchesCurrentFilters(record) {
-                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                 const sourceFilter = document.getElementById('sourceFilter').value;
-                 const dateFilter = document.getElementById('dateFilter').value;
-                 
-                 // Search filter
-                 const matchesSearch = !searchTerm || 
-                     record.job_number?.toLowerCase().includes(searchTerm) ||
-                     record.page_url?.toLowerCase().includes(searchTerm) ||
-                     record.source?.toLowerCase().includes(searchTerm) ||
-                     record.user_name?.toLowerCase().includes(searchTerm) ||
-                     record.customer_name?.toLowerCase().includes(searchTerm) ||
-                     record.moving_from?.toLowerCase().includes(searchTerm) ||
-                     record.moving_to?.toLowerCase().includes(searchTerm) ||
-                     record.cubes?.toLowerCase().includes(searchTerm) ||
-                     record.pickup_date?.toLowerCase().includes(searchTerm) ||
-                     record.distance?.toLowerCase().includes(searchTerm);
-                 
-                 // Source filter
-                 const matchesSource = !sourceFilter || record.source === sourceFilter;
-                 
-                 // Date filter
-                 let matchesDate = true;
-                 if (dateFilter) {
-                     const itemDate = new Date(record.submitted_at);
-                     const now = new Date();
-                     
-                     switch (dateFilter) {
-                         case 'today':
-                             matchesDate = itemDate.toDateString() === now.toDateString();
-                             break;
-                         case 'week':
-                             const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                             matchesDate = itemDate >= weekAgo;
-                             break;
-                         case 'month':
-                             const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                             matchesDate = itemDate >= monthAgo;
-                             break;
-                     }
-                 }
-                 
-                 return matchesSearch && matchesSource && matchesDate;
-             }
-             
-             // Update display without full refresh
-             updateDisplayWithoutRefresh() {
-                 const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-                 const endIndex = startIndex + this.filteredData.length;
-                 const pageData = this.filteredData.slice(startIndex, endIndex);
-                 
-                 // Update table count
-                 const tableCount = document.getElementById('tableCount');
-                 tableCount.textContent = `Showing ${startIndex + 1}-${Math.min(endIndex, this.filteredData.length)} of ${this.filteredData.length} records`;
-                 
-                 // Update pagination
-                 this.updatePagination();
-                 
-                 // Update table rows without recreating the entire table
-                 this.updateTableRows(pageData);
-             }
-             
-             // Update only the table rows, not the entire table
-             updateTableRows(pageData) {
-                 const tbody = document.querySelector('.data-table tbody');
-                 if (!tbody) return;
-                 
-                 // Update existing rows or add new ones
-                 pageData.forEach((item, index) => {
-                     const existingRow = tbody.querySelector(`tr[data-job-id="${item.id || index}"]`);
-                     
-                     if (existingRow) {
-                         // Update existing row
-                         this.updateRowContent(existingRow, item);
-                     } else {
-                         // Add new row
-                         const newRow = this.createTableRow(item, index);
-                         tbody.appendChild(newRow);
-                     }
-                 });
-                 
-                 // Remove extra rows if we have fewer items
-                 const currentRows = tbody.querySelectorAll('tr');
-                 if (currentRows.length > pageData.length) {
-                     for (let i = pageData.length; i < currentRows.length; i++) {
-                         currentRows[i].remove();
-                     }
-                 }
-                 
-                 // Re-setup event listeners for new rows
-                 this.setupTransferDropdownListeners();
-                 this.makeProfileIdClickable();
-             }
-             
-             // Update content of existing row
-             updateRowContent(row, item) {
-                 // Update job number link
-                 const jobLink = row.querySelector('.job-link');
-                 if (jobLink) {
-                     jobLink.href = item.page_url || '#';
-                     jobLink.textContent = item.job_number || 'N/A';
-                 }
-                 
-                 // Update moving details columns
-                 const customerName = row.querySelector('.customer-name');
-                 if (customerName) customerName.textContent = item.customer_name || 'N/A';
-                 
-                 const movingFrom = row.querySelector('.moving-from');
-                 if (movingFrom) movingFrom.textContent = item.moving_from || 'N/A';
-                 
-                 const movingTo = row.querySelector('.moving-to');
-                 if (movingTo) movingTo.textContent = item.moving_to || 'N/A';
-                 
-                 const cubes = row.querySelector('.cubes');
-                 if (cubes) cubes.textContent = item.cubes || 'N/A';
-                 
-                 const pickupDate = row.querySelector('.pickup-date');
-                 if (pickupDate) pickupDate.textContent = item.pickup_date || 'N/A';
-                 
-                 const distance = row.querySelector('.distance');
-                 if (distance) distance.textContent = item.distance || 'N/A';
-                 
-                 // Update Chrome profile info
-                 const profileName = row.querySelector('.profile-name');
-                 const profileEmail = row.querySelector('.profile-email');
-                 const profileId = row.querySelector('.profile-id');
-                 
-                 if (profileName) {
-                     const displayName = this.getProfileDisplayName(item.chrome_profile_id);
-                     profileName.textContent = displayName;
-                 }
-                 if (profileEmail) {
-                     if (item.chrome_email) {
-                         profileEmail.textContent = item.chrome_email;
-                         profileEmail.style.display = 'block';
-                     } else {
-                         profileEmail.style.display = 'none';
-                     }
-                 }
-                 if (profileId) profileId.textContent = `ID: ${item.chrome_profile_id || 'N/A'}`;
-                 
-                 // Update timestamp
-                 const timestamp = row.querySelector('.timestamp');
-                 if (timestamp) timestamp.textContent = this.formatDate(item.submitted_at);
-                 
-                 // Update transfer dropdown
-                 const dropdown = row.querySelector('.transfer-dropdown');
-                 if (dropdown) {
-                     dropdown.value = item.user_name || '';
-                     dropdown.dataset.originalUser = item.user_name || '';
-                 }
-             }
-             
-             // Create a new table row
-             createTableRow(item, index) {
-                 const row = document.createElement('tr');
-                 row.dataset.jobId = item.id || index;
-                 
-                 row.innerHTML = `
-                     <td class="job-number">
-                         <a href="${item.page_url || '#'}" target="_blank" class="job-link" title="View original page">
-                             ${item.job_number || 'N/A'}
-                         </a>
-                     </td>
-                     <td class="customer-name">${item.customer_name || 'N/A'}</td>
-                     <td class="moving-from">${item.moving_from || 'N/A'}</td>
-                     <td class="moving-to">${item.moving_to || 'N/A'}</td>
-                     <td class="cubes">${item.cubes || 'N/A'}</td>
-                     <td class="pickup-date">${item.pickup_date || 'N/A'}</td>
-                     <td class="distance">${item.distance || 'N/A'}</td>
-                     <td>
-                         <div class="chrome-profile-info">
-                             <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
-                             ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
-                             <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
-                         </div>
-                     </td>
-                     <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
-                     <td class="transfer-cell">
-                         <div class="transfer-container">
-                             <div class="transfer-label">TRANSFER TO:</div>
-                             <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
-                                 <option value="">Select User</option>
-                                 <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                 <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
-                                 <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
-                                 <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
-                                 <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
-                                 <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
-                             </select>
-                         </div>
-                     </td>
-                 `;
-                 
-                 return row;
-             }
-
-             // Simple profile name storage
-             profiles = {};
-
-             // Load profile names from localStorage
-             loadProfileNames() {
-                 const stored = localStorage.getItem('chromeProfileNames');
-                 this.profiles = stored ? JSON.parse(stored) : {};
-             }
-
-             // Save profile names to localStorage
-             saveProfileNames() {
-                 localStorage.setItem('chromeProfileNames', JSON.stringify(this.profiles));
-             }
-
-             // Get profile display name
-             getProfileDisplayName(profileId) {
-                 return this.profiles[profileId] || 'Unknown Profile';
-             }
-
-             // Make profile ID clickable for inline editing
-             makeProfileIdClickable() {
-                 const profileIds = document.querySelectorAll('.profile-id');
-                 profileIds.forEach(profileId => {
-                     profileId.addEventListener('click', () => this.editProfileName(profileId));
-                 });
-             }
-
-             // Edit profile name inline
-             editProfileName(profileIdElement) {
-                 const profileId = profileIdElement.textContent.replace('ID: ', '');
-                 const currentName = this.profiles[profileId] || '';
-                 
-                 // Create input field
-                 const input = document.createElement('input');
-                 input.type = 'text';
-                 input.value = currentName;
-                 input.placeholder = 'Enter profile name';
-                 input.style.cssText = `
-                     font-family: monospace;
-                     font-size: 0.75rem;
-                     border: 1px solid #007bff;
-                     border-radius: 3px;
-                     padding: 2px 4px;
-                     width: 120px;
-                     background: white;
-                 `;
-                 
-                 // Replace text with input
-                 profileIdElement.textContent = '';
-                 profileIdElement.appendChild(input);
-                 profileIdElement.classList.add('editing');
-                 input.focus();
-                 input.select();
-                 
-                 // Handle save on Enter or blur
-                 const saveName = () => {
-                     const newName = input.value.trim();
-                     if (newName) {
-                         this.profiles[profileId] = newName;
-                         this.saveProfileNames();
-                         profileIdElement.textContent = `ID: ${profileId}`;
-                         this.updateProfileDisplayNames();
-                     } else {
-                         profileIdElement.textContent = `ID: ${profileId}`;
-                     }
-                     profileIdElement.classList.remove('editing');
-                     this.makeProfileIdClickable();
-                 };
-                 
-                 input.addEventListener('keydown', (e) => {
-                     if (e.key === 'Enter') {
-                         saveName();
-                     } else if (e.key === 'Escape') {
-                         profileIdElement.textContent = `ID: ${profileId}`;
-                         profileIdElement.classList.remove('editing');
-                         this.makeProfileIdClickable();
-                     }
-                 });
-                 
-                 input.addEventListener('blur', saveName);
-             }
-
-             // Update profile display names throughout the dashboard
-             updateProfileDisplayNames() {
-                 // Update the Chrome profile display in the table
-                 this.updateDisplayWithoutRefresh();
-             }
-
-            // Show notification for new submissions
-            showNotification(message) {
-                const notification = document.createElement('div');
-                notification.className = 'notification';
-                notification.textContent = message;
-                
-                // Add notification styles
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #28a745;
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    z-index: 1000;
-                    animation: slideInRight 0.3s ease-out;
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Remove after 5 seconds
-                setTimeout(() => {
-                    notification.remove();
-                }, 5000);
-            }
-
-                         // Clean up real-time subscription
-             cleanup() {
-                 if (this.pollingInterval) {
-                     clearInterval(this.pollingInterval);
-                     this.pollingInterval = null;
-                 }
-             }
-
-             
-             // Handle new record without full refresh
-             handleNewRecord(newRecord) {
-                 // Add to beginning of data
-                 this.allData.unshift(newRecord);
-                 
-                 // Update filtered data if it matches current filters
-                 if (this.matchesCurrentFilters(newRecord)) {
-                     this.filteredData.unshift(newRecord);
-                     
-                     // Only update display if we're on the first page
-                     if (this.currentPage === 1) {
-                         this.updateDisplayWithoutRefresh();
-                     }
-                 }
-                 
-                 // Update stats
-                 this.updateStats();
-                 
-                 // Show notification
-                 this.showNotification(`New job submitted: ${newRecord.job_number}`);
-             }
-             
-             // Handle updated record without full refresh
-             handleUpdatedRecord(newRecord, oldRecord) {
-                 // Find and update in allData
-                 const allDataIndex = this.allData.findIndex(item => item.id === newRecord.id);
-                 if (allDataIndex !== -1) {
-                     this.allData[allDataIndex] = { ...this.allData[allDataIndex], ...newRecord };
-                 }
-                 
-                 // Find and update in filteredData
-                 const filteredIndex = this.filteredData.findIndex(item => item.id === newRecord.id);
-                 if (filteredIndex !== -1) {
-                     this.filteredData[filteredIndex] = { ...this.filteredData[filteredIndex], ...newRecord };
-                     
-                     // Update display without refresh
-                     this.updateDisplayWithoutRefresh();
-                 }
-             }
-             
-             // Handle deleted record without full refresh
-             handleDeletedRecord(oldRecord) {
-                 // Remove from allData
-                 this.allData = this.allData.filter(item => item.id !== oldRecord.id);
-                 
-                 // Remove from filteredData
-                 this.filteredData = this.filteredData.filter(item => item.id !== oldRecord.id);
-                 
-                 // Update display without refresh
-                 this.updateDisplayWithoutRefresh();
-                 
-                 // Update stats
-                 this.updateStats();
-             }
-             
-             // Check if record matches current filters
-             matchesCurrentFilters(record) {
-                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                 const sourceFilter = document.getElementById('sourceFilter').value;
-                 const dateFilter = document.getElementById('dateFilter').value;
-                 
-                 // Search filter
-                 const matchesSearch = !searchTerm || 
-                     record.job_number?.toLowerCase().includes(searchTerm) ||
-                     record.page_url?.toLowerCase().includes(searchTerm) ||
-                     record.source?.toLowerCase().includes(searchTerm) ||
-                     record.user_name?.toLowerCase().includes(searchTerm) ||
-                     record.customer_name?.toLowerCase().includes(searchTerm) ||
-                     record.moving_from?.toLowerCase().includes(searchTerm) ||
-                     record.moving_to?.toLowerCase().includes(searchTerm) ||
-                     record.cubes?.toLowerCase().includes(searchTerm) ||
-                     record.pickup_date?.toLowerCase().includes(searchTerm) ||
-                     record.distance?.toLowerCase().includes(searchTerm);
-                 
-                 // Source filter
-                 const matchesSource = !sourceFilter || record.source === sourceFilter;
-                 
-                 // Date filter
-                 let matchesDate = true;
-                 if (dateFilter) {
-                     const itemDate = new Date(record.submitted_at);
-                     const now = new Date();
-                     
-                     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                     
-                     switch (dateFilter) {
-                         case 'today':
-                             matchesDate = itemDate.toDateString() === now.toDateString();
-                             break;
-                         case 'week':
-                             matchesDate = itemDate >= weekAgo;
-                             break;
-                         case 'month':
-                             matchesDate = itemDate >= monthAgo;
-                             break;
-                     }
-                 }
-                 
-                 return matchesSearch && matchesSource && matchesDate;
-             }
-             
-             // Update display without full refresh
-             updateDisplayWithoutRefresh() {
-                 const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-                 const endIndex = startIndex + this.filteredData.length;
-                 const pageData = this.filteredData.slice(startIndex, endIndex);
-                 
-                 // Update table count
-                 const tableCount = document.getElementById('tableCount');
-                 tableCount.textContent = `Showing ${startIndex + 1}-${Math.min(endIndex, this.filteredData.length)} of ${this.filteredData.length} records`;
-                 
-                 // Update pagination
-                 this.updatePagination();
-                 
-                 // Update table rows without recreating the entire table
-                 this.updateTableRows(pageData);
-             }
-             
-             // Update only the table rows, not the entire table
-             updateTableRows(pageData) {
-                 const tbody = document.querySelector('.data-table tbody');
-                 if (!tbody) return;
-                 
-                 // Update existing rows or add new ones
-                 pageData.forEach((item, index) => {
-                     const existingRow = tbody.querySelector(`tr[data-job-id="${item.id || index}"]`);
-                     
-                     if (existingRow) {
-                         // Update existing row
-                         this.updateRowContent(existingRow, item);
-                     } else {
-                         // Add new row
-                         const newRow = this.createTableRow(item, index);
-                         tbody.appendChild(newRow);
-                     }
-                 });
-                 
-                 // Remove extra rows if we have fewer items
-                 const currentRows = tbody.querySelectorAll('tr');
-                 if (currentRows.length > pageData.length) {
-                     for (let i = pageData.length; i < currentRows.length; i++) {
-                         currentRows[i].remove();
-                     }
-                 }
-                 
-                 // Re-setup event listeners for new rows
-                 this.setupTransferDropdownListeners();
-                 this.makeProfileIdClickable();
-             }
-             
-             // Update content of existing row
-             updateRowContent(row, item) {
-                 // Update job number link
-                 const jobLink = row.querySelector('.job-link');
-                 if (jobLink) {
-                     jobLink.href = item.page_url || '#';
-                     jobLink.textContent = item.job_number || 'N/A';
-                 }
-                 
-                 // Update moving details columns
-                 const customerName = row.querySelector('.customer-name');
-                 if (customerName) customerName.textContent = item.customer_name || 'N/A';
-                 
-                 const movingFrom = row.querySelector('.moving-from');
-                 if (movingFrom) movingFrom.textContent = item.moving_from || 'N/A';
-                 
-                 const movingTo = row.querySelector('.moving-to');
-                 if (movingTo) movingTo.textContent = item.moving_to || 'N/A';
-                 
-                 const cubes = row.querySelector('.cubes');
-                 if (cubes) cubes.textContent = item.cubes || 'N/A';
-                 
-                 const pickupDate = row.querySelector('.pickup-date');
-                 if (pickupDate) pickupDate.textContent = item.pickup_date || 'N/A';
-                 
-                 const distance = row.querySelector('.distance');
-                 if (distance) distance.textContent = item.distance || 'N/A';
-                 
-                 // Update Chrome profile info
-                 const profileName = row.querySelector('.profile-name');
-                 const profileEmail = row.querySelector('.profile-email');
-                 const profileId = row.querySelector('.profile-id');
-                 
-                 if (profileName) {
-                     const displayName = this.getProfileDisplayName(item.chrome_profile_id);
-                     profileName.textContent = displayName;
-                 }
-                 if (profileEmail) {
-                     if (item.chrome_email) {
-                         profileEmail.textContent = item.chrome_email;
-                         profileEmail.style.display = 'block';
-                     } else {
-                         profileEmail.style.display = 'none';
-                     }
-                 }
-                 if (profileId) profileId.textContent = `ID: ${item.chrome_profile_id || 'N/A'}`;
-                 
-                 // Update timestamp
-                 const timestamp = row.querySelector('.timestamp');
-                 if (timestamp) timestamp.textContent = this.formatDate(item.submitted_at);
-                 
-                 // Update transfer dropdown
-                 const dropdown = row.querySelector('.transfer-dropdown');
-                 if (dropdown) {
-                     dropdown.value = item.user_name || '';
-                     dropdown.dataset.originalUser = item.user_name || '';
-                 }
-             }
-             
-             // Create a new table row
-             createTableRow(item, index) {
-                 const row = document.createElement('tr');
-                 row.dataset.jobId = item.id || index;
-                 
-                 row.innerHTML = `
-                     <td class="job-number">
-                         <a href="${item.page_url || '#'}" target="_blank" class="job-link" title="View original page">
-                             ${item.job_number || 'N/A'}
-                         </a>
-                     </td>
-                     <td class="customer-name">${item.customer_name || 'N/A'}</td>
-                     <td class="moving-from">${item.moving_from || 'N/A'}</td>
-                     <td class="moving-to">${item.moving_to || 'N/A'}</td>
-                     <td class="cubes">${item.cubes || 'N/A'}</td>
-                     <td class="pickup-date">${item.pickup_date || 'N/A'}</td>
-                     <td class="distance">${item.distance || 'N/A'}</td>
-                     <td>
-                         <div class="chrome-profile-info">
-                             <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
-                             ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
-                             <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
-                         </div>
-                     </td>
-                     <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
-                     <td class="transfer-cell">
-                         <div class="transfer-container">
-                             <div class="transfer-label">TRANSFER TO:</div>
-                             <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
-                                 <option value="">Select User</option>
-                                 <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                 <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
-                                 <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
-                                 <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
-                                 <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
-                                 <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
-                             </select>
-                         </div>
-                     </td>
-                 `;
-                 
-                 return row;
-             }
-
-             // Set up transfer dropdown change listeners
-             setupTransferDropdownListeners() {
-                 const transferDropdowns = document.querySelectorAll('.transfer-dropdown');
-                 transferDropdowns.forEach(dropdown => {
-                     dropdown.addEventListener('change', (e) => {
-                         this.handleTransferChange(e.target);
-                     });
-                 });
-             }
-
-                         // Handle transfer dropdown change
-             async handleTransferChange(dropdown) {
-                const jobId = dropdown.dataset.jobId;
-                const newUser = dropdown.value;
-                const originalUser = dropdown.dataset.originalUser;
-
-                if (!newUser) {
-                    // Reset to original user if "Select User" is chosen
-                    dropdown.value = originalUser;
-                    return;
-                }
-
+        // Check if user is already logged in
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('dashboardUser');
+            if (savedUser) {
                 try {
-                                     // Update the transfer in the database
-                 await this.updateTransferInDatabase(jobId, newUser);
-                    
-                    // Update the original user data
-                    dropdown.dataset.originalUser = newUser;
-                    
-                                     // Show success message
-                 this.showRowMessage(dropdown, `Transferred to ${newUser}!`, 'success');
-                    
-                    // Update local data
-                    const item = this.allData.find(item => (item.id || item.tempId) == jobId);
-                    if (item) {
-                        item.user_name = newUser;
-                    }
-                    
-                    // Notify Chrome extension about the transfer update
-                    this.notifyChromeExtension(jobId, newUser, item);
-                    
-                    // Update stats
-                    this.updateStats();
-                    
-                                 } catch (error) {
-                     console.error('Error updating transfer:', error);
-                     this.showRowMessage(dropdown, 'Failed to transfer', 'error');
-                    
-                    // Reset to original value
-                    dropdown.value = originalUser;
-                }
-            }
-
-                         // Update transfer in database
-             async updateTransferInDatabase(jobId, newUser) {
-                const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?id=eq.${jobId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': this.supabaseKey,
-                        'Authorization': `Bearer ${this.supabaseKey}`,
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        user_name: newUser,
-                        updated_at: new Date().toISOString()
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to update user: ${response.status}`);
-                }
-            }
-
-            // Notify Chrome extension about transfer updates
-            notifyChromeExtension(jobId, newUser, item) {
-                try {
-                    // Get the current user's profile info (who initiated the transfer)
-                    const currentProfileId = this.getCurrentUserProfileId();
-                    const currentProfileName = this.getProfileDisplayName(currentProfileId);
-                    
-                    const transferData = {
-                        jobId: jobId,
-                        user_name: newUser,
-                        job_number: item.job_number,
-                        chrome_profile_id: item.chrome_profile_id,
-                        initiated_by: currentProfileName || 'Unknown User',
-                        initiated_by_id: currentProfileId,
-                        page_url: item.page_url // Include the page URL to find the correct tab
-                    };
-                    
-                    // Store transfer update in localStorage for Chrome extension to find
-                    this.storeTransferUpdateForExtension(transferData);
-                    
-                    // Show overlay on the current page
-                    this.showTransferOverlayOnPage(transferData);
-                    
-                    console.log('Chrome extension notified about transfer update');
+                    currentUser = JSON.parse(savedUser);
+                    showDashboard();
                 } catch (error) {
-                    console.log('Could not notify Chrome extension:', error);
+                    console.error('Error parsing saved user:', error);
+                    localStorage.removeItem('dashboardUser');
                 }
             }
-            
-            // Get current user's profile ID (who is currently using the dashboard)
-            getCurrentUserProfileId() {
-                // Try to get from localStorage first
-                const stored = localStorage.getItem('currentUserProfileId');
-                if (stored) return stored;
-                
-                // Generate a unique ID for this session
-                const sessionId = 'dashboard_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('currentUserProfileId', sessionId);
-                return sessionId;
-            }
-            
-            // Show transfer overlay on the current page
-            showTransferOverlayOnPage(transferData) {
-                try {
-                    // Create and show transfer overlay directly on the dashboard
-                    this.createTransferOverlay(transferData);
-                } catch (error) {
-                    console.log('Could not show overlay on page:', error);
-                }
-            }
-            
-            // Create transfer overlay on the dashboard
-            createTransferOverlay(transferData) {
-                // Remove any existing overlay
-                const existingOverlay = document.getElementById('dashboard-transfer-overlay');
-                if (existingOverlay) {
-                    existingOverlay.remove();
-                }
-                
-                // Create the overlay
-                const overlay = document.createElement('div');
-                overlay.id = 'dashboard-transfer-overlay';
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                    color: white;
-                    padding: 30px;
-                    border-radius: 15px;
-                    box-shadow: 0 10px 40px rgba(40, 167, 69, 0.4);
-                    z-index: 10000;
-                    font-family: Arial, sans-serif;
-                    max-width: 400px;
-                    text-align: center;
-                    border: 3px solid rgba(255,255,255,0.3);
-                    animation: slideInScale 0.5s ease-out;
-                `;
-                
-                // Create content
-                overlay.innerHTML = `
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="margin: 0; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                            🎯 JOB TRANSFERRED!
-                        </h3>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="margin-bottom: 15px; font-weight: 600; color: #fff; font-size: 18px;">
-                            Job: <strong>${transferData.job_number}</strong>
-                        </div>
-                        <div style="margin-bottom: 10px; font-size: 16px; line-height: 1.4;">
-                            <strong>TRANSFERRED TO:</strong><br>
-                            <span style="font-size: 20px; color: #fff;">${transferData.user_name}</span>
-                        </div>
-                        <div style="font-size: 14px; opacity: 0.9; color: #fff; font-style: italic;">
-                            Transfer completed at ${new Date().toLocaleTimeString()}
-                        </div>
-                    </div>
-                    <button id="close-transfer-overlay" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; width: 100%;">✓ CLOSE</button>
-                `;
-                
-                // Add CSS animation
-                const style = document.createElement('style');
-                style.textContent = `
-                    @keyframes slideInScale {
-                        from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-                        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                // Add close functionality
-                const closeBtn = overlay.querySelector('#close-transfer-overlay');
-                closeBtn.addEventListener('click', () => {
-                    overlay.style.animation = 'slideInScale 0.5s ease-out reverse';
-                    setTimeout(() => overlay.remove(), 500);
-                });
-                
-                // Add hover effects
-                closeBtn.addEventListener('mouseenter', () => {
-                    closeBtn.style.background = 'rgba(255,255,255,0.3)';
-                    closeBtn.style.borderColor = 'rgba(255,255,255,0.7)';
-                });
-                
-                closeBtn.addEventListener('mouseleave', () => {
-                    closeBtn.style.background = 'rgba(255,255,255,0.2)';
-                    closeBtn.style.borderColor = 'rgba(255,255,255,0.5)';
-                });
-                
-                // Add to page
-                document.body.appendChild(overlay);
-                
-                // Auto-remove after 10 minutes (600,000 ms)
-                setTimeout(() => {
-                    if (overlay.parentNode) {
-                        overlay.remove();
-                    }
-                }, 600000);
-                
-                console.log('Transfer overlay created on dashboard:', transferData);
-            }
-
-                         // Set up transfer dropdown change listeners
-             setupTransferDropdownListeners() {
-                 const transferDropdowns = document.querySelectorAll('.transfer-dropdown');
-                 transferDropdowns.forEach(dropdown => {
-                     dropdown.addEventListener('change', (e) => {
-                         this.handleTransferChange(e.target);
-                     });
-                 });
-             }
-             
-             // Handle transfer dropdown change
-             async handleTransferChange(dropdown) {
-                 const jobId = dropdown.dataset.jobId;
-                 const newUser = dropdown.value;
-                 const originalUser = dropdown.dataset.originalUser;
-                 
-                 if (!newUser) {
-                     // Reset to original user if "Select User" is chosen
-                     dropdown.value = originalUser;
-                     return;
-                 }
-                 
-                 try {
-                     // Update the transfer in the database
-                     await this.updateTransferInDatabase(jobId, newUser);
-                     
-                     // Update the original user data
-                     dropdown.dataset.originalUser = newUser;
-                     
-                     // Show success message
-                     this.showRowMessage(dropdown, `Transferred to ${newUser}!`, 'success');
-                     
-                     // Update local data
-                     const item = this.allData.find(item => (item.id || item.tempId) == jobId);
-                     if (item) {
-                         item.user_name = newUser;
-                     }
-                     
-                     // Notify Chrome extension about the transfer update
-                     this.notifyChromeExtension(jobId, newUser, item);
-                     
-                     // Update stats
-                     this.updateStats();
-                     
-                 } catch (error) {
-                     console.error('Error updating transfer:', error);
-                     this.showRowMessage(dropdown, 'Failed to transfer', 'error');
-                     
-                     // Reset to original value
-                     dropdown.value = originalUser;
-                 }
-             }
-             
-             // Update transfer in database
-             async updateTransferInDatabase(jobId, newUser) {
-                 const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?id=eq.${jobId}`, {
-                     method: 'PATCH',
-                     headers: {
-                         'Content-Type': 'application/json',
-                         'apikey': this.supabaseKey,
-                         'Authorization': `Bearer ${this.supabaseKey}`,
-                         'Prefer': 'return=minimal'
-                     },
-                     body: JSON.stringify({
-                         user_name: newUser,
-                         updated_at: new Date().toISOString()
-                     })
-                 });
-                 
-                 if (!response.ok) {
-                     throw new Error(`Failed to update user: ${response.status}`);
-                 }
-             }
-             
-             // Notify Chrome extension about transfer updates
-             notifyChromeExtension(jobId, newUser, item) {
-                 try {
-                     // Get the current user's profile info (who initiated the transfer)
-                     const currentProfileId = this.getCurrentUserProfileId();
-                     const currentProfileName = this.getProfileDisplayName(currentProfileId);
-                     
-                     const transferData = {
-                         jobId: jobId,
-                         user_name: newUser,
-                         job_number: item.job_number,
-                         customer_name: item.customer_name,
-                         chrome_profile_id: item.chrome_profile_id,
-                         initiated_by: currentProfileName || 'Unknown User',
-                         initiated_by_id: currentProfileId,
-                         page_url: item.page_url
-                     };
-                     
-                     // Send transfer update to extension background script
-                     try {
-                         if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-                             window.chrome.runtime.sendMessage({
-                                 action: 'transferUpdated',
-                                 data: transferData
-                             }).then(response => {
-                                 if (response && response.success) {
-                                     console.log('✅ Transfer update sent to extension successfully');
-                                 } else {
-                                     console.log('❌ Transfer update failed:', response?.error);
-                                 }
-                             }).catch(error => {
-                                 console.log('⚠️ Extension message failed (expected if not on extension page):', error);
-                             });
-                         }
-                         
-                         // Show overlay on the current page
-                         this.showTransferOverlayOnPage(transferData);
-                         
-                         // Also store in localStorage as backup
-                         try {
-                             const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-                             const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
-                             transferUpdates[key] = transferData;
-                             localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-                             console.log('✅ Transfer update stored in localStorage as backup');
-                         } catch (localError) {
-                             console.log('⚠️ localStorage backup failed:', localError);
-                         }
-                         
-                     } catch (error) {
-                         console.error('❌ Error with transfer update:', error);
-                         showNotification('Error initiating transfer', 'error');
-                     }
-                 } catch (error) {
-                     console.log('Could not notify Chrome extension:', error);
-                 }
-             }
-             
-             // Get current user's profile ID (who is currently using the dashboard)
-             getCurrentUserProfileId() {
-                 // Try to get from localStorage first
-                 const stored = localStorage.getItem('currentUserProfileId');
-                 if (stored) return stored;
-                 
-                 // Generate a unique ID for this session
-                 const sessionId = 'dashboard_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                 localStorage.setItem('currentUserProfileId', sessionId);
-                 return sessionId;
-             }
-             
-             // Store transfer update in localStorage for Chrome extension to find
-             storeTransferUpdateForExtension(transferData) {
-                 try {
-                     const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-                     const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
-                     
-                     transferUpdates[key] = {
-                         ...transferData,
-                         timestamp: Date.now(),
-                         dashboard_origin: window.location.origin
-                     };
-                     
-                     localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-                     console.log('Transfer update stored for Chrome extension:', transferUpdates[key]);
-                 } catch (error) {
-                     console.log('Could not store transfer update for extension:', error);
-                 }
-             }
-             
-             // Show transfer overlay on the current page
-             showTransferOverlayOnPage(transferData) {
-                 try {
-                     // Create and show transfer overlay directly on the dashboard
-                     this.createTransferOverlay(transferData);
-                 } catch (error) {
-                     console.log('Could not show overlay on page:', error);
-                 }
-             }
-             
-             // Create transfer overlay on the dashboard
-             createTransferOverlay(transferData) {
-                 // Remove any existing overlay
-                 const existingOverlay = document.getElementById('dashboard-transfer-overlay');
-                 if (existingOverlay) {
-                     existingOverlay.remove();
-                 }
-                 
-                 // Create the overlay
-                 const overlay = document.createElement('div');
-                 overlay.id = 'dashboard-transfer-overlay';
-                 overlay.style.cssText = `
-                     position: fixed;
-                     top: 50%;
-                     left: 50%;
-                     transform: translate(-50%, -50%);
-                     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                     color: white;
-                     padding: 30px;
-                     border-radius: 15px;
-                     box-shadow: 0 10px 40px rgba(40, 167, 69, 0.4);
-                     z-index: 10000;
-                     font-family: Arial, sans-serif;
-                     max-width: 400px;
-                     text-align: center;
-                     border: 3px solid rgba(255,255,255,0.3);
-                     animation: slideInScale 0.5s ease-out;
-                 `;
-                 
-                 // Create content
-                 overlay.innerHTML = `
-                     <div style="margin-bottom: 20px;">
-                         <h3 style="margin: 0; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                             🎯 JOB TRANSFERRED!
-                         </h3>
-                     </div>
-                     <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);">
-                         <div style="margin-bottom: 15px; font-weight: 600; color: #fff; font-size: 18px;">
-                             Job: <strong>${transferData.job_number}</strong>
-                         </div>
-                         <div style="margin-bottom: 10px; font-size: 16px; line-height: 1.4;">
-                             <strong>TRANSFERRED TO:</strong><br>
-                             <span style="font-size: 20px; color: #fff;">${transferData.user_name}</span>
-                         </div>
-                         <div style="font-size: 14px; opacity: 0.9; color: #fff; font-style: italic;">
-                             Transfer completed at ${new Date().toLocaleTimeString()}
-                         </div>
-                     </div>
-                     <button id="close-transfer-overlay" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; width: 100%;">✓ CLOSE</button>
-                 `;
-                 
-                 // Add CSS animation
-                 const style = document.createElement('style');
-                 style.textContent = `
-                     @keyframes slideInScale {
-                         from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-                         to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-                     }
-                 `;
-                 document.head.appendChild(style);
-                 
-                 // Add close functionality
-                 const closeBtn = overlay.querySelector('#close-transfer-overlay');
-                 closeBtn.addEventListener('click', () => {
-                     overlay.style.animation = 'slideInScale 0.5s ease-out reverse';
-                     setTimeout(() => overlay.remove(), 500);
-                 });
-                 
-                 // Add hover effects
-                 closeBtn.addEventListener('mouseenter', () => {
-                     closeBtn.style.background = 'rgba(255,255,255,0.3)';
-                     closeBtn.style.borderColor = 'rgba(255,255,255,0.7)';
-                 });
-                 
-                 closeBtn.addEventListener('mouseleave', () => {
-                     closeBtn.style.background = 'rgba(255,255,255,0.2)';
-                     closeBtn.style.borderColor = 'rgba(255,255,255,0.5)';
-                 });
-                 
-                 // Add to page
-                 document.body.appendChild(overlay);
-                 
-                 // Auto-remove after 10 minutes (600,000 ms)
-                 setTimeout(() => {
-                     if (overlay.parentNode) {
-                         overlay.remove();
-                     }
-                 }, 600000);
-                 
-                 console.log('Transfer overlay created on dashboard:', transferData);
-             }
-             
-             // Show message for specific row
-             showRowMessage(dropdown, message, type) {
-                 const row = dropdown.closest('tr');
-                 const messageDiv = document.createElement('div');
-                 messageDiv.className = `row-message ${type}`;
-                 messageDiv.textContent = message;
-                 messageDiv.style.cssText = `
-                     position: absolute;
-                     background: ${type === 'success' ? '#28a745' : '#dc3545'};
-                     color: white;
-                     padding: 4px 8px;
-                     border-radius: 4px;
-                     font-size: 12px;
-                     z-index: 1000;
-                     white-space: nowrap;
-                 `;
-                 
-                 // Position the message above the dropdown
-                 const rect = dropdown.getBoundingClientRect();
-                 messageDiv.style.left = `${rect.left}px`;
-                 messageDiv.style.top = `${rect.top - 30}px`;
-                 
-                 document.body.appendChild(messageDiv);
-                 
-                 // Remove after 2 seconds
-                 setTimeout(() => {
-                     messageDiv.remove();
-                 }, 2000);
-             }
         }
 
-        // Initialize dashboard when page loads
-        let dashboard;
-        document.addEventListener('DOMContentLoaded', () => {
-            dashboard = new JobDashboard();
-            
-            // Log that test function is available
-            console.log('🧪 Dashboard loaded - testTransferSystem() function is available');
-            console.log('Click the green "Test Transfer System" button to test the transfer system');
-        });
-
-        // Clean up when page unloads
-        window.addEventListener('beforeunload', () => {
-            if (dashboard) {
-                dashboard.cleanup();
+        // Login function
+        function login() {
+            const key = document.getElementById('loginKey').value.trim();
+            if (!key) {
+                showNotification('Please enter a secret key', 'error');
+                return;
             }
-        });
-        
-                 // Make test function globally available
-         window.testDashboardTransferOverlay = function() {
-             if (dashboard) {
-                 const testData = {
-                     jobId: 'test123',
-                     user_name: 'Test User',
-                     job_number: 'TEST001',
-                     chrome_profile_id: 'test_profile'
-                 };
-                 dashboard.createTransferOverlay(testData);
-                 console.log('Test transfer overlay created');
-             } else {
-                 console.log('Dashboard not initialized yet');
-             }
-         };
-         
-         // Test function to simulate transfer notification
-         window.testTransferNotification = function() {
-             if (dashboard) {
-                 const testData = {
-                     jobId: 'test123',
-                     user_name: 'Test User',
-                     job_number: 'TEST001',
-                     chrome_profile_id: 'test_profile',
-                     page_url: window.location.href
-                 };
-                 dashboard.notifyChromeExtension('test123', 'Test User', testData);
-                 console.log('Test transfer notification sent');
-             } else {
-                 console.log('Dashboard not initialized yet');
-             }
-         };
-        
-        console.log('testDashboardTransferOverlay function made globally available');
-        
-        // Test function for the new transfer system
-        window.testTransferSystem = function() {
-            console.log('🧪 Testing transfer system...');
-            
-            // Create test transfer data
-            const testTransferData = {
-                jobId: 'test_' + Date.now(),
-                user_name: 'Test User',
-                job_number: 'TEST' + Math.floor(Math.random() * 1000),
-                chrome_profile_id: 'test_profile_' + Date.now(),
-                initiated_by: 'Dashboard Test',
-                initiated_by_id: 'test_dashboard',
-                page_url: window.location.href
-            };
-            
-            console.log('Test transfer data:', testTransferData);
-            
-            // Try to send to extension background script
-            if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-                window.chrome.runtime.sendMessage({
-                    action: 'transferUpdated',
-                    data: testTransferData
-                }).then(response => {
-                    if (response && response.success) {
-                        console.log('✅ Test transfer sent to extension successfully');
-                        alert('Test transfer created! Check the extension popup.');
-                    } else {
-                        console.log('❌ Test transfer failed:', response?.error);
-                        alert('Test transfer failed. Check console for details.');
-                    }
-                }).catch(error => {
-                    console.log('⚠️ Extension message failed (expected if not on extension page):', error);
-                    // Fallback to localStorage
-                    fallbackToLocalStorage(testTransferData);
-                });
+
+            // Find user by secret key
+            const user = users.find(u => u.secretKey === key);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('dashboardUser', JSON.stringify(user));
+                showDashboard();
+                showNotification(`Welcome back, ${user.name}!`, 'success');
             } else {
-                console.log('Chrome runtime not available, using localStorage fallback');
-                fallbackToLocalStorage(testTransferData);
-            }
-        };
-        
-        // Fallback function for localStorage
-        function fallbackToLocalStorage(testTransferData) {
-            try {
-                const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-                const key = `${testTransferData.jobId}_${testTransferData.chrome_profile_id}`;
-                transferUpdates[key] = testTransferData;
-                localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-                console.log('✅ Test transfer stored in localStorage as fallback');
-                alert('Test transfer created in localStorage! Check the extension popup.');
-            } catch (error) {
-                console.error('❌ Failed to store test transfer in localStorage:', error);
-                alert('Failed to create test transfer');
+                showNotification('Invalid secret key', 'error');
             }
         }
-        
-        console.log('testTransferSystem function made globally available');
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('dashboardUser');
+            showLogin();
+            showNotification('Logged out successfully', 'success');
+        }
+
+        // Show dashboard after login
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardTabs').style.display = 'block';
+            
+            // Update current user info
+            document.getElementById('currentUserName').textContent = currentUser.name;
+            document.getElementById('currentUserRole').textContent = currentUser.role;
+            document.getElementById('currentUserRole').className = `role-badge role-${currentUser.role}`;
+            document.getElementById('currentUserRole').style.display = 'inline-block';
+            
+            // Load data based on user role
+            loadSubmissions();
+            loadTransfers();
+            updateProfile();
+        }
+
+        // Show login form
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardTabs').style.display = 'none';
+            document.getElementById('currentUserName').textContent = 'Not logged in';
+            document.getElementById('currentUserRole').style.display = 'none';
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+        }
+
+        // Create new user
+        function createUser() {
+            if (currentUser.role !== 'admin') {
+                showNotification('Only admins can create users', 'error');
+                return;
+            }
+
+            const name = document.getElementById('newUserName').value.trim();
+            const role = document.getElementById('newUserRole').value;
+
+            if (!name) {
+                showNotification('Please enter a name', 'error');
+                return;
+            }
+
+            // Generate secret key
+            const secretKey = generateSecretKey();
+            
+            const newUser = {
+                id: Date.now().toString(),
+                name: name,
+                role: role,
+                secretKey: secretKey,
+                createdAt: new Date().toISOString(),
+                isActive: true
+            };
+
+            users.push(newUser);
+            saveUsers();
+            loadUsers();
+            
+            // Clear form
+            document.getElementById('newUserName').value = '';
+            
+            showNotification(`User ${name} created successfully!`, 'success');
+        }
+
+        // Generate secret key
+        function generateSecretKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 16; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Load users
+        function loadUsers() {
+            const savedUsers = localStorage.getItem('dashboardUsers');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                // Create default admin user
+                users = [{
+                    id: '1',
+                    name: 'Admin User',
+                    role: 'admin',
+                    secretKey: 'ADMIN123456789',
+                    createdAt: new Date().toISOString(),
+                    isActive: true
+                }];
+                saveUsers();
+            }
+            displayUsers();
+        }
+
+        // Save users
+        function saveUsers() {
+            localStorage.setItem('dashboardUsers', JSON.stringify(users));
+        }
+
+        // Display users
+        function displayUsers() {
+            const usersGrid = document.getElementById('usersGrid');
+            usersGrid.innerHTML = '';
+
+            users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                
+                userCard.innerHTML = `
+                    <div class="user-header">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-actions">
+                            <button class="btn btn-secondary" onclick="viewUser('${user.id}')">View</button>
+                            ${currentUser.role === 'admin' ? `<button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>` : ''}
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-detail">
+                            <span class="label">Role:</span>
+                            <span class="value">${user.role}</span>
+                        </div>
+                        <div class="user-detail">
+                            <span class="label">Status:</span>
+                            <span class="value">${user.isActive ? 'Active' : 'Inactive'}</span>
+                        </div>
+                        <div class="user-detail">
+                            <span class="label">Created:</span>
+                            <span class="value">${new Date(user.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `;
+                
+                usersGrid.appendChild(userCard);
+            });
+        }
+
+        // View user details
+        function viewUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('modalUserName').textContent = user.name;
+            document.getElementById('modalUserDetails').innerHTML = `
+                <div class="user-detail">
+                    <span class="label">Role:</span>
+                    <span class="value">${user.role}</span>
+                </div>
+                <div class="user-detail">
+                    <span class="label">Status:</span>
+                    <span class="value">${user.isActive ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div class="user-detail">
+                    <span class="label">Created:</span>
+                    <span class="value">${new Date(user.createdAt).toLocaleDateString()}</span>
+                </div>
+            `;
+            
+            document.getElementById('modalSecretKey').textContent = user.secretKey;
+            document.getElementById('modalQRCode').innerHTML = `
+                <p>Scan this QR code to get your secret key:</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${user.secretKey}" alt="QR Code">
+            `;
+            
+            document.getElementById('userModal').style.display = 'block';
+        }
+
+        // Close user modal
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        // Delete user
+        function deleteUser(userId) {
+            if (currentUser.role !== 'admin') {
+                showNotification('Only admins can delete users', 'error');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this user?')) {
+                users = users.filter(u => u.id !== userId);
+                saveUsers();
+                loadUsers();
+                showNotification('User deleted successfully', 'success');
+            }
+        }
+
+        // Load submissions
+        function loadSubmissions() {
+            // For demo purposes, create some sample submissions
+            submissions = [
+                {
+                    id: '1',
+                    jobNumber: 'JOB001',
+                    customerName: 'John Doe',
+                    from: 'New York, NY',
+                    to: 'Los Angeles, CA',
+                    submittedBy: 'fronter1',
+                    submittedAt: new Date().toISOString(),
+                    status: 'pending'
+                }
+            ];
+            
+            displaySubmissions();
+            updateStats();
+        }
+
+        // Display submissions
+        function displaySubmissions() {
+            const submissionsTable = document.getElementById('submissionsTable');
+            
+            if (submissions.length === 0) {
+                submissionsTable.innerHTML = '<div class="loading">No submissions found</div>';
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Job #</th>
+                            <th>Customer</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Submitted By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            ${currentUser.role === 'admin' ? '<th>Actions</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            submissions.forEach(submission => {
+                tableHTML += `
+                    <tr>
+                        <td>${submission.jobNumber}</td>
+                        <td>${submission.customerName}</td>
+                        <td>${submission.from}</td>
+                        <td>${submission.to}</td>
+                        <td>${submission.submittedBy}</td>
+                        <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
+                        <td>
+                            <span class="transfer-status ${submission.status}">
+                                ${submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                            </span>
+                        </td>
+                        ${currentUser.role === 'admin' ? `
+                            <td>
+                                <select class="transfer-dropdown" onchange="transferJob('${submission.id}', this.value)">
+                                    <option value="">Transfer to...</option>
+                                    ${users.filter(u => u.role === 'closer').map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
+                                </select>
+                            </td>
+                        ` : ''}
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            submissionsTable.innerHTML = tableHTML;
+            
+            document.getElementById('submissionsCount').textContent = `Showing ${submissions.length} submissions`;
+        }
+
+        // Transfer job
+        function transferJob(submissionId, userId) {
+            if (!userId) return;
+            
+            const submission = submissions.find(s => s.id === submissionId);
+            const user = users.find(u => u.id === userId);
+            
+            if (submission && user) {
+                submission.status = 'transferred';
+                submission.transferredTo = user.name;
+                submission.transferredAt = new Date().toISOString();
+                
+                // Create transfer record
+                const transfer = {
+                    id: Date.now().toString(),
+                    submissionId: submissionId,
+                    jobNumber: submission.jobNumber,
+                    fromUser: submission.submittedBy,
+                    toUser: user.name,
+                    transferredAt: new Date().toISOString(),
+                    status: 'pending'
+                };
+                
+                transfers.push(transfer);
+                saveTransfers();
+                
+                displaySubmissions();
+                loadTransfers();
+                updateStats();
+                
+                showNotification(`Job ${submission.jobNumber} transferred to ${user.name}`, 'success');
+            }
+        }
+
+        // Load transfers
+        function loadTransfers() {
+            const savedTransfers = localStorage.getItem('dashboardTransfers');
+            if (savedTransfers) {
+                transfers = JSON.parse(savedTransfers);
+            }
+            displayTransfers();
+        }
+
+        // Save transfers
+        function saveTransfers() {
+            localStorage.setItem('dashboardTransfers', JSON.stringify(transfers));
+        }
+
+        // Display transfers
+        function displayTransfers() {
+            const transfersList = document.getElementById('transfersList');
+            
+            if (transfers.length === 0) {
+                transfersList.innerHTML = '<p>No transfers found</p>';
+                return;
+            }
+
+            let transfersHTML = '';
+            transfers.forEach(transfer => {
+                transfersHTML += `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-name">Job ${transfer.jobNumber}</div>
+                            <div class="user-actions">
+                                <span class="transfer-status ${transfer.status}">${transfer.status}</span>
+                            </div>
+                        </div>
+                        <div class="user-details">
+                            <div class="user-detail">
+                                <span class="label">From:</span>
+                                <span class="value">${transfer.fromUser}</span>
+                            </div>
+                            <div class="user-detail">
+                                <span class="label">To:</span>
+                                <span class="value">${transfer.toUser}</span>
+                            </div>
+                            <div class="user-detail">
+                                <span class="label">Date:</span>
+                                <span class="value">${new Date(transfer.transferredAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            transfersList.innerHTML = transfersHTML;
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('totalSubmissions').textContent = submissions.length;
+            
+            if (currentUser.role === 'fronter') {
+                const mySubs = submissions.filter(s => s.submittedBy === currentUser.name);
+                document.getElementById('mySubmissions').textContent = mySubs.length;
+            } else {
+                document.getElementById('mySubmissions').textContent = '-';
+            }
+            
+            const pending = transfers.filter(t => t.status === 'pending');
+            document.getElementById('pendingTransfers').textContent = pending.length;
+        }
+
+        // Update profile
+        function updateProfile() {
+            document.getElementById('profileName').value = currentUser.name;
+            document.getElementById('profileRole').value = currentUser.role;
+            document.getElementById('profileSecretKey').textContent = currentUser.secretKey;
+        }
+
+        // Copy secret key
+        function copySecretKey() {
+            navigator.clipboard.writeText(currentUser.secretKey).then(() => {
+                showNotification('Secret key copied to clipboard!', 'success');
+            });
+        }
+
+        // Copy modal secret key
+        function copyModalSecretKey() {
+            const key = document.getElementById('modalSecretKey').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                showNotification('Secret key copied to clipboard!', 'success');
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('userModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
