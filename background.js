@@ -118,17 +118,48 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
             });
             
-            // Forward the transfer message to the active tab's content script
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                if (tabs[0]) {
-                    chrome.tabs.sendMessage(tabs[0].id, {
-                        action: 'showTransferOverlay',
-                        data: request.data
-                    }).catch(error => {
-                        console.log('Could not send transfer message to content script:', error);
-                    });
-                }
-            });
+            // Forward the transfer message to the tab where the job was originally submitted
+            if (request.data.page_url) {
+                chrome.tabs.query({}, function(tabs) {
+                    // Find the tab that matches the page URL where the job was submitted
+                    const targetTab = tabs.find(tab => tab.url && tab.url.includes(request.data.page_url.split('/').pop()));
+                    
+                    if (targetTab) {
+                        console.log('Found target tab for transfer overlay:', targetTab.url);
+                        chrome.tabs.sendMessage(targetTab.id, {
+                            action: 'showTransferOverlay',
+                            data: request.data
+                        }).catch(error => {
+                            console.log('Could not send transfer message to content script:', error);
+                        });
+                    } else {
+                        console.log('Could not find tab with URL:', request.data.page_url);
+                        // Fallback: try to send to active tab
+                        chrome.tabs.query({active: true, currentWindow: true}, function(activeTabs) {
+                            if (activeTabs[0]) {
+                                chrome.tabs.sendMessage(activeTabs[0].id, {
+                                    action: 'showTransferOverlay',
+                                    data: request.data
+                                }).catch(error => {
+                                    console.log('Could not send transfer message to active tab:', error);
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                // Fallback: send to active tab if no page URL
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    if (tabs[0]) {
+                        chrome.tabs.sendMessage(tabs[0].id, {
+                            action: 'showTransferOverlay',
+                            data: request.data
+                        }).catch(error => {
+                            console.log('Could not send transfer message to content script:', error);
+                        });
+                    }
+                });
+            }
             
             sendResponse({ success: true });
             return true;

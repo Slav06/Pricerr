@@ -622,6 +622,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     
     if (request.action === 'showTransferOverlay') {
         console.log('Content script received showTransferOverlay message:', request.data);
+        console.log('Current page URL:', window.location.href);
+        console.log('Target page URL:', request.data.page_url);
         showTransferOverlay(request.data);
         sendResponse({ success: true });
     }
@@ -1121,6 +1123,18 @@ function testTransferOverlay() {
 // Make test functions globally available for debugging
 window.testTransferOverlay = testTransferOverlay;
 window.testSecurityOverlay = createSecurityOverlay;
+
+// Add a test function for manual transfer overlay testing
+window.testTransferOverlayManual = function() {
+    const testData = {
+        job_number: 'TEST123',
+        user_name: 'Test User',
+        initiated_by: 'Dashboard User',
+        page_url: window.location.href
+    };
+    showTransferOverlay(testData);
+    console.log('Manual transfer overlay test triggered');
+};
 
 // Also make the functions available immediately when script loads
 if (typeof window !== 'undefined') {

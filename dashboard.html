@@ -1678,7 +1678,8 @@
                         job_number: item.job_number,
                         chrome_profile_id: item.chrome_profile_id,
                         initiated_by: currentProfileName || 'Unknown User',
-                        initiated_by_id: currentProfileId
+                        initiated_by_id: currentProfileId,
+                        page_url: item.page_url // Include the page URL to find the correct tab
                     };
                     
                     // Try to send a message to the Chrome extension
