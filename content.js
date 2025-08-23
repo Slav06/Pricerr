@@ -926,6 +926,17 @@ function createSubmitButtonOverlay() {
     // Add click functionality
     submitOverlay.addEventListener('click', async () => {
         try {
+            // Check if user is logged in via popup
+            const popupUser = await new Promise((resolve) => {
+                chrome.storage.local.get(['popupUser'], (result) => {
+                    resolve(result.popupUser || null);
+                });
+            });
+            
+            if (!popupUser) {
+                throw new Error('Please login to the extension popup first');
+            }
+            
             // Show loading state
             submitOverlay.innerHTML = `
                 <span style="font-size: 20px;">⏳</span>
@@ -947,6 +958,27 @@ function createSubmitButtonOverlay() {
             // Get Chrome profile info
             const profileInfo = await getChromeProfileInfo();
             
+            // Create submission data with user info
+            const submissionData = {
+                job_number: jobNumber,
+                page_url: window.location.href,
+                source: 'Page Price Analyzer Extension',
+                submitted_at: new Date().toISOString(),
+                chrome_profile_id: profileInfo.profileId,
+                chrome_profile_name: profileInfo.profileName,
+                user_identifier: profileInfo.userIdentifier,
+                customer_name: analyzer.data.movingDetails.customerName || null,
+                moving_from: analyzer.data.movingDetails.movingFrom || null,
+                moving_to: analyzer.data.movingDetails.movingTo || null,
+                cubes: analyzer.data.movingDetails.cubes || null,
+                pickup_date: analyzer.data.movingDetails.pickupDate || null,
+                distance: analyzer.data.movingDetails.distance || null,
+                // Add dashboard user info
+                dashboard_user_id: popupUser.id,
+                dashboard_user_name: popupUser.name,
+                dashboard_user_role: popupUser.role
+            };
+            
             // Submit to Supabase
             const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions', {
                 method: 'POST',
@@ -955,21 +987,7 @@ function createSubmitButtonOverlay() {
                     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
                 },
-                body: JSON.stringify({
-                    job_number: jobNumber,
-                    page_url: window.location.href,
-                    source: 'Page Price Analyzer Extension',
-                    submitted_at: new Date().toISOString(),
-                    chrome_profile_id: profileInfo.profileId,
-                    chrome_profile_name: profileInfo.profileName,
-                    user_identifier: profileInfo.userIdentifier,
-                    customer_name: analyzer.data.movingDetails.customerName || null,
-                    moving_from: analyzer.data.movingDetails.movingFrom || null,
-                    moving_to: analyzer.data.movingDetails.movingTo || null,
-                    cubes: analyzer.data.movingDetails.cubes || null,
-                    pickup_date: analyzer.data.movingDetails.pickupDate || null,
-                    distance: analyzer.data.movingDetails.distance || null
-                })
+                body: JSON.stringify(submissionData)
             });
             
             if (response.ok) {
@@ -981,7 +999,7 @@ function createSubmitButtonOverlay() {
                 submitOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
                 
                 // Show success message
-                showSuccessMessage(`Job ${jobNumber} submitted successfully by ${profileInfo.profileName}!`);
+                showSuccessMessage(`Job ${jobNumber} submitted successfully by ${popupUser.name} (${popupUser.role})!`);
                 
                 // Reset after 3 seconds
                 setTimeout(() => {

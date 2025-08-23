@@ -11,11 +11,16 @@
 
         <!-- User Login Section -->
         <div class="login-section" id="loginSection">
-            <h3>👤 User Login</h3>
-            <input type="text" id="userName" placeholder="Enter your name" class="login-input">
+            <h3>🔐 Secret Key Login</h3>
+            <p>Enter your secret key to access the analyzer</p>
+            <input type="password" id="secretKeyInput" placeholder="Enter your secret key" class="login-input">
             <button id="loginBtn" class="login-btn">Login</button>
+            <div class="login-info">
+                <p><strong>Need a key?</strong> Ask your admin for your secret key</p>
+            </div>
             <div class="user-info" id="userInfo" style="display: none;">
                 <p>Logged in as: <strong id="currentUser"></strong></p>
+                <p>Role: <span id="userRole" class="user-role"></span></p>
                 <button id="logoutBtn" class="logout-btn">Logout</button>
             </div>
         </div>

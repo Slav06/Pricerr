@@ -548,10 +548,11 @@
                 </div>
 
                 <div class="table-container">
-                    <div class="table-header">
-                        <div class="table-title">Job Submissions</div>
-                        <div class="table-count" id="submissionsCount">Loading...</div>
-                    </div>
+                                    <div class="table-header">
+                    <div class="table-title">Job Submissions</div>
+                    <div class="table-count" id="submissionsCount">Loading...</div>
+                    <button class="btn btn-secondary" onclick="loadSubmissions()" style="margin-top: 10px;">🔄 Refresh Submissions</button>
+                </div>
                     <div id="submissionsTable">
                         <div class="loading">
                             <div class="spinner"></div>
@@ -970,19 +971,62 @@
 
         // Load submissions
         function loadSubmissions() {
-            // For demo purposes, create some sample submissions
-            submissions = [
-                {
-                    id: '1',
-                    jobNumber: 'JOB001',
-                    customerName: 'John Doe',
-                    from: 'New York, NY',
-                    to: 'Los Angeles, CA',
-                    submittedBy: 'fronter1',
-                    submittedAt: new Date().toISOString(),
-                    status: 'pending'
+            // Try to load real submissions from Supabase or use demo data
+            if (currentUser && currentUser.role === 'admin') {
+                // For admins, try to load real submissions
+                loadRealSubmissions();
+            } else {
+                // For other users, show demo data for now
+                submissions = [
+                    {
+                        id: '1',
+                        jobNumber: 'JOB001',
+                        customerName: 'John Doe',
+                        from: 'New York, NY',
+                        to: 'Los Angeles, CA',
+                        submittedBy: 'fronter1',
+                        submittedAt: new Date().toISOString(),
+                        status: 'pending'
+                    }
+                ];
+                
+                displaySubmissions();
+                updateStats();
+            }
+        }
+        
+        // Load real submissions from database
+        async function loadRealSubmissions() {
+            try {
+                const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?select=*&order=submitted_at.desc', {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bDOOIM'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    submissions = data.map(sub => ({
+                        id: sub.id,
+                        jobNumber: sub.job_number,
+                        customerName: sub.customer_name || 'Unknown',
+                        from: sub.moving_from || 'Unknown',
+                        to: sub.moving_to || 'Unknown',
+                        submittedBy: sub.dashboard_user_name || sub.chrome_profile_name || 'Unknown',
+                        submittedAt: sub.submitted_at,
+                        status: 'pending',
+                        dashboardUserId: sub.dashboard_user_id,
+                        dashboardUserRole: sub.dashboard_user_role
+                    }));
+                } else {
+                    console.log('Could not load real submissions, using demo data');
+                    submissions = [];
                 }
-            ];
+            } catch (error) {
+                console.log('Error loading real submissions:', error);
+                submissions = [];
+            }
             
             displaySubmissions();
             updateStats();

@@ -1,70 +1,87 @@
-// Simple Popup-Based Transfer System using Chrome Storage
+// Chrome Extension Popup with Dashboard User Management Integration
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Popup loaded - initializing transfer system');
+    console.log('Popup loaded - initializing dashboard-integrated system');
     
     // DOM elements
     const loginSection = document.getElementById('loginSection');
-    const userNameInput = document.getElementById('userName');
+    const secretKeyInput = document.getElementById('secretKeyInput');
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
     const currentUser = document.getElementById('currentUser');
+    const userRole = document.getElementById('userRole');
     const logoutBtn = document.getElementById('logoutBtn');
     const transferSection = document.getElementById('transferSection');
     const transferList = document.getElementById('transferList');
     
+    let currentUserData = null;
+    
     // Check if user is already logged in
     checkLoginStatus();
     
-    // Check for transfer updates every 2 seconds
-    setInterval(checkTransferUpdates, 2000);
+    // Check for transfer updates every 3 seconds
+    setInterval(checkTransferUpdates, 3000);
     
     // Event listeners
     loginBtn.addEventListener('click', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
-    userNameInput.addEventListener('keypress', function(e) {
+    secretKeyInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             handleLogin();
         }
     });
     
-    // Login function
+    // Login function - validates against dashboard users
     function handleLogin() {
-        const userName = userNameInput.value.trim();
-        if (!userName) {
-            alert('Please enter your name');
+        const secretKey = secretKeyInput.value.trim();
+        if (!secretKey) {
+            showNotification('Please enter your secret key', 'error');
             return;
         }
         
-        // Store user info in Chrome storage
-        const userData = {
-            name: userName,
-            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-            loginTime: new Date().toISOString()
-        };
-        
-        chrome.storage.local.set({ popupUser: userData }, () => {
-            showUserInfo(userName);
-            console.log('User logged in:', userName);
+        // Get dashboard users from localStorage (shared with dashboard)
+        chrome.storage.local.get(['dashboardUsers'], (result) => {
+            const dashboardUsers = result.dashboardUsers || [];
+            const user = dashboardUsers.find(u => u.secretKey === secretKey && u.isActive);
             
-            // Clear input
-            userNameInput.value = '';
+            if (user) {
+                // Store user info in Chrome storage
+                currentUserData = user;
+                chrome.storage.local.set({ popupUser: user }, () => {
+                    showUserInfo(user);
+                    console.log('User logged in:', user.name, 'Role:', user.role);
+                    
+                    // Clear input
+                    secretKeyInput.value = '';
+                    
+                    // Show success notification
+                    showNotification(`Welcome, ${user.name}!`, 'success');
+                });
+            } else {
+                showNotification('Invalid or inactive secret key', 'error');
+            }
         });
     }
     
     // Logout function
     function handleLogout() {
         chrome.storage.local.remove(['popupUser'], () => {
+            currentUserData = null;
             showLoginForm();
             console.log('User logged out');
+            showNotification('Logged out successfully', 'success');
         });
     }
     
     // Show user info after login
-    function showUserInfo(userName) {
+    function showUserInfo(user) {
         loginSection.style.display = 'none';
         userInfo.style.display = 'block';
-        currentUser.textContent = userName;
+        currentUser.textContent = user.name;
+        userRole.textContent = user.role;
         transferSection.style.display = 'block';
+        
+        // Update page title to show user is logged in
+        document.title = `Page Price Analyzer - ${user.name}`;
     }
     
     // Show login form
@@ -72,36 +89,49 @@ document.addEventListener('DOMContentLoaded', function() {
         loginSection.style.display = 'block';
         userInfo.style.display = 'none';
         transferSection.style.display = 'none';
+        document.title = 'Page Price Analyzer';
     }
     
     // Check login status
     function checkLoginStatus() {
         chrome.storage.local.get(['popupUser'], (result) => {
             if (result.popupUser) {
-                showUserInfo(result.popupUser.name);
+                currentUserData = result.popupUser;
+                showUserInfo(result.popupUser);
             } else {
                 showLoginForm();
             }
         });
     }
     
-    // Check for transfer updates
+    // Check for transfer updates from dashboard
     function checkTransferUpdates() {
-        chrome.storage.local.get(['popupUser', 'transferUpdates'], (result) => {
-            const user = result.popupUser;
-            const transferUpdates = result.transferUpdates || {};
-            
-            if (!user) return;
+        if (!currentUserData) return;
+        
+        chrome.storage.local.get(['dashboardTransfers'], (result) => {
+            const dashboardTransfers = result.dashboardTransfers || [];
             
             try {
-                // Filter updates for this user
-                const userUpdates = Object.values(transferUpdates).filter(update => 
-                    update.chrome_profile_id === user.id || 
-                    update.user_name === user.name
-                );
+                // Filter transfers for this user based on role
+                let userTransfers = [];
                 
-                if (userUpdates.length > 0) {
-                    displayTransferUpdates(userUpdates);
+                if (currentUserData.role === 'closer') {
+                    // Closers see transfers TO them
+                    userTransfers = dashboardTransfers.filter(transfer => 
+                        transfer.toUser === currentUserData.name
+                    );
+                } else if (currentUserData.role === 'fronter') {
+                    // Fronters see transfers FROM them
+                    userTransfers = dashboardTransfers.filter(transfer => 
+                        transfer.fromUser === currentUserData.name
+                    );
+                } else if (currentUserData.role === 'admin') {
+                    // Admins see all transfers
+                    userTransfers = dashboardTransfers;
+                }
+                
+                if (userTransfers.length > 0) {
+                    displayTransferUpdates(userTransfers);
                 } else {
                     showNoTransfers();
                 }
@@ -113,26 +143,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Display transfer updates
-    function displayTransferUpdates(updates) {
+    function displayTransferUpdates(transfers) {
         transferList.innerHTML = '';
         
-        updates.forEach((update, index) => {
+        transfers.forEach((transfer, index) => {
             const transferItem = document.createElement('div');
             transferItem.className = 'transfer-item';
             
             transferItem.innerHTML = `
-                <h4>🔄 Transfer Request</h4>
-                <p><strong>Job:</strong> ${update.job_number || 'Unknown'}</p>
-                <p><strong>From:</strong> ${update.initiated_by || 'Unknown'}</p>
-                <p><strong>To:</strong> ${update.user_name || 'Unknown'}</p>
-                <div class="transfer-actions">
-                    <button class="transfer-btn accept" onclick="acceptTransfer('${update.jobId || index}')">
-                        ✅ Accept
-                    </button>
-                    <button class="transfer-btn decline" onclick="declineTransfer('${update.jobId || index}')">
-                        ❌ Decline
-                    </button>
-                </div>
+                <h4>🔄 Transfer Update</h4>
+                <p><strong>Job:</strong> ${transfer.jobNumber || 'Unknown'}</p>
+                <p><strong>From:</strong> ${transfer.fromUser || 'Unknown'}</p>
+                <p><strong>To:</strong> ${transfer.toUser || 'Unknown'}</p>
+                <p><strong>Status:</strong> <span class="transfer-status ${transfer.status}">${transfer.status}</span></p>
+                <p><strong>Date:</strong> ${new Date(transfer.transferredAt).toLocaleDateString()}</p>
             `;
             
             transferList.appendChild(transferItem);
@@ -141,77 +165,48 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show no transfers message
     function showNoTransfers() {
-        transferList.innerHTML = '<p class="no-transfers">No transfer updates</p>';
+        transferList.innerHTML = '<div class="no-transfers">No transfer updates</div>';
     }
     
-    // Accept transfer
-    window.acceptTransfer = function(jobId) {
-        console.log('Transfer accepted for job:', jobId);
-        alert('Transfer accepted! You will be notified when the job is transferred.');
+    // Show notification
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            background: ${type === 'success' ? '#28a745' : '#dc3545'};
+            animation: slideInRight 0.3s ease;
+        `;
         
-        // Remove this transfer update
-        removeTransferUpdate(jobId);
-    };
-    
-    // Decline transfer
-    window.declineTransfer = function(jobId) {
-        console.log('Transfer declined for job:', jobId);
-        alert('Transfer declined.');
+        document.body.appendChild(notification);
         
-        // Remove this transfer update
-        removeTransferUpdate(jobId);
-    };
-    
-    // Remove transfer update
-    function removeTransferUpdate(jobId) {
-        chrome.storage.local.get(['transferUpdates'], (result) => {
-            const transferUpdates = result.transferUpdates || {};
-            delete transferUpdates[jobId];
-            
-            chrome.storage.local.set({ transferUpdates }, () => {
-                // Refresh display
-                checkTransferUpdates();
-            });
-        });
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
     
     // Test function to simulate transfer update
     window.testTransferUpdate = function() {
-        chrome.storage.local.get(['popupUser'], (result) => {
-            const user = result.popupUser;
-            if (!user) {
-                alert('Please login first');
-                return;
-            }
-            
-            const testUpdate = {
-                jobId: 'test123',
-                user_name: user.name,
-                job_number: 'TEST123',
-                chrome_profile_id: user.id,
-                initiated_by: 'Test User',
-                page_url: 'test.com'
-            };
-            
-            // Store test update
-            chrome.storage.local.get(['transferUpdates'], (result) => {
-                const transferUpdates = result.transferUpdates || {};
-                transferUpdates['test123'] = testUpdate;
-                
-                chrome.storage.local.set({ transferUpdates }, () => {
-                    console.log('Test transfer update created');
-                    alert('Test transfer update created! Check the transfer section.');
-                    
-                    // Refresh display
-                    checkTransferUpdates();
-                });
-            });
-        });
+        if (!currentUserData) {
+            showNotification('Please login first', 'error');
+            return;
+        }
+        
+        showNotification(`Test function called by ${currentUserData.name}`, 'success');
     };
     
     // Initial check
     checkTransferUpdates();
     
-    console.log('Popup transfer system initialized');
+    console.log('Dashboard-integrated popup system initialized');
     console.log('Available test function: testTransferUpdate()');
 });
