@@ -471,16 +471,43 @@ class PageAnalyzer {
             }
         }
         
-        // Extract Moving From - look for "Moving From - Orlando" pattern
-        const fromMatch = textContent.match(/Moving\s+From[:\s-]+([A-Za-z\s]+)/i);
-        if (fromMatch) {
-            this.data.movingDetails.movingFrom = fromMatch[1].trim();
-        }
-        
-        // Extract Moving To - look for "Moving To - 30269" pattern
-        const toMatch = textContent.match(/Moving\s+To[:\s-]+([A-Za-z0-9\s]+)/i);
-        if (toMatch) {
-            this.data.movingDetails.movingTo = toMatch[1].trim();
+        // Extract Moving From - look for FROMTO class table rows
+        const fromToRows = document.querySelectorAll('tr td.FROMTO');
+        if (fromToRows.length >= 6) { // Should have 6 cells: 3 for FROM + 3 for TO
+            // First 3 cells are Moving From (city, state, zip)
+            const fromCity = fromToRows[0]?.textContent?.trim().replace(/\s+$/, '') || '';
+            const fromState = fromToRows[1]?.textContent?.trim().replace(/\s+$/, '') || '';
+            const fromZip = fromToRows[2]?.textContent?.trim().replace(/\s+$/, '') || '';
+            
+            if (fromCity && fromState) {
+                this.data.movingDetails.movingFrom = `${fromCity}, ${fromState}`;
+                if (fromZip) {
+                    this.data.movingDetails.movingFrom += ` ${fromZip}`;
+                }
+            }
+            
+            // Next 3 cells are Moving To (city, state, zip)
+            const toCity = fromToRows[3]?.textContent?.trim().replace(/\s+$/, '') || '';
+            const toState = fromToRows[4]?.textContent?.trim().replace(/\s+$/, '') || '';
+            const toZip = fromToRows[5]?.textContent?.trim().replace(/\s+$/, '') || '';
+            
+            if (toCity && toState) {
+                this.data.movingDetails.movingTo = `${toCity}, ${toState}`;
+                if (toZip) {
+                    this.data.movingDetails.movingTo += ` ${toZip}`;
+                }
+            }
+        } else {
+            // Fallback: try regex patterns if DOM structure doesn't match
+            const fromMatch = textContent.match(/Moving\s+From[:\s-]+([A-Za-z\s]+)/i);
+            if (fromMatch) {
+                this.data.movingDetails.movingFrom = fromMatch[1].trim();
+            }
+            
+            const toMatch = textContent.match(/Moving\s+To[:\s-]+([A-Za-z0-9\s]+)/i);
+            if (toMatch) {
+                this.data.movingDetails.movingTo = toMatch[1].trim();
+            }
         }
         
         // Extract Cubes - look for "Cubes - 300" pattern
