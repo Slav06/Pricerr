@@ -1266,11 +1266,12 @@ function showTransferOverlay(transferData) {
         </div>
         <div style="background: rgba(255,255,255,0.25); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 2px solid rgba(255,255,255,0.3);">
             <div style="margin-bottom: 12px; font-size: 16px;"><strong>📋 Job Number:</strong> <span style="color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${transferData.job_number || 'N/A'}</span></div>
-            <div style="margin-bottom: 12px; font-size: 16px;"><strong>👤 Assigned To:</strong> <span style="color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${transferData.user_name}</span></div>
+            <div style="margin-bottom: 12px; font-size: 16px;"><strong>👤 TRANSFERRED TO:</strong> <span style="color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${transferData.user_name}</span></div>
+            <div style="margin-bottom: 12px; font-size: 16px;"><strong>🚀 INITIATED BY:</strong> <span style="color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${transferData.initiated_by || 'Unknown User'}</span></div>
             <div style="font-size: 14px; opacity: 0.9; color: #fff;">🕐 ${new Date().toLocaleString()}</div>
         </div>
         <div style="text-align: center; font-size: 14px; opacity: 0.9; color: #fff; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
-            This job has been assigned to <strong>${transferData.user_name}</strong>
+            Job <strong>${transferData.job_number}</strong> transferred to <strong>${transferData.user_name}</strong> by <strong>${transferData.initiated_by || 'Unknown User'}</strong>
         </div>
         <div style="text-align: center; margin-top: 15px; font-size: 12px; opacity: 0.7; color: #fff;">
             ⏰ Overlay will auto-hide in 10 minutes

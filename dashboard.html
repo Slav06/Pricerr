@@ -1668,29 +1668,46 @@
             // Notify Chrome extension about transfer updates
             notifyChromeExtension(jobId, newUser, item) {
                 try {
+                    // Get the current user's profile info (who initiated the transfer)
+                    const currentProfileId = this.getCurrentUserProfileId();
+                    const currentProfileName = this.getProfileDisplayName(currentProfileId);
+                    
+                    const transferData = {
+                        jobId: jobId,
+                        user_name: newUser,
+                        job_number: item.job_number,
+                        chrome_profile_id: item.chrome_profile_id,
+                        initiated_by: currentProfileName || 'Unknown User',
+                        initiated_by_id: currentProfileId
+                    };
+                    
                     // Try to send a message to the Chrome extension
                     if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-                        const transferData = {
-                            jobId: jobId,
-                            user_name: newUser,
-                            job_number: item.job_number,
-                            chrome_profile_id: item.chrome_profile_id
-                        };
-                        
-                        // Send to background script
                         window.chrome.runtime.sendMessage({
                             action: 'transferUpdated',
                             data: transferData
                         });
-                        
-                        // Also try to show overlay on the current page if possible
-                        this.showTransferOverlayOnPage(transferData);
-                        
-                        console.log('Chrome extension notified about transfer update');
                     }
+                    
+                    // Show overlay on the current page
+                    this.showTransferOverlayOnPage(transferData);
+                    
+                    console.log('Chrome extension notified about transfer update');
                 } catch (error) {
                     console.log('Could not notify Chrome extension:', error);
                 }
+            }
+            
+            // Get current user's profile ID (who is currently using the dashboard)
+            getCurrentUserProfileId() {
+                // Try to get from localStorage first
+                const stored = localStorage.getItem('currentUserProfileId');
+                if (stored) return stored;
+                
+                // Generate a unique ID for this session
+                const sessionId = 'dashboard_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('currentUserProfileId', sessionId);
+                return sessionId;
             }
             
             // Show transfer overlay on the current page

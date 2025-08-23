@@ -100,6 +100,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     user_name: request.data.user_name,
                     job_number: request.data.job_number,
                     chrome_profile_id: request.data.chrome_profile_id,
+                    initiated_by: request.data.initiated_by || 'Unknown User',
+                    initiated_by_id: request.data.initiated_by_id || 'Unknown',
                     updated_at: new Date().toISOString()
                 };
                 
@@ -114,6 +116,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         // Ignore errors if no popups are listening
                     });
                 });
+            });
+            
+            // Forward the transfer message to the active tab's content script
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                if (tabs[0]) {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        action: 'showTransferOverlay',
+                        data: request.data
+                    }).catch(error => {
+                        console.log('Could not send transfer message to content script:', error);
+                    });
+                }
             });
             
             sendResponse({ success: true });
