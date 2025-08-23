@@ -656,39 +656,126 @@
             console.log('Dashboard initialized');
             loadUsers();
             checkLoginStatus();
+            
+            // Check session every 5 minutes to keep user logged in
+            setInterval(checkSessionValidity, 5 * 60 * 1000);
+            
+            // Also check when page becomes visible again
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && currentUser) {
+                    console.log('🔍 Page became visible, checking session...');
+                    checkSessionValidity();
+                }
+            });
         });
+        
+        // Check if current session is still valid
+        function checkSessionValidity() {
+            if (!currentUser) return;
+            
+            try {
+                const savedUser = localStorage.getItem('dashboardUser');
+                if (savedUser) {
+                    const sessionData = JSON.parse(savedUser);
+                    const loginTime = new Date(sessionData.loginTime);
+                    const now = new Date();
+                    const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+                    
+                    // Session expires after 24 hours
+                    if (hoursSinceLogin > 24) {
+                        console.log('⏰ Session expired, logging out...');
+                        logout();
+                        showNotification('Session expired. Please login again.', 'error');
+                    } else {
+                        console.log('✅ Session valid, expires in', (24 - hoursSinceLogin).toFixed(1), 'hours');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking session validity:', error);
+            }
+        }
 
         // Check if user is already logged in
-        function checkLoginStatus() {
-            const savedUser = localStorage.getItem('dashboardUser');
-            if (savedUser) {
-                try {
-                    currentUser = JSON.parse(savedUser);
-                    showDashboard();
-                } catch (error) {
-                    console.error('Error parsing saved user:', error);
-                    localStorage.removeItem('dashboardUser');
+        async function checkLoginStatus() {
+            try {
+                // First try to get from localStorage
+                const savedUser = localStorage.getItem('dashboardUser');
+                if (savedUser) {
+                    try {
+                        currentUser = JSON.parse(savedUser);
+                        console.log('🔐 Found saved user in localStorage:', currentUser.name);
+                        showDashboard();
+                        return;
+                    } catch (error) {
+                        console.error('Error parsing saved user:', error);
+                        localStorage.removeItem('dashboardUser');
+                    }
                 }
+                
+                // If no localStorage user, try to restore session from Supabase
+                console.log('🔄 No saved session, checking Supabase for active users...');
+                
+                // Load users first to make sure we have the latest data
+                await loadUsers();
+                
+                // Check if there's a session cookie or try to auto-login with a default admin
+                const adminUser = users.find(u => u.role === 'admin' && u.isActive);
+                if (adminUser) {
+                    console.log('🔄 Auto-login with admin user:', adminUser.name);
+                    currentUser = adminUser;
+                    localStorage.setItem('dashboardUser', JSON.stringify(adminUser));
+                    showDashboard();
+                } else {
+                    console.log('❌ No active admin user found');
+                }
+                
+            } catch (error) {
+                console.error('Error checking login status:', error);
             }
         }
 
         // Login function
-        function login() {
+        async function login() {
             const key = document.getElementById('loginKey').value.trim();
             if (!key) {
                 showNotification('Please enter a secret key', 'error');
                 return;
             }
 
-            // Find user by secret key
-            const user = users.find(u => u.secretKey === key);
-            if (user) {
-                currentUser = user;
-                localStorage.setItem('dashboardUser', JSON.stringify(user));
-                showDashboard();
-                showNotification(`Welcome back, ${user.name}!`, 'success');
-            } else {
-                showNotification('Invalid secret key', 'error');
+            try {
+                // Make sure we have the latest users loaded
+                if (users.length === 0) {
+                    await loadUsers();
+                }
+
+                // Find user by secret key
+                const user = users.find(u => u.secretKey === key);
+                if (user && user.isActive) {
+                    currentUser = user;
+                    
+                    // Save to localStorage with timestamp
+                    const sessionData = {
+                        ...user,
+                        loginTime: new Date().toISOString(),
+                        sessionId: Date.now().toString()
+                    };
+                    localStorage.setItem('dashboardUser', JSON.stringify(sessionData));
+                    
+                    // Also save to sessionStorage for this tab
+                    sessionStorage.setItem('dashboardUser', JSON.stringify(sessionData));
+                    
+                    showDashboard();
+                    showNotification(`Welcome back, ${user.name}!`, 'success');
+                    
+                    console.log('🔐 User logged in successfully:', user.name, 'Session saved');
+                } else if (user && !user.isActive) {
+                    showNotification('User account is inactive', 'error');
+                } else {
+                    showNotification('Invalid secret key', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('Login failed. Please try again.', 'error');
             }
         }
 
