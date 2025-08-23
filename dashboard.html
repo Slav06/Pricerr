@@ -507,6 +507,9 @@
             <div class="header-text">
                 <h1>Transfer Log</h1>
                 <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
+                <button onclick="testTransferSystem()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
+                    🧪 Test Transfer System
+                </button>
             </div>
         </div>
 
@@ -1900,14 +1903,31 @@
                          page_url: item.page_url
                      };
                      
-                     // Store transfer update in localStorage for popup to pick up
+                     // Store transfer update in Chrome storage for popup to pick up
                      try {
-                         const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-                         const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
-                         transferUpdates[key] = transferData;
-                         localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                         // First try to store in Chrome storage
+                         if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+                             chrome.storage.local.get(['transferUpdates'], (result) => {
+                                 const transferUpdates = result.transferUpdates || {};
+                                 const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
+                                 transferUpdates[key] = transferData;
+                                 
+                                 chrome.storage.local.set({ transferUpdates }, () => {
+                                     console.log('Transfer update stored in Chrome storage:', transferData);
+                                 });
+                             });
+                         }
                          
-                         console.log('Transfer update stored in localStorage:', transferData);
+                         // Also store in localStorage as backup
+                         try {
+                             const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+                             const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
+                             transferUpdates[key] = transferData;
+                             localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                             console.log('Transfer update stored in localStorage as backup:', transferData);
+                         } catch (localError) {
+                             console.log('localStorage backup failed:', localError);
+                         }
                          
                          // Show overlay on the current page
                          this.showTransferOverlayOnPage(transferData);
@@ -2142,6 +2162,54 @@
          };
         
         console.log('testDashboardTransferOverlay function made globally available');
+        
+        // Test function for the new transfer system
+        window.testTransferSystem = function() {
+            console.log('Testing transfer system...');
+            
+            // Create test transfer data
+            const testTransferData = {
+                jobId: 'test_' + Date.now(),
+                user_name: 'Test User',
+                job_number: 'TEST' + Math.floor(Math.random() * 1000),
+                chrome_profile_id: 'test_profile_' + Date.now(),
+                initiated_by: 'Dashboard Test',
+                initiated_by_id: 'test_dashboard',
+                page_url: window.location.href
+            };
+            
+            console.log('Test transfer data:', testTransferData);
+            
+            // Try to store in Chrome storage
+            if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+                chrome.storage.local.get(['transferUpdates'], (result) => {
+                    const transferUpdates = result.transferUpdates || {};
+                    const key = `${testTransferData.jobId}_${testTransferData.chrome_profile_id}`;
+                    transferUpdates[key] = testTransferData;
+                    
+                    chrome.storage.local.set({ transferUpdates }, () => {
+                        console.log('✅ Test transfer stored in Chrome storage');
+                        alert('Test transfer created! Check the extension popup.');
+                    });
+                });
+            } else {
+                console.log('Chrome storage not available, using localStorage');
+                // Fallback to localStorage
+                try {
+                    const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+                    const key = `${testTransferData.jobId}_${testTransferData.chrome_profile_id}`;
+                    transferUpdates[key] = testTransferData;
+                    localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                    console.log('✅ Test transfer stored in localStorage');
+                    alert('Test transfer created! Check the extension popup.');
+                } catch (error) {
+                    console.error('Failed to store test transfer:', error);
+                    alert('Failed to create test transfer');
+                }
+            }
+        };
+        
+        console.log('testTransferSystem function made globally available');
     </script>
 </body>
 </html>

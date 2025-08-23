@@ -1,4 +1,4 @@
-// Simple Popup-Based Transfer System
+// Simple Popup-Based Transfer System using Chrome Storage
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Popup loaded - initializing transfer system');
     
@@ -35,23 +35,28 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Store user info
-        localStorage.setItem('popup_user_name', userName);
-        localStorage.setItem('popup_user_id', 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+        // Store user info in Chrome storage
+        const userData = {
+            name: userName,
+            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            loginTime: new Date().toISOString()
+        };
         
-        showUserInfo(userName);
-        console.log('User logged in:', userName);
-        
-        // Clear input
-        userNameInput.value = '';
+        chrome.storage.local.set({ popupUser: userData }, () => {
+            showUserInfo(userName);
+            console.log('User logged in:', userName);
+            
+            // Clear input
+            userNameInput.value = '';
+        });
     }
     
     // Logout function
     function handleLogout() {
-        localStorage.removeItem('popup_user_name');
-        localStorage.removeItem('popup_user_id');
-        showLoginForm();
-        console.log('User logged out');
+        chrome.storage.local.remove(['popupUser'], () => {
+            showLoginForm();
+            console.log('User logged out');
+        });
     }
     
     // Show user info after login
@@ -71,40 +76,40 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check login status
     function checkLoginStatus() {
-        const userName = localStorage.getItem('popup_user_name');
-        const userId = localStorage.getItem('popup_user_id');
-        
-        if (userName && userId) {
-            showUserInfo(userName);
-        } else {
-            showLoginForm();
-        }
+        chrome.storage.local.get(['popupUser'], (result) => {
+            if (result.popupUser) {
+                showUserInfo(result.popupUser.name);
+            } else {
+                showLoginForm();
+            }
+        });
     }
     
     // Check for transfer updates
     function checkTransferUpdates() {
-        const userId = localStorage.getItem('popup_user_id');
-        if (!userId) return;
-        
-        try {
-            // Get transfer updates from localStorage (set by dashboard)
-            const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+        chrome.storage.local.get(['popupUser', 'transferUpdates'], (result) => {
+            const user = result.popupUser;
+            const transferUpdates = result.transferUpdates || {};
             
-            // Filter updates for this user
-            const userUpdates = Object.values(transferUpdates).filter(update => 
-                update.chrome_profile_id === userId || 
-                update.user_name === localStorage.getItem('popup_user_name')
-            );
+            if (!user) return;
             
-            if (userUpdates.length > 0) {
-                displayTransferUpdates(userUpdates);
-            } else {
-                showNoTransfers();
+            try {
+                // Filter updates for this user
+                const userUpdates = Object.values(transferUpdates).filter(update => 
+                    update.chrome_profile_id === user.id || 
+                    update.user_name === user.name
+                );
+                
+                if (userUpdates.length > 0) {
+                    displayTransferUpdates(userUpdates);
+                } else {
+                    showNoTransfers();
+                }
+                
+            } catch (error) {
+                console.log('Error checking transfer updates:', error);
             }
-            
-        } catch (error) {
-            console.log('Error checking transfer updates:', error);
-        }
+        });
     }
     
     // Display transfer updates
@@ -159,45 +164,49 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Remove transfer update
     function removeTransferUpdate(jobId) {
-        try {
-            const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+        chrome.storage.local.get(['transferUpdates'], (result) => {
+            const transferUpdates = result.transferUpdates || {};
             delete transferUpdates[jobId];
-            localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
             
-            // Refresh display
-            checkTransferUpdates();
-        } catch (error) {
-            console.log('Error removing transfer update:', error);
-        }
+            chrome.storage.local.set({ transferUpdates }, () => {
+                // Refresh display
+                checkTransferUpdates();
+            });
+        });
     }
     
     // Test function to simulate transfer update
     window.testTransferUpdate = function() {
-        const userId = localStorage.getItem('popup_user_id');
-        if (!userId) {
-            alert('Please login first');
-            return;
-        }
-        
-        const testUpdate = {
-            jobId: 'test123',
-            user_name: localStorage.getItem('popup_user_name'),
-            job_number: 'TEST123',
-            chrome_profile_id: userId,
-            initiated_by: 'Test User',
-            page_url: 'test.com'
-        };
-        
-        // Store test update
-        const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-        transferUpdates['test123'] = testUpdate;
-        localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-        
-        console.log('Test transfer update created');
-        alert('Test transfer update created! Check the transfer section.');
-        
-        // Refresh display
-        checkTransferUpdates();
+        chrome.storage.local.get(['popupUser'], (result) => {
+            const user = result.popupUser;
+            if (!user) {
+                alert('Please login first');
+                return;
+            }
+            
+            const testUpdate = {
+                jobId: 'test123',
+                user_name: user.name,
+                job_number: 'TEST123',
+                chrome_profile_id: user.id,
+                initiated_by: 'Test User',
+                page_url: 'test.com'
+            };
+            
+            // Store test update
+            chrome.storage.local.get(['transferUpdates'], (result) => {
+                const transferUpdates = result.transferUpdates || {};
+                transferUpdates['test123'] = testUpdate;
+                
+                chrome.storage.local.set({ transferUpdates }, () => {
+                    console.log('Test transfer update created');
+                    alert('Test transfer update created! Check the transfer section.');
+                    
+                    // Refresh display
+                    checkTransferUpdates();
+                });
+            });
+        });
     };
     
     // Initial check
