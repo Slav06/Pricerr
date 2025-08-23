@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.log('✅ User found:', user);
                             
                             // Check if user is active (handle different possible field names)
-                            const isActive = user.isActive !== false && user.is_active !== false;
+                            const isActive = user.isActive !== false && user.is_active !== false && user.isactive !== false;
                             
                             if (isActive) {
                                 // Store user info in Chrome storage

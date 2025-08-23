@@ -891,7 +891,7 @@
             try {
                 console.log('🔄 Loading users from Supabase...');
                 
-                const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&order=created_at.desc', {
+                const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&order=createdat.desc', {
                     headers: {
                         'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
                         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
@@ -908,8 +908,8 @@
                         name: user.name,
                         role: user.role,
                         secretKey: user.secretkey,
-                        createdAt: user.created_at,
-                        isActive: user.is_active
+                        createdAt: user.createdat,
+                        isActive: user.isactive
                     }));
                     
                     // Also save to localStorage as backup
@@ -974,16 +974,16 @@
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW4llPRVcrwBDOOIM',
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
                                     'Prefer': 'resolution=merge-duplicates'
                                 },
                                 body: JSON.stringify({
-                                    id: user.id,
+                                    id: parseInt(user.id),
                                     name: user.name,
                                     role: user.role,
                                     secretkey: user.secretKey,
-                                    created_at: user.createdAt,
-                                    is_active: user.isActive
+                                    createdat: user.createdAt,
+                                    isactive: user.isActive
                                 })
                             });
                             
