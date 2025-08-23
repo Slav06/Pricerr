@@ -1023,25 +1023,26 @@ function createSecurityOverlay() {
     securityOverlay.id = 'security-overlay';
     securityOverlay.style.cssText = `
         position: fixed;
-        top: 20px;
-        left: 20px;
+        bottom: 100px;
+        right: 30px;
         background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
         color: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(220, 53, 69, 0.4);
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(220, 53, 69, 0.4);
         z-index: 10002;
         font-family: Arial, sans-serif;
-        max-width: 350px;
-        border: 3px solid rgba(255,255,255,0.3);
-        animation: slideInLeft 0.5s ease-out;
+        max-width: 280px;
+        border: 2px solid rgba(255,255,255,0.3);
+        animation: slideInRight 0.5s ease-out;
+        font-size: 12px;
     `;
     
     // Add CSS animation
     const style = document.createElement('style');
     style.textContent = `
-        @keyframes slideInLeft {
-            from { transform: translateX(-100%); opacity: 0; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
         @keyframes pulse {
@@ -1054,21 +1055,21 @@ function createSecurityOverlay() {
     
     // Create security content
     securityOverlay.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🚨 SECURITY MONITORING</h3>
-            <button id="close-security-overlay" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.3s;">×</button>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <h3 style="margin: 0; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">🚨 SECURITY</h3>
+            <button id="close-security-overlay" style="background: none; border: none; color: white; font-size: 16px; cursor: pointer; padding: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.3s;">×</button>
         </div>
-        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);">
-            <div style="margin-bottom: 10px; font-weight: 600; color: #fff;">⚠️ WARNING:</div>
-            <div style="margin-bottom: 8px; font-size: 14px; line-height: 1.4;">
-                <strong>Lead theft is considered ESPIONAGE</strong> and can result in up to <strong>3 years in prison</strong>.
+        <div style="background: rgba(255,255,255,0.15); padding: 8px; border-radius: 6px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2);">
+            <div style="margin-bottom: 6px; font-weight: 600; color: #fff; font-size: 11px;">⚠️ WARNING:</div>
+            <div style="margin-bottom: 6px; font-size: 11px; line-height: 1.3;">
+                <strong>Lead theft = ESPIONAGE</strong><br>Up to <strong>3 years in prison</strong>
             </div>
-            <div style="font-size: 12px; opacity: 0.9; color: #fff; font-style: italic;">
-                All activities are monitored and logged for security purposes.
+            <div style="font-size: 10px; opacity: 0.9; color: #fff; font-style: italic;">
+                All activities monitored & logged
             </div>
         </div>
-        <div style="text-align: center; font-size: 12px; opacity: 0.8; color: #fff;">
-            🔒 This system is protected by advanced security monitoring
+        <div style="text-align: center; font-size: 10px; opacity: 0.8; color: #fff;">
+            🔒 Advanced security monitoring
         </div>
     `;
     
@@ -1087,7 +1088,7 @@ function createSecurityOverlay() {
     });
     
     closeBtn.addEventListener('click', () => {
-        securityOverlay.style.animation = 'slideInLeft 0.5s ease-out reverse';
+        securityOverlay.style.animation = 'slideInRight 0.5s ease-out reverse';
         setTimeout(() => securityOverlay.remove(), 500);
     });
     
@@ -1112,10 +1113,16 @@ function testTransferOverlay() {
     showTransferOverlay(testData);
 }
 
-// Make test function globally available for debugging
+// Make test functions globally available for debugging
 window.testTransferOverlay = testTransferOverlay;
 window.testSecurityOverlay = createSecurityOverlay;
 console.log('testTransferOverlay and testSecurityOverlay functions made globally available');
+
+// Also make the functions available immediately when script loads
+if (typeof window !== 'undefined') {
+    window.testTransferOverlay = testTransferOverlay;
+    window.testSecurityOverlay = createSecurityOverlay;
+}
 
 // Function to show success message
 function showSuccessMessage(message) {
