@@ -516,6 +516,11 @@
                             <option value="admin">Admin - Full access</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="newUserSecretKey">Secret Key (optional):</label>
+                        <input type="text" id="newUserSecretKey" placeholder="Leave blank for auto-generated key">
+                        <small style="color: #666; font-size: 12px;">If left blank, a random key will be generated automatically</small>
+                    </div>
                     <button class="btn" onclick="createUser()">Create User</button>
                 </div>
 
@@ -596,6 +601,42 @@
             <div class="qr-code" id="modalQRCode"></div>
             <div class="secret-key" id="modalSecretKey"></div>
             <button class="copy-btn" onclick="copyModalSecretKey()">Copy Key</button>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditUserModal()">&times;</span>
+            <h2 id="editModalUserName">Edit User</h2>
+            <div class="user-form">
+                <div class="form-group">
+                    <label for="editUserName">Full Name:</label>
+                    <input type="text" id="editUserName" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label for="editUserRole">Role:</label>
+                    <select id="editUserRole">
+                        <option value="fronter">Fronter - Can submit jobs</option>
+                        <option value="closer">Closer - Can receive transfers</option>
+                        <option value="admin">Admin - Full access</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserSecretKey">Secret Key:</label>
+                    <input type="text" id="editUserSecretKey" placeholder="Enter new secret key">
+                    <small style="color: #666; font-size: 12px;">Leave blank to keep current key</small>
+                </div>
+                <div class="form-group">
+                    <label for="editUserStatus">Status:</label>
+                    <select id="editUserStatus">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="saveUserChanges()">Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -708,14 +749,21 @@
 
             const name = document.getElementById('newUserName').value.trim();
             const role = document.getElementById('newUserRole').value;
+            const customKey = document.getElementById('newUserSecretKey').value.trim();
 
             if (!name) {
                 showNotification('Please enter a name', 'error');
                 return;
             }
 
-            // Generate secret key
-            const secretKey = generateSecretKey();
+            // Check if custom key already exists
+            if (customKey && users.find(u => u.secretKey === customKey)) {
+                showNotification('This secret key is already in use. Please choose a different one.', 'error');
+                return;
+            }
+
+            // Use custom key or generate one
+            const secretKey = customKey || generateSecretKey();
             
             const newUser = {
                 id: Date.now().toString(),
@@ -732,8 +780,9 @@
             
             // Clear form
             document.getElementById('newUserName').value = '';
+            document.getElementById('newUserSecretKey').value = '';
             
-            showNotification(`User ${name} created successfully!`, 'success');
+            showNotification(`User ${name} created successfully with key: ${secretKey}`, 'success');
         }
 
         // Generate secret key
@@ -785,7 +834,10 @@
                         <div class="user-name">${user.name}</div>
                         <div class="user-actions">
                             <button class="btn btn-secondary" onclick="viewUser('${user.id}')">View</button>
-                            ${currentUser.role === 'admin' ? `<button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>` : ''}
+                            ${currentUser.role === 'admin' ? `
+                                <button class="btn btn-success" onclick="editUser('${user.id}')">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
+                            ` : ''}
                         </div>
                     </div>
                     <div class="user-details">
@@ -841,6 +893,64 @@
         // Close user modal
         function closeUserModal() {
             document.getElementById('userModal').style.display = 'none';
+        }
+
+        // Edit user
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('editModalUserName').textContent = `Edit ${user.name}`;
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserSecretKey').value = '';
+            document.getElementById('editUserStatus').value = user.isActive.toString();
+            
+            // Store the user ID being edited
+            document.getElementById('editUserModal').setAttribute('data-user-id', userId);
+            document.getElementById('editUserModal').style.display = 'block';
+        }
+
+        // Close edit user modal
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        // Save user changes
+        function saveUserChanges() {
+            const userId = document.getElementById('editUserModal').getAttribute('data-user-id');
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            const newName = document.getElementById('editUserName').value.trim();
+            const newRole = document.getElementById('editUserRole').value;
+            const newKey = document.getElementById('editUserSecretKey').value.trim();
+            const newStatus = document.getElementById('editUserStatus').value === 'true';
+
+            if (!newName) {
+                showNotification('Please enter a name', 'error');
+                return;
+            }
+
+            // Check if new key already exists (if provided)
+            if (newKey && newKey !== user.secretKey && users.find(u => u.secretKey === newKey)) {
+                showNotification('This secret key is already in use. Please choose a different one.', 'error');
+                return;
+            }
+
+            // Update user
+            user.name = newName;
+            user.role = newRole;
+            if (newKey) {
+                user.secretKey = newKey;
+            }
+            user.isActive = newStatus;
+
+            saveUsers();
+            loadUsers();
+            closeEditUserModal();
+            
+            showNotification(`User ${newName} updated successfully!`, 'success');
         }
 
         // Delete user
@@ -1076,9 +1186,14 @@
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('userModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            const userModal = document.getElementById('userModal');
+            const editUserModal = document.getElementById('editUserModal');
+            
+            if (event.target === userModal) {
+                userModal.style.display = 'none';
+            }
+            if (event.target === editUserModal) {
+                editUserModal.style.display = 'none';
             }
         }
     </script>
