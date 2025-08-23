@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Page Price Analyzer",
-  "version": "1.0",
-  "description": "Analyzes web pages and extracts pricing information based on page content",
+  "name": "Page Price Analyzer - Job Number Extractor",
+  "version": "1.0.0",
+  "description": "Extract job numbers from web pages and submit them to your database. Perfect for job tracking and analysis.",
   "permissions": [
     "activeTab",
     "storage",
@@ -13,7 +13,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Page Price Analyzer"
+    "default_title": "Page Price Analyzer - Job Number Extractor"
   },
   "content_scripts": [
     {
@@ -24,5 +24,13 @@
   ],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "author": "Your Name",
+  "homepage_url": "https://pricerr.vercel.app/",
+  "short_name": "Job Extractor"
 }
