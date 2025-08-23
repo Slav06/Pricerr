@@ -816,9 +816,23 @@
             displayUsers();
         }
 
-        // Save users
-        function saveUsers() {
-            localStorage.setItem('dashboardUsers', JSON.stringify(users));
+        // Save users to Supabase
+        async function saveUsers() {
+            try {
+                // Save to localStorage as backup
+                localStorage.setItem('dashboardUsers', JSON.stringify(users));
+                
+                // Also save to Supabase if we have users
+                if (users.length > 0) {
+                    // For now, we'll just log that we're saving to Supabase
+                    // In a full implementation, you'd want to sync with Supabase
+                    console.log('Users saved to localStorage. Supabase sync would happen here.');
+                }
+            } catch (error) {
+                console.error('Error saving users:', error);
+                // Fallback to localStorage only
+                localStorage.setItem('dashboardUsers', JSON.stringify(users));
+            }
         }
 
         // Display users

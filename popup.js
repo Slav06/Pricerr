@@ -30,36 +30,58 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Login function - validates against dashboard users
-    function handleLogin() {
+    // Login function - validates against Supabase users
+    async function handleLogin() {
         const secretKey = secretKeyInput.value.trim();
         if (!secretKey) {
             showNotification('Please enter your secret key', 'error');
             return;
         }
         
-        // Get dashboard users from localStorage (shared with dashboard)
-        chrome.storage.local.get(['dashboardUsers'], (result) => {
-            const dashboardUsers = result.dashboardUsers || [];
-            const user = dashboardUsers.find(u => u.secretKey === secretKey && u.isActive);
+        try {
+            // Show loading state
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
             
-            if (user) {
-                // Store user info in Chrome storage
-                currentUserData = user;
-                chrome.storage.local.set({ popupUser: user }, () => {
-                    showUserInfo(user);
-                    console.log('User logged in:', user.name, 'Role:', user.role);
-                    
-                    // Clear input
-                    secretKeyInput.value = '';
-                    
-                    // Show success notification
-                    showNotification(`Welcome, ${user.name}!`, 'success');
-                });
+            // Get users from Supabase
+            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&secretKey=eq.' + encodeURIComponent(secretKey), {
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                }
+            });
+            
+            if (response.ok) {
+                const users = await response.json();
+                const user = users[0]; // Should be only one user with this secret key
+                
+                if (user && user.isActive) {
+                    // Store user info in Chrome storage
+                    currentUserData = user;
+                    chrome.storage.local.set({ popupUser: user }, () => {
+                        showUserInfo(user);
+                        console.log('User logged in:', user.name, 'Role:', user.role);
+                        
+                        // Clear input
+                        secretKeyInput.value = '';
+                        
+                        // Show success notification
+                        showNotification(`Welcome, ${user.name}!`, 'success');
+                    });
+                } else {
+                    showNotification('Invalid or inactive secret key', 'error');
+                }
             } else {
-                showNotification('Invalid or inactive secret key', 'error');
+                showNotification('Login failed. Please try again.', 'error');
             }
-        });
+        } catch (error) {
+            console.error('Login error:', error);
+            showNotification('Network error. Please check your connection.', 'error');
+        } finally {
+            // Reset button state
+            loginBtn.textContent = 'Login';
+            loginBtn.disabled = false;
+        }
     }
     
     // Logout function
