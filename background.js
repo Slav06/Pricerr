@@ -134,100 +134,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
             });
             
-            // Forward the transfer message to the tab where the job was originally submitted
-            if (request.data.page_url) {
-                chrome.tabs.query({}, function(tabs) {
-                    console.log('Searching through tabs for URL match...');
-                    console.log('Target page URL:', request.data.page_url);
-                    
-                    // Try multiple matching strategies
-                    let targetTab = null;
-                    
-                    // Strategy 1: Exact URL match
-                    targetTab = tabs.find(tab => tab.url === request.data.page_url);
-                    if (targetTab) {
-                        console.log('Found exact URL match:', targetTab.url);
-                    }
-                    
-                    // Strategy 2: Domain + path match
-                    if (!targetTab) {
-                        const targetUrl = new URL(request.data.page_url);
-                        targetTab = tabs.find(tab => {
-                            try {
-                                const tabUrl = new URL(tab.url);
-                                return tabUrl.hostname === targetUrl.hostname && 
-                                       tabUrl.pathname === targetUrl.pathname;
-                            } catch (e) {
-                                return false;
-                            }
-                        });
-                        if (targetTab) {
-                            console.log('Found domain + path match:', targetTab.url);
-                        }
-                    }
-                    
-                    // Strategy 3: Contains job number in URL
-                    if (!targetTab && request.data.job_number) {
-                        targetTab = tabs.find(tab => tab.url && tab.url.includes(request.data.job_number));
-                        if (targetTab) {
-                            console.log('Found job number match in URL:', targetTab.url);
-                        }
-                    }
-                    
-                    // Strategy 4: Contains domain from page URL
-                    if (!targetTab) {
-                        const targetDomain = request.data.page_url.split('/')[2]; // Get domain
-                        targetTab = tabs.find(tab => tab.url && tab.url.includes(targetDomain));
-                        if (targetTab) {
-                            console.log('Found domain match:', targetTab.url);
-                        }
-                    }
-                    
-                    if (targetTab) {
-                        console.log('Sending transfer overlay to tab:', targetTab.url);
-                        chrome.tabs.sendMessage(targetTab.id, {
-                            action: 'showTransferOverlay',
-                            data: request.data
-                        }).catch(error => {
-                            console.log('Could not send transfer message to content script:', error);
-                        });
-                    } else {
-                        console.log('Could not find matching tab. Available tabs:');
-                        tabs.forEach(tab => console.log('-', tab.url));
-                        
-                        // Fallback: try to send to active tab
-                        chrome.tabs.query({active: true, currentWindow: true}, function(activeTabs) {
-                            if (activeTabs[0]) {
-                                console.log('Fallback: sending to active tab:', activeTabs[0].url);
-                                chrome.tabs.sendMessage(activeTabs[0].id, {
-                                    action: 'showTransferOverlay',
-                                    data: request.data
-                                }).catch(error => {
-                                    console.log('Could not send transfer message to active tab:', error);
-                                });
-                            }
-                        });
-                    }
-                });
-            } else {
-                // Fallback: send to active tab if no page URL
-                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                    if (tabs[0]) {
-                        console.log('No page URL, sending to active tab:', tabs[0].url);
-                        chrome.tabs.sendMessage(tabs[0].id, {
-                            action: 'showTransferOverlay',
-                            data: request.data
-                        }).catch(error => {
-                            console.log('Could not send transfer message to content script:', error);
-                        });
-                    }
-                });
-            }
-            
             sendResponse({ success: true });
             return true;
             
-
+        case 'getTransferUpdates':
+            // Get transfer updates for popup
+            chrome.storage.local.get(['transferUpdates'], (result) => {
+                sendResponse({ transferUpdates: result.transferUpdates || {} });
+            });
+            return true;
+            
+        case 'clearTransferUpdate':
+            // Clear a specific transfer update
+            chrome.storage.local.get(['transferUpdates'], (result) => {
+                const transferUpdates = result.transferUpdates || {};
+                delete transferUpdates[request.jobId];
+                
+                chrome.storage.local.set({ transferUpdates }, () => {
+                    sendResponse({ success: true });
+                });
+            });
+            return true;
             
         default:
             sendResponse({ error: 'Unknown action' });
@@ -309,6 +236,19 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
                     // Tab might not have content script, ignore error
                 });
             });
+        });
+    }
+    
+    // Notify popups about transfer updates
+    if (namespace === 'local' && changes.transferUpdates) {
+        console.log('Transfer updates changed:', changes.transferUpdates);
+        
+        // Notify all popups about the change
+        chrome.runtime.sendMessage({
+            action: 'transferUpdatesChanged',
+            data: changes.transferUpdates.newValue || {}
+        }).catch(() => {
+            // Ignore errors if no popups are listening
         });
     }
 });

@@ -1903,20 +1903,25 @@
                          page_url: item.page_url
                      };
                      
-                     // Store transfer update in Chrome storage for popup to pick up
+                     // Send transfer update to extension background script
                      try {
-                         // First try to store in Chrome storage
-                         if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-                             chrome.storage.local.get(['transferUpdates'], (result) => {
-                                 const transferUpdates = result.transferUpdates || {};
-                                 const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
-                                 transferUpdates[key] = transferData;
-                                 
-                                 chrome.storage.local.set({ transferUpdates }, () => {
-                                     console.log('Transfer update stored in Chrome storage:', transferData);
-                                 });
+                         if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
+                             window.chrome.runtime.sendMessage({
+                                 action: 'transferUpdated',
+                                 data: transferData
+                             }).then(response => {
+                                 if (response && response.success) {
+                                     console.log('✅ Transfer update sent to extension successfully');
+                                 } else {
+                                     console.log('❌ Transfer update failed:', response?.error);
+                                 }
+                             }).catch(error => {
+                                 console.log('⚠️ Extension message failed (expected if not on extension page):', error);
                              });
                          }
+                         
+                         // Show overlay on the current page
+                         this.showTransferOverlayOnPage(transferData);
                          
                          // Also store in localStorage as backup
                          try {
@@ -1924,26 +1929,13 @@
                              const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
                              transferUpdates[key] = transferData;
                              localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-                             console.log('Transfer update stored in localStorage as backup:', transferData);
+                             console.log('✅ Transfer update stored in localStorage as backup');
                          } catch (localError) {
-                             console.log('localStorage backup failed:', localError);
-                         }
-                         
-                         // Show overlay on the current page
-                         this.showTransferOverlayOnPage(transferData);
-                         
-                         // Also try to send to extension as backup
-                         if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-                             window.chrome.runtime.sendMessage({
-                                 action: 'transferUpdated',
-                                 data: transferData
-                             }).catch(error => {
-                                 console.log('Extension message failed (expected):', error);
-                             });
+                             console.log('⚠️ localStorage backup failed:', localError);
                          }
                          
                      } catch (error) {
-                         console.error('Error storing transfer update:', error);
+                         console.error('❌ Error with transfer update:', error);
                          showNotification('Error initiating transfer', 'error');
                      }
                  } catch (error) {
@@ -2165,7 +2157,7 @@
         
         // Test function for the new transfer system
         window.testTransferSystem = function() {
-            console.log('Testing transfer system...');
+            console.log('🧪 Testing transfer system...');
             
             // Create test transfer data
             const testTransferData = {
@@ -2180,34 +2172,44 @@
             
             console.log('Test transfer data:', testTransferData);
             
-            // Try to store in Chrome storage
-            if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-                chrome.storage.local.get(['transferUpdates'], (result) => {
-                    const transferUpdates = result.transferUpdates || {};
-                    const key = `${testTransferData.jobId}_${testTransferData.chrome_profile_id}`;
-                    transferUpdates[key] = testTransferData;
-                    
-                    chrome.storage.local.set({ transferUpdates }, () => {
-                        console.log('✅ Test transfer stored in Chrome storage');
+            // Try to send to extension background script
+            if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
+                window.chrome.runtime.sendMessage({
+                    action: 'transferUpdated',
+                    data: testTransferData
+                }).then(response => {
+                    if (response && response.success) {
+                        console.log('✅ Test transfer sent to extension successfully');
                         alert('Test transfer created! Check the extension popup.');
-                    });
+                    } else {
+                        console.log('❌ Test transfer failed:', response?.error);
+                        alert('Test transfer failed. Check console for details.');
+                    }
+                }).catch(error => {
+                    console.log('⚠️ Extension message failed (expected if not on extension page):', error);
+                    // Fallback to localStorage
+                    fallbackToLocalStorage(testTransferData);
                 });
             } else {
-                console.log('Chrome storage not available, using localStorage');
-                // Fallback to localStorage
-                try {
-                    const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-                    const key = `${testTransferData.jobId}_${testTransferData.chrome_profile_id}`;
-                    transferUpdates[key] = testTransferData;
-                    localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-                    console.log('✅ Test transfer stored in localStorage');
-                    alert('Test transfer created! Check the extension popup.');
-                } catch (error) {
-                    console.error('Failed to store test transfer:', error);
-                    alert('Failed to create test transfer');
-                }
+                console.log('Chrome runtime not available, using localStorage fallback');
+                fallbackToLocalStorage(testTransferData);
             }
         };
+        
+        // Fallback function for localStorage
+        function fallbackToLocalStorage(testTransferData) {
+            try {
+                const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+                const key = `${testTransferData.jobId}_${testTransferData.chrome_profile_id}`;
+                transferUpdates[key] = testTransferData;
+                localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                console.log('✅ Test transfer stored in localStorage as fallback');
+                alert('Test transfer created in localStorage! Check the extension popup.');
+            } catch (error) {
+                console.error('❌ Failed to store test transfer in localStorage:', error);
+                alert('Failed to create test transfer');
+            }
+        }
         
         console.log('testTransferSystem function made globally available');
     </script>
