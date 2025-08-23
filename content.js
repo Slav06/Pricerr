@@ -471,8 +471,10 @@ class PageAnalyzer {
             }
         }
         
-        // Extract Moving From - look for FROMTO class table rows
-        const fromToRows = document.querySelectorAll('tr td.FROMTO');
+        // Extract Moving From - look for FROMTO class table cells
+        const fromToRows = document.querySelectorAll('td.FROMTO');
+        console.log('Found FROMTO cells:', fromToRows.length, Array.from(fromToRows).map(el => el.textContent?.trim()));
+        
         if (fromToRows.length >= 6) { // Should have 6 cells: 3 for FROM + 3 for TO
             // First 3 cells are Moving From (city, state, zip)
             const fromCity = fromToRows[0]?.textContent?.trim().replace(/\s+$/, '') || '';
@@ -485,6 +487,7 @@ class PageAnalyzer {
                     this.data.movingDetails.movingFrom += ` ${fromZip}`;
                 }
             }
+            console.log('Moving From extracted:', { fromCity, fromState, fromZip });
             
             // Next 3 cells are Moving To (city, state, zip)
             const toCity = fromToRows[3]?.textContent?.trim().replace(/\s+$/, '') || '';
@@ -497,8 +500,10 @@ class PageAnalyzer {
                     this.data.movingDetails.movingTo += ` ${toZip}`;
                 }
             }
+            console.log('Moving To extracted:', { toCity, toState, toZip });
         } else {
             // Fallback: try regex patterns if DOM structure doesn't match
+            console.log('FROMTO cells not found, trying regex fallback...');
             const fromMatch = textContent.match(/Moving\s+From[:\s-]+([A-Za-z\s]+)/i);
             if (fromMatch) {
                 this.data.movingDetails.movingFrom = fromMatch[1].trim();
@@ -1116,13 +1121,23 @@ function testTransferOverlay() {
 // Make test functions globally available for debugging
 window.testTransferOverlay = testTransferOverlay;
 window.testSecurityOverlay = createSecurityOverlay;
-console.log('testTransferOverlay and testSecurityOverlay functions made globally available');
 
 // Also make the functions available immediately when script loads
 if (typeof window !== 'undefined') {
     window.testTransferOverlay = testTransferOverlay;
     window.testSecurityOverlay = createSecurityOverlay;
 }
+
+console.log('testTransferOverlay and testSecurityOverlay functions made globally available');
+
+// Force global availability
+setTimeout(() => {
+    if (typeof window !== 'undefined') {
+        window.testTransferOverlay = testTransferOverlay;
+        window.testSecurityOverlay = createSecurityOverlay;
+        console.log('Test functions forced to global scope');
+    }
+}, 100);
 
 // Function to show success message
 function showSuccessMessage(message) {
