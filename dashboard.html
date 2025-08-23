@@ -507,7 +507,7 @@
             <div class="header-text">
                 <h1>Transfer Log</h1>
                 <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
-                <button onclick="testTransferSystem()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
+                <button onclick="testTransferSystem()" style="background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: block; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;">
                     🧪 Test Transfer System
                 </button>
             </div>
@@ -535,6 +535,9 @@
              </div>
 
              <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
+             <button onclick="testTransferSystem()" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold;">
+                 🧪 Test Transfer
+             </button>
          </div>
 
 
@@ -2111,6 +2114,10 @@
         let dashboard;
         document.addEventListener('DOMContentLoaded', () => {
             dashboard = new JobDashboard();
+            
+            // Log that test function is available
+            console.log('🧪 Dashboard loaded - testTransferSystem() function is available');
+            console.log('Click the green "Test Transfer System" button to test the transfer system');
         });
 
         // Clean up when page unloads
