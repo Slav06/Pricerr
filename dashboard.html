@@ -654,6 +654,11 @@
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initialized');
+            
+            // Clear any old fake user data from localStorage
+            localStorage.removeItem('dashboardUsers');
+            localStorage.removeItem('dashboardUser');
+            
             loadUsers();
             checkLoginStatus();
             
@@ -698,36 +703,41 @@
         // Check if user is already logged in
         async function checkLoginStatus() {
             try {
-                // First try to get from localStorage
+                // Clear any old localStorage data first
+                localStorage.removeItem('dashboardUser');
+                
+                // Load users from Supabase first to make sure we have real data
+                await loadUsers();
+                
+                // Only proceed if we have real users from Supabase
+                if (users.length === 0) {
+                    console.log('❌ No users found in Supabase - please create users first');
+                    return;
+                }
+                
+                // Check if there's a valid session
                 const savedUser = localStorage.getItem('dashboardUser');
                 if (savedUser) {
                     try {
-                        currentUser = JSON.parse(savedUser);
-                        console.log('🔐 Found saved user in localStorage:', currentUser.name);
-                        showDashboard();
-                        return;
+                        const sessionData = JSON.parse(savedUser);
+                        // Verify the user still exists in our current users list
+                        const userExists = users.find(u => u.id === sessionData.id && u.secretKey === sessionData.secretKey);
+                        if (userExists && userExists.isActive) {
+                            currentUser = userExists;
+                            console.log('🔐 Restored session for user:', currentUser.name);
+                            showDashboard();
+                            return;
+                        } else {
+                            console.log('❌ Saved session user no longer exists or is inactive');
+                            localStorage.removeItem('dashboardUser');
+                        }
                     } catch (error) {
                         console.error('Error parsing saved user:', error);
                         localStorage.removeItem('dashboardUser');
                     }
                 }
                 
-                // If no localStorage user, try to restore session from Supabase
-                console.log('🔄 No saved session, checking Supabase for active users...');
-                
-                // Load users first to make sure we have the latest data
-                await loadUsers();
-                
-                // Check if there's a session cookie or try to auto-login with a default admin
-                const adminUser = users.find(u => u.role === 'admin' && u.isActive);
-                if (adminUser) {
-                    console.log('🔄 Auto-login with admin user:', adminUser.name);
-                    currentUser = adminUser;
-                    localStorage.setItem('dashboardUser', JSON.stringify(adminUser));
-                    showDashboard();
-                } else {
-                    console.log('❌ No active admin user found');
-                }
+                console.log('🔐 No valid session found - please login');
                 
             } catch (error) {
                 console.error('Error checking login status:', error);
@@ -912,45 +922,19 @@
                         isActive: user.isactive
                     }));
                     
-                    // Also save to localStorage as backup
-                    localStorage.setItem('dashboardUsers', JSON.stringify(users));
+                    // Clear any old localStorage data
+                    localStorage.removeItem('dashboardUsers');
                 } else {
-                    console.log('❌ Could not load users from Supabase, using localStorage fallback');
-                    // Fallback to localStorage
-                    const savedUsers = localStorage.getItem('dashboardUsers');
-                    if (savedUsers) {
-                        users = JSON.parse(savedUsers);
-                    } else {
-                        // Create default admin user
-                        users = [{
-                            id: '1',
-                            name: 'Admin User',
-                            role: 'admin',
-                            secretKey: 'ADMIN123456789',
-                            createdAt: new Date().toISOString(),
-                            isActive: true
-                        }];
-                        saveUsers();
-                    }
+                    console.log('❌ Could not load users from Supabase');
+                    users = [];
+                    // Clear any old localStorage data
+                    localStorage.removeItem('dashboardUsers');
                 }
             } catch (error) {
                 console.error('❌ Error loading users from Supabase:', error);
-                // Fallback to localStorage
-                const savedUsers = localStorage.getItem('dashboardUsers');
-                if (savedUsers) {
-                    users = JSON.parse(savedUsers);
-                } else {
-                    // Create default admin user
-                    users = [{
-                        id: '1',
-                        name: 'Admin User',
-                        role: 'admin',
-                        secretKey: 'ADMIN123456789',
-                        createdAt: new Date().toISOString(),
-                        isActive: true
-                    }];
-                    saveUsers();
-                }
+                users = [];
+                // Clear any old localStorage data
+                localStorage.removeItem('dashboardUsers');
             }
             
             displayUsers();
