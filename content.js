@@ -818,6 +818,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const analyzer = new PageAnalyzer();
     analyzer.analyzePage();
     analyzer.analyzeMovingCompanyPage();
+    
+    // Create the persistent submit button overlay
+    createSubmitButtonOverlay();
 });
 
 // Also run when window loads (for pages that load content dynamically)
@@ -826,6 +829,11 @@ window.addEventListener('load', () => {
     const analyzer = new PageAnalyzer();
     analyzer.analyzePage();
     analyzer.analyzeMovingCompanyPage();
+    
+    // Ensure submit button overlay is created
+    if (!document.getElementById('submit-button-overlay')) {
+        createSubmitButtonOverlay();
+    }
 });
 
 // Listen for dynamic content changes
@@ -840,6 +848,233 @@ observer.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+// Function to create and show the persistent submit button overlay
+function createSubmitButtonOverlay() {
+    // Remove any existing submit button overlay
+    const existingSubmitOverlay = document.getElementById('submit-button-overlay');
+    if (existingSubmitOverlay) {
+        existingSubmitOverlay.remove();
+    }
+    
+    // Create the submit button overlay
+    const submitOverlay = document.createElement('div');
+    submitOverlay.id = 'submit-button-overlay';
+    submitOverlay.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 50px;
+        box-shadow: 0 8px 32px rgba(107, 70, 193, 0.4);
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid rgba(255,255,255,0.3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: 16px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    `;
+    
+    // Add hover effects
+    submitOverlay.addEventListener('mouseenter', () => {
+        submitOverlay.style.transform = 'translateY(-5px) scale(1.05)';
+        submitOverlay.style.boxShadow = '0 12px 40px rgba(107, 70, 193, 0.6)';
+    });
+    
+    submitOverlay.addEventListener('mouseleave', () => {
+        submitOverlay.style.transform = 'translateY(0) scale(1)';
+        submitOverlay.style.boxShadow = '0 8px 32px rgba(107, 70, 193, 0.4)';
+    });
+    
+    // Create submit button content
+    submitOverlay.innerHTML = `
+        <span style="font-size: 20px;">📋</span>
+        <span>Submit Job</span>
+    `;
+    
+    // Add click functionality
+    submitOverlay.addEventListener('click', async () => {
+        try {
+            // Show loading state
+            submitOverlay.innerHTML = `
+                <span style="font-size: 20px;">⏳</span>
+                <span>Submitting...</span>
+            `;
+            submitOverlay.style.cursor = 'not-allowed';
+            
+            // Analyze the current page
+            const analyzer = new PageAnalyzer();
+            analyzer.analyzePage();
+            analyzer.analyzeMovingCompanyPage();
+            
+            // Get job details
+            const jobNumber = analyzer.data.jobDetails.jobNumber;
+            if (!jobNumber) {
+                throw new Error('No job number found on this page');
+            }
+            
+            // Get Chrome profile info
+            const profileInfo = await getChromeProfileInfo();
+            
+            // Submit to Supabase
+            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                },
+                body: JSON.stringify({
+                    job_number: jobNumber,
+                    page_url: window.location.href,
+                    source: 'Page Price Analyzer Extension',
+                    submitted_at: new Date().toISOString(),
+                    chrome_profile_id: profileInfo.profileId,
+                    chrome_profile_name: profileInfo.profileName,
+                    user_identifier: profileInfo.userIdentifier,
+                    customer_name: analyzer.data.movingDetails.customerName || null,
+                    moving_from: analyzer.data.movingDetails.movingFrom || null,
+                    moving_to: analyzer.data.movingDetails.movingTo || null,
+                    cubes: analyzer.data.movingDetails.cubes || null,
+                    pickup_date: analyzer.data.movingDetails.pickupDate || null,
+                    distance: analyzer.data.movingDetails.distance || null
+                })
+            });
+            
+            if (response.ok) {
+                // Show success state
+                submitOverlay.innerHTML = `
+                    <span style="font-size: 20px;">✅</span>
+                    <span>Job Submitted!</span>
+                `;
+                submitOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                
+                // Show success message
+                showSuccessMessage(`Job ${jobNumber} submitted successfully by ${profileInfo.profileName}!`);
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    submitOverlay.innerHTML = `
+                        <span style="font-size: 20px;">📋</span>
+                        <span>Submit Job</span>
+                    `;
+                    submitOverlay.style.background = 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)';
+                    submitOverlay.style.cursor = 'pointer';
+                }, 3000);
+            } else {
+                throw new Error(`Submission failed: ${response.status}`);
+            }
+            
+        } catch (error) {
+            console.error('Error submitting job:', error);
+            
+            // Show error state
+            submitOverlay.innerHTML = `
+                <span style="font-size: 20px;">❌</span>
+                <span>Error: ${error.message}</span>
+            `;
+            submitOverlay.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
+            
+            // Reset after 5 seconds
+            setTimeout(() => {
+                submitOverlay.innerHTML = `
+                    <span style="font-size: 20px;">📋</span>
+                    <span>Submit Job</span>
+                `;
+                submitOverlay.style.background = 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)';
+                submitOverlay.style.cursor = 'pointer';
+            }, 5000);
+        }
+    });
+    
+    // Add to page
+    document.body.appendChild(submitOverlay);
+    
+    console.log('Submit button overlay created');
+}
+
+// Function to show success message
+function showSuccessMessage(message) {
+    const successMsg = document.createElement('div');
+    successMsg.style.cssText = `
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4);
+        z-index: 10001;
+        font-family: Arial, sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        text-align: center;
+        animation: slideInDown 0.5s ease-out;
+        border: 2px solid rgba(255,255,255,0.3);
+    `;
+    
+    successMsg.textContent = message;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInDown {
+            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(successMsg);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        successMsg.style.animation = 'slideInDown 0.5s ease-out reverse';
+        setTimeout(() => successMsg.remove(), 500);
+    }, 5000);
+}
+
+// Function to get Chrome profile info
+async function getChromeProfileInfo() {
+    try {
+        // Try to get from chrome.storage.local
+        if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+            const result = await new Promise((resolve) => {
+                chrome.storage.local.get(['profileInfo'], (result) => {
+                    resolve(result.profileInfo);
+                });
+            });
+            
+            if (result) {
+                return result;
+            }
+        }
+        
+        // Fallback: generate unique identifiers
+        return {
+            profileId: 'profile_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            profileName: 'Chrome Profile',
+            userIdentifier: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        };
+        
+    } catch (error) {
+        console.error('Error getting profile info:', error);
+        return {
+            profileId: 'profile_fallback',
+            profileName: 'Chrome Profile',
+            userIdentifier: 'user_fallback'
+        };
+    }
+}
 
 // Function to show transfer overlay on the page
 function showTransferOverlay(transferData) {
@@ -885,33 +1120,48 @@ function showTransferOverlay(transferData) {
     // Create overlay content
     overlay.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: bold;">🎯 Job Transferred!</h3>
-            <button id="close-transfer-overlay" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
+            <h3 style="margin: 0; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🎯 JOB TRANSFERRED!</h3>
+            <button id="close-transfer-overlay" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.3s;">×</button>
         </div>
-        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <div style="margin-bottom: 8px;"><strong>Job:</strong> ${transferData.job_number || 'N/A'}</div>
-            <div style="margin-bottom: 8px;"><strong>Assigned To:</strong> ${transferData.user_name}</div>
-            <div style="font-size: 12px; opacity: 0.8;">${new Date().toLocaleString()}</div>
+        <div style="background: rgba(255,255,255,0.25); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 2px solid rgba(255,255,255,0.3);">
+            <div style="margin-bottom: 12px; font-size: 16px;"><strong>📋 Job Number:</strong> <span style="color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${transferData.job_number || 'N/A'}</span></div>
+            <div style="margin-bottom: 12px; font-size: 16px;"><strong>👤 Assigned To:</strong> <span style="color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">${transferData.user_name}</span></div>
+            <div style="font-size: 14px; opacity: 0.9; color: #fff;">🕐 ${new Date().toLocaleString()}</div>
         </div>
-        <div style="text-align: center; font-size: 12px; opacity: 0.8;">
-            This job has been assigned to ${transferData.user_name}
+        <div style="text-align: center; font-size: 14px; opacity: 0.9; color: #fff; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+            This job has been assigned to <strong>${transferData.user_name}</strong>
+        </div>
+        <div style="text-align: center; margin-top: 15px; font-size: 12px; opacity: 0.7; color: #fff;">
+            ⏰ Overlay will auto-hide in 10 minutes
         </div>
     `;
     
     // Add close button functionality
     const closeBtn = overlay.querySelector('#close-transfer-overlay');
+    
+    // Add hover effects
+    closeBtn.addEventListener('mouseenter', () => {
+        closeBtn.style.background = 'rgba(255,255,255,0.2)';
+        closeBtn.style.transform = 'scale(1.1)';
+    });
+    
+    closeBtn.addEventListener('mouseleave', () => {
+        closeBtn.style.background = 'none';
+        closeBtn.style.transform = 'scale(1)';
+    });
+    
     closeBtn.addEventListener('click', () => {
         overlay.style.animation = 'fadeOut 0.3s ease-out';
         setTimeout(() => overlay.remove(), 300);
     });
     
-    // Auto-remove after 8 seconds
+    // Auto-remove after 10 minutes (600 seconds)
     setTimeout(() => {
         if (overlay.parentNode) {
             overlay.style.animation = 'fadeOut 0.3s ease-out';
             setTimeout(() => overlay.remove(), 300);
         }
-    }, 8000);
+    }, 600000);
     
     // Add to page
     document.body.appendChild(overlay);
