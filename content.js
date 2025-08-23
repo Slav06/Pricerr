@@ -616,7 +616,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     
     if (request.action === 'showTransferOverlay') {
-        console.log('Showing transfer overlay:', request.data);
+        console.log('Content script received showTransferOverlay message:', request.data);
         showTransferOverlay(request.data);
         sendResponse({ success: true });
     }
@@ -821,6 +821,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Create the persistent submit button overlay
     createSubmitButtonOverlay();
+    
+    // Create the security monitoring overlay
+    createSecurityOverlay();
 });
 
 // Also run when window loads (for pages that load content dynamically)
@@ -833,6 +836,11 @@ window.addEventListener('load', () => {
     // Ensure submit button overlay is created
     if (!document.getElementById('submit-button-overlay')) {
         createSubmitButtonOverlay();
+    }
+    
+    // Ensure security overlay is created
+    if (!document.getElementById('security-overlay')) {
+        createSecurityOverlay();
     }
 });
 
@@ -1000,6 +1008,111 @@ function createSubmitButtonOverlay() {
     console.log('Submit button overlay created');
 }
 
+// Function to create and show the security monitoring overlay
+function createSecurityOverlay() {
+    // Remove any existing security overlay
+    const existingSecurityOverlay = document.getElementById('security-overlay');
+    if (existingSecurityOverlay) {
+        existingSecurityOverlay.remove();
+    }
+    
+    // Create the security overlay
+    const securityOverlay = document.createElement('div');
+    securityOverlay.id = 'security-overlay';
+    securityOverlay.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(220, 53, 69, 0.4);
+        z-index: 10002;
+        font-family: Arial, sans-serif;
+        max-width: 350px;
+        border: 3px solid rgba(255,255,255,0.3);
+        animation: slideInLeft 0.5s ease-out;
+    `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Create security content
+    securityOverlay.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🚨 SECURITY MONITORING</h3>
+            <button id="close-security-overlay" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.3s;">×</button>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);">
+            <div style="margin-bottom: 10px; font-weight: 600; color: #fff;">⚠️ WARNING:</div>
+            <div style="margin-bottom: 8px; font-size: 14px; line-height: 1.4;">
+                <strong>Lead theft is considered ESPIONAGE</strong> and can result in up to <strong>3 years in prison</strong>.
+            </div>
+            <div style="font-size: 12px; opacity: 0.9; color: #fff; font-style: italic;">
+                All activities are monitored and logged for security purposes.
+            </div>
+        </div>
+        <div style="text-align: center; font-size: 12px; opacity: 0.8; color: #fff;">
+            🔒 This system is protected by advanced security monitoring
+        </div>
+    `;
+    
+    // Add close button functionality
+    const closeBtn = securityOverlay.querySelector('#close-security-overlay');
+    
+    // Add hover effects
+    closeBtn.addEventListener('mouseenter', () => {
+        closeBtn.style.background = 'rgba(255,255,255,0.2)';
+        closeBtn.style.transform = 'scale(1.1)';
+    });
+    
+    closeBtn.addEventListener('mouseleave', () => {
+        closeBtn.style.background = 'none';
+        closeBtn.style.transform = 'scale(1)';
+    });
+    
+    closeBtn.addEventListener('click', () => {
+        securityOverlay.style.animation = 'slideInLeft 0.5s ease-out reverse';
+        setTimeout(() => securityOverlay.remove(), 500);
+    });
+    
+    // Add to page
+    document.body.appendChild(securityOverlay);
+    
+    // Add pulsing animation to make it more noticeable
+    securityOverlay.style.animation = 'slideInLeft 0.5s ease-out, pulse 2s ease-in-out infinite';
+    
+    console.log('Security overlay created');
+}
+
+// Test function to manually trigger transfer overlay (for debugging)
+function testTransferOverlay() {
+    console.log('Testing transfer overlay...');
+    const testData = {
+        jobId: 'test123',
+        user_name: 'Test User',
+        job_number: 'TEST001',
+        chrome_profile_id: 'test_profile'
+    };
+    showTransferOverlay(testData);
+}
+
+// Make test function globally available for debugging
+window.testTransferOverlay = testTransferOverlay;
+
 // Function to show success message
 function showSuccessMessage(message) {
     const successMsg = document.createElement('div');
@@ -1078,6 +1191,8 @@ async function getChromeProfileInfo() {
 
 // Function to show transfer overlay on the page
 function showTransferOverlay(transferData) {
+    console.log('showTransferOverlay called with data:', transferData);
+    
     // Remove any existing overlay
     const existingOverlay = document.getElementById('transfer-overlay');
     if (existingOverlay) {
