@@ -5,9 +5,6 @@ class PopupManager {
             constructor() {
             this.initializeEventListeners();
             this.autoAnalyze();
-            
-            // Listen for transfer updates
-            this.listenForTransferUpdates();
         }
 
     initializeEventListeners() {
@@ -303,8 +300,7 @@ class PopupManager {
                 console.log('Job submitted to Supabase successfully');
                 this.showMessage(`Job submitted by ${profileInfo.profileName}!`, 'success');
                 
-                // Check for transfer updates for this job
-                this.checkForTransferUpdates(jobNumber, profileInfo.profileId);
+
             } else {
                 const errorData = await response.json();
                 throw new Error(`Supabase submission failed: ${response.status} - ${errorData.message || 'Unknown error'}`);
@@ -374,54 +370,7 @@ class PopupManager {
         }
     }
     
-    // Check for transfer updates for a specific job
-    async checkForTransferUpdates(jobNumber, profileId) {
-        try {
-            const result = await new Promise((resolve) => {
-                chrome.storage.local.get(['transferUpdates'], (result) => {
-                    resolve(result.transferUpdates || {});
-                });
-            });
-            
-            // Look for transfer updates for this job and profile
-            const key = Object.keys(result).find(k => {
-                const update = result[k];
-                return update.job_number === jobNumber && update.chrome_profile_id === profileId;
-            });
-            
-            if (key) {
-                this.displayTransferStatus(result[key]);
-            }
-        } catch (error) {
-            console.log('Error checking transfer updates:', error);
-        }
-    }
-    
-    // Display transfer status in the popup
-    displayTransferStatus(transferData) {
-        const transferStatus = document.getElementById('transferStatus');
-        const transferInfo = document.getElementById('transferInfo');
-        
-        if (transferStatus && transferInfo) {
-            transferInfo.innerHTML = `
-                <div class="job-number">Job: ${transferData.job_number}</div>
-                <div class="assigned-user">Transferred to: ${transferData.user_name}</div>
-                <div class="update-time">Updated: ${new Date(transferData.updated_at).toLocaleString()}</div>
-            `;
-            
-            transferStatus.style.display = 'block';
-        }
-    }
-    
-    // Listen for transfer updates from background script
-    listenForTransferUpdates() {
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            if (request.action === 'transferUpdateReceived') {
-                console.log('Transfer update received in popup:', request.data);
-                this.displayTransferStatus(request.data);
-            }
-        });
-    }
+
 }
 
 // Initialize popup when DOM is loaded

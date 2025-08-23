@@ -615,6 +615,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
     }
     
+    if (request.action === 'showTransferOverlay') {
+        console.log('Showing transfer overlay:', request.data);
+        showTransferOverlay(request.data);
+        sendResponse({ success: true });
+    }
+    
     if (request.action === 'insertMaxBinder') {
         console.log('Inserting Max Binder data:', request.data);
         
@@ -834,3 +840,81 @@ observer.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+// Function to show transfer overlay on the page
+function showTransferOverlay(transferData) {
+    // Remove any existing overlay
+    const existingOverlay = document.getElementById('transfer-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+    
+    // Create the overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'transfer-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+        max-width: 300px;
+        animation: slideInRight 0.5s ease-out;
+        border: 2px solid #fff;
+    `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Create overlay content
+    overlay.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: bold;">🎯 Job Transferred!</h3>
+            <button id="close-transfer-overlay" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
+        </div>
+        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="margin-bottom: 8px;"><strong>Job:</strong> ${transferData.job_number || 'N/A'}</div>
+            <div style="margin-bottom: 8px;"><strong>Assigned To:</strong> ${transferData.user_name}</div>
+            <div style="font-size: 12px; opacity: 0.8;">${new Date().toLocaleString()}</div>
+        </div>
+        <div style="text-align: center; font-size: 12px; opacity: 0.8;">
+            This job has been assigned to ${transferData.user_name}
+        </div>
+    `;
+    
+    // Add close button functionality
+    const closeBtn = overlay.querySelector('#close-transfer-overlay');
+    closeBtn.addEventListener('click', () => {
+        overlay.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => overlay.remove(), 300);
+    });
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        if (overlay.parentNode) {
+            overlay.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => overlay.remove(), 300);
+        }
+    }, 8000);
+    
+    // Add to page
+    document.body.appendChild(overlay);
+    
+    console.log('Transfer overlay displayed:', transferData);
+}

@@ -1670,19 +1670,47 @@
                 try {
                     // Try to send a message to the Chrome extension
                     if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
+                        const transferData = {
+                            jobId: jobId,
+                            user_name: newUser,
+                            job_number: item.job_number,
+                            chrome_profile_id: item.chrome_profile_id
+                        };
+                        
+                        // Send to background script
                         window.chrome.runtime.sendMessage({
                             action: 'transferUpdated',
-                            data: {
-                                jobId: jobId,
-                                user_name: newUser,
-                                job_number: item.job_number,
-                                chrome_profile_id: item.chrome_profile_id
-                            }
+                            data: transferData
                         });
+                        
+                        // Also try to show overlay on the current page if possible
+                        this.showTransferOverlayOnPage(transferData);
+                        
                         console.log('Chrome extension notified about transfer update');
                     }
                 } catch (error) {
                     console.log('Could not notify Chrome extension:', error);
+                }
+            }
+            
+            // Show transfer overlay on the current page
+            showTransferOverlayOnPage(transferData) {
+                try {
+                    // Try to send message to content script on current tab
+                    if (window.chrome && window.chrome.tabs) {
+                        window.chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                            if (tabs[0]) {
+                                window.chrome.tabs.sendMessage(tabs[0].id, {
+                                    action: 'showTransferOverlay',
+                                    data: transferData
+                                }).catch(() => {
+                                    // Content script might not be ready, ignore error
+                                });
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.log('Could not show overlay on page:', error);
                 }
             }
 
