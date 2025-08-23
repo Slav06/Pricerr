@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Submissions Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #6b46c1;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .refresh-btn {
+            background: #6b46c1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #553c9a;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: white;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6b46c1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table-container {
+            padding: 30px;
+            background: white;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .table-count {
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e9ecef;
+            color: #212529;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .job-number {
+            font-weight: 600;
+            color: #6b46c1;
+        }
+
+        .timestamp {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .source {
+            background: #e6d9ff;
+            color: #6b46c1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .page-url {
+            color: #007bff;
+            text-decoration: none;
+            max-width: 200px;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .page-url:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6b46c1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px;
+            color: #dc3545;
+            font-size: 1.1rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            color: #495057;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover {
+            background: #f8f9fa;
+            border-color: #6b46c1;
+            color: #6b46c1;
+        }
+
+        .pagination button.active {
+            background: #6b46c1;
+            color: white;
+            border-color: #6b46c1;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-table {
+                font-size: 14px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Job Submissions Dashboard</h1>
+            <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by job number, URL, or source...">
+            </div>
+            <div class="filter-group">
+                <label for="sourceFilter">Source:</label>
+                <select id="sourceFilter">
+                    <option value="">All Sources</option>
+                    <option value="Page Price Analyzer Extension">Extension</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="dateFilter">Date:</label>
+                <select id="dateFilter">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+            <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalJobs">-</div>
+                <div class="stat-label">Total Jobs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayJobs">-</div>
+                <div class="stat-label">Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="weekJobs">-</div>
+                <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="monthJobs">-</div>
+                <div class="stat-label">This Month</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">Recent Submissions</div>
+                <div class="table-count" id="tableCount">Showing 0 records</div>
+            </div>
+
+            <div id="tableContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading job submissions...
+                </div>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <script>
+        class JobDashboard {
+            constructor() {
+                this.supabaseUrl = 'https://your-project.supabase.co';
+                this.supabaseKey = 'your-anon-key';
+                this.currentPage = 1;
+                this.itemsPerPage = 20;
+                this.allData = [];
+                this.filteredData = [];
+                
+                this.initializeEventListeners();
+                this.loadData();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.filterData();
+                });
+
+                document.getElementById('sourceFilter').addEventListener('change', () => {
+                    this.filterData();
+                });
+
+                document.getElementById('dateFilter').addEventListener('change', () => {
+                    this.filterData();
+                });
+
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    this.loadData();
+                });
+            }
+
+            async loadData() {
+                try {
+                    this.showLoading();
+                    
+                    const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`, {
+                        headers: {
+                            'apikey': this.supabaseKey,
+                            'Authorization': `Bearer ${this.supabaseKey}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch data: ${response.status}`);
+                    }
+
+                    this.allData = await response.json();
+                    this.filterData();
+                    this.updateStats();
+                    
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    this.showError('Failed to load data: ' + error.message);
+                }
+            }
+
+            filterData() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const sourceFilter = document.getElementById('sourceFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+
+                this.filteredData = this.allData.filter(item => {
+                    // Search filter
+                    const matchesSearch = !searchTerm || 
+                        item.job_number?.toLowerCase().includes(searchTerm) ||
+                        item.page_url?.toLowerCase().includes(searchTerm) ||
+                        item.source?.toLowerCase().includes(searchTerm);
+
+                    // Source filter
+                    const matchesSource = !sourceFilter || item.source === sourceFilter;
+
+                    // Date filter
+                    let matchesDate = true;
+                    if (dateFilter) {
+                        const itemDate = new Date(item.submitted_at);
+                        const now = new Date();
+                        
+                        switch (dateFilter) {
+                            case 'today':
+                                matchesDate = itemDate.toDateString() === now.toDateString();
+                                break;
+                            case 'week':
+                                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                                matchesDate = itemDate >= weekAgo;
+                                break;
+                            case 'month':
+                                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                                matchesDate = itemDate >= monthAgo;
+                                break;
+                        }
+                    }
+
+                    return matchesSearch && matchesSource && matchesDate;
+                });
+
+                this.currentPage = 1;
+                this.displayData();
+            }
+
+            displayData() {
+                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+                const endIndex = startIndex + this.itemsPerPage;
+                const pageData = this.filteredData.slice(startIndex, endIndex);
+
+                const tableContent = document.getElementById('tableContent');
+                const tableCount = document.getElementById('tableCount');
+
+                if (this.filteredData.length === 0) {
+                    tableContent.innerHTML = `
+                        <div class="loading">
+                            <p>No job submissions found matching your criteria.</p>
+                        </div>
+                    `;
+                    tableCount.textContent = 'Showing 0 records';
+                    return;
+                }
+
+                const table = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Job Number</th>
+                                <th>Page URL</th>
+                                <th>Source</th>
+                                <th>Submitted At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pageData.map(item => `
+                                <tr>
+                                    <td class="job-number">${item.job_number || 'N/A'}</td>
+                                    <td>
+                                        <a href="${item.page_url || '#'}" target="_blank" class="page-url" title="${item.page_url || 'N/A'}">
+                                            ${item.page_url || 'N/A'}
+                                        </a>
+                                    </td>
+                                    <td><span class="source">${item.source || 'N/A'}</span></td>
+                                    <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                tableContent.innerHTML = table;
+                tableCount.textContent = `Showing ${startIndex + 1}-${Math.min(endIndex, this.filteredData.length)} of ${this.filteredData.length} records`;
+                
+                this.updatePagination();
+            }
+
+            updatePagination() {
+                const totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
+                const pagination = document.getElementById('pagination');
+
+                if (totalPages <= 1) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                let paginationHTML = '';
+                
+                // Previous button
+                paginationHTML += `
+                    <button ${this.currentPage === 1 ? 'disabled' : ''} onclick="dashboard.goToPage(${this.currentPage - 1})">
+                        Previous
+                    </button>
+                `;
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
+                        paginationHTML += `
+                            <button class="${i === this.currentPage ? 'active' : ''}" onclick="dashboard.goToPage(${i})">
+                                ${i}
+                            </button>
+                        `;
+                    } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
+                        paginationHTML += '<span>...</span>';
+                    }
+                }
+
+                // Next button
+                paginationHTML += `
+                    <button ${this.currentPage === totalPages ? 'disabled' : ''} onclick="dashboard.goToPage(${this.currentPage + 1})">
+                        Next
+                    </button>
+                `;
+
+                pagination.innerHTML = paginationHTML;
+            }
+
+            goToPage(page) {
+                this.currentPage = page;
+                this.displayData();
+            }
+
+            updateStats() {
+                const now = new Date();
+                const today = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+                document.getElementById('totalJobs').textContent = this.allData.length;
+                document.getElementById('todayJobs').textContent = this.allData.filter(item => 
+                    new Date(item.submitted_at) >= today
+                ).length;
+                document.getElementById('weekJobs').textContent = this.allData.filter(item => 
+                    new Date(item.submitted_at) >= weekAgo
+                ).length;
+                document.getElementById('monthJobs').textContent = this.allData.filter(item => 
+                    new Date(item.submitted_at) >= monthAgo
+                ).length;
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString);
+                return date.toLocaleString();
+            }
+
+            showLoading() {
+                document.getElementById('tableContent').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading job submissions...
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                document.getElementById('tableContent').innerHTML = `
+                    <div class="error">
+                        <p>${message}</p>
+                        <button onclick="dashboard.loadData()" style="margin-top: 20px; padding: 10px 20px; background: #6b46c1; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize dashboard when page loads
+        let dashboard;
+        document.addEventListener('DOMContentLoaded', () => {
+            dashboard = new JobDashboard();
+        });
+    </script>
+</body>
+</html>

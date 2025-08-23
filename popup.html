@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Price Analyzer</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Submit Job Number Button Section -->
+        <div class="top-button" id="submitJobButton">
+            <span class="star-icon">📋</span>
+            <span class="button-text">Submit Job Number</span>
+        </div>
+
+        <!-- Insert Max Binder Button Section -->
+        <div class="top-button">
+            <span class="star-icon">⭐</span>
+            <span class="button-text">Insert Max Binder</span>
+        </div>
+
+        <!-- Location Boxes Section -->
+        <div class="location-boxes">
+            <div class="location-box">
+                <span class="checkmark">✓</span>
+                <div class="location-content">
+                    <span class="label">From:</span>
+                    <div class="location-details">
+                        <span class="zip-state" id="fromZipState">Analyzing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="location-box">
+                <span class="checkmark">✓</span>
+                <div class="location-content">
+                    <span class="label">To:</span>
+                    <div class="location-details">
+                        <span class="zip-state" id="toZipState">Analyzing...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Slider Section -->
+        <div class="slider-section">
+            <div class="price-display">
+                <span class="price-label">Calculated Price:</span>
+                <span class="price-amount" id="calculatedPrice">$0.00</span>
+            </div>
+
+            <div class="slider-container">
+                <label class="slider-label" for="priceSlider">Adjust Price:</label>
+                <input type="range" id="priceSlider" min="100" max="2000" value="859" step="1">
+                <div class="slider-value" id="sliderValue">$859</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

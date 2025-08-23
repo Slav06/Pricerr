@@ -1,0 +1,206 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: white;
+    color: #333;
+}
+
+.container {
+    width: 400px !important;
+    height: 600px !important;
+    min-width: 400px !important;
+    min-height: 600px !important;
+    max-width: 400px !important;
+    max-height: 600px !important;
+    background: #f8f4ff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.top-button {
+    background: #e6d9ff;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.star-icon {
+    color: #6b46c1;
+    font-size: 20px;
+}
+
+.button-text {
+    color: #6b46c1;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.location-boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.location-box {
+    background: #f0e7ff;
+    border: 2px solid #d6bcff;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.checkmark {
+    color: #6b46c1;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+.location-content {
+    flex: 1;
+}
+
+.label {
+    color: #6b46c1;
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.location-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.zip-state {
+    color: #6b46c1;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.slider-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+}
+
+.price-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.price-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.price-amount {
+    font-size: 24px;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.slider-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+#priceSlider {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #dee2e6;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+#priceSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+#priceSlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+    border: none;
+}
+
+.slider-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #007bff;
+    text-align: center;
+}
+
+/* Message notifications */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.message.success {
+    background: #28a745;
+}
+
+.message.error {
+    background: #dc3545;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
