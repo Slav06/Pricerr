@@ -37,11 +37,17 @@
             gap: 30px;
         }
 
-        .header-logo {
-            height: 80px;
-            width: auto;
-            max-width: 200px;
-            object-fit: contain;
+        .header-logo-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Arial Black', sans-serif;
+            min-width: 200px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .header-text {
@@ -71,8 +77,9 @@
                 text-align: center;
             }
             
-            .header-logo {
-                height: 60px;
+            .header-logo-text {
+                font-size: 3rem;
+                min-width: 150px;
             }
         }
 
@@ -495,13 +502,13 @@
 </head>
 <body>
     <div class="container">
-                 <div class="header">
-             <img src="Screenshot 2025-08-22 224338.png" alt="Perfectly Fast Moving" class="header-logo">
-             <div class="header-text">
-                 <h1>Transfer Log</h1>
-                 <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
-             </div>
-         </div>
+                         <div class="header">
+            <div class="header-logo-text">PFM</div>
+            <div class="header-text">
+                <h1>Transfer Log</h1>
+                <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
+            </div>
+        </div>
 
                  <div class="controls">
              <div class="search-box">
