@@ -1394,14 +1394,15 @@ function startTransferUpdatePolling() {
             const currentProfileId = getCurrentChromeProfileId();
             
             // Look for updates for this profile
-            console.log('Current profile ID:', currentProfileId);
-            console.log('Available transfer updates:', transferUpdates);
+            console.log('🔍 Checking for transfer updates...');
+            console.log('👤 Current profile ID:', currentProfileId);
+            console.log('📋 Available transfer updates:', transferUpdates);
             
             Object.keys(transferUpdates).forEach(key => {
                 const update = transferUpdates[key];
-                console.log('Checking update:', update);
-                console.log('Update profile ID:', update.chrome_profile_id);
-                console.log('Profile ID match:', update.chrome_profile_id === currentProfileId);
+                console.log('🔍 Checking update:', update);
+                console.log('🆔 Update profile ID:', update.chrome_profile_id);
+                console.log('✅ Profile ID match:', update.chrome_profile_id === currentProfileId);
                 
                 // Check if this update is for the current profile
                 if (update.chrome_profile_id === currentProfileId) {
@@ -1469,36 +1470,64 @@ function getCurrentChromeProfileId() {
 // Start polling when content script loads
 startTransferUpdatePolling();
 
-// Add a test function for manual transfer overlay testing
-window.testTransferOverlayManual = function() {
-    const testData = {
-        job_number: 'TEST123',
-        user_name: 'Test User',
-        initiated_by: 'Dashboard User',
-        customer_name: 'Test Customer'
+// Add test functions to window object for debugging
+function attachTestFunctions() {
+    // Test function for manual transfer overlay testing
+    window.testTransferOverlayManual = function() {
+        const testData = {
+            job_number: 'TEST123',
+            user_name: 'Test User',
+            initiated_by: 'Dashboard User',
+            customer_name: 'Test Customer'
+        };
+        showTransferOverlay(testData);
+        console.log('Manual transfer overlay test triggered');
     };
-    showTransferOverlay(testData);
-    console.log('Manual transfer overlay test triggered');
-};
 
-// Add a test function to simulate transfer update from dashboard
-window.testTransferUpdateFromDashboard = function() {
-    const testUpdate = {
-        jobId: 'test123',
-        user_name: 'Test User',
-        job_number: 'TEST123',
-        customer_name: 'Test Customer',
-        chrome_profile_id: getCurrentChromeProfileId(),
-        initiated_by: 'Dashboard User',
-        page_url: window.location.href
+    // Test function to simulate transfer update from dashboard
+    window.testTransferUpdateFromDashboard = function() {
+        const testUpdate = {
+            jobId: 'test123',
+            user_name: 'Test User',
+            job_number: 'TEST123',
+            customer_name: 'Test Customer',
+            chrome_profile_id: getCurrentChromeProfileId(),
+            initiated_by: 'Dashboard User',
+            page_url: window.location.href
+        };
+        
+        // Store in localStorage as if it came from dashboard
+        const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+        const key = `${testUpdate.jobId}_${testUpdate.chrome_profile_id}`;
+        transferUpdates[key] = testUpdate;
+        localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+        
+        console.log('Test transfer update stored in localStorage:', testUpdate);
+        console.log('The polling system should detect this within 2 seconds');
     };
-    
-    // Store in localStorage as if it came from dashboard
-    const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
-    const key = `${testUpdate.jobId}_${testUpdate.chrome_profile_id}`;
-    transferUpdates[key] = testUpdate;
-    localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-    
-    console.log('Test transfer update stored in localStorage:', testUpdate);
-    console.log('The polling system should detect this within 2 seconds');
-};
+
+    // Test function to check current profile ID
+    window.checkProfileId = function() {
+        const profileId = getCurrentChromeProfileId();
+        console.log('Current profile ID:', profileId);
+        console.log('Profile info from localStorage:', localStorage.getItem('chrome_profile_info'));
+        return profileId;
+    };
+
+    // Test function to check transfer updates
+    window.checkTransferUpdates = function() {
+        const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+        console.log('Current transfer updates:', transferUpdates);
+        return transferUpdates;
+    };
+
+    console.log('Test functions attached to window object');
+    console.log('Available test functions:');
+    console.log('- testTransferOverlayManual() - Test overlay display');
+    console.log('- testTransferUpdateFromDashboard() - Simulate dashboard update');
+    console.log('- checkProfileId() - Check current profile ID');
+    console.log('- checkTransferUpdates() - Check current transfer updates');
+}
+
+// Attach test functions after a short delay to ensure everything is loaded
+setTimeout(attachTestFunctions, 1000);
