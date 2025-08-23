@@ -1149,16 +1149,7 @@ if (typeof window !== 'undefined') {
     window.testSecurityOverlay = createSecurityOverlay;
 }
 
-console.log('testTransferOverlay and testSecurityOverlay functions made globally available');
-
-// Force global availability
-setTimeout(() => {
-    if (typeof window !== 'undefined') {
-        window.testTransferOverlay = testTransferOverlay;
-        window.testSecurityOverlay = createSecurityOverlay;
-        console.log('Test functions forced to global scope');
-    }
-}, 100);
+console.log('Transfer overlay system initialized');
 
 // Function to show success message
 function showSuccessMessage(message) {
@@ -1527,7 +1518,15 @@ function attachTestFunctions() {
     console.log('- testTransferUpdateFromDashboard() - Simulate dashboard update');
     console.log('- checkProfileId() - Check current profile ID');
     console.log('- checkTransferUpdates() - Check current transfer updates');
+    
+    // Verify functions are actually available
+    console.log('Function availability check:');
+    console.log('testTransferOverlayManual:', typeof window.testTransferOverlayManual);
+    console.log('testTransferUpdateFromDashboard:', typeof window.testTransferUpdateFromDashboard);
+    console.log('checkProfileId:', typeof window.checkProfileId);
+    console.log('checkTransferUpdates:', typeof window.checkTransferUpdates);
 }
 
-// Attach test functions after a short delay to ensure everything is loaded
+// Attach test functions immediately and also after a delay as backup
+attachTestFunctions();
 setTimeout(attachTestFunctions, 1000);
