@@ -46,19 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             return true;
             
-        case 'updateUser':
-            // Handle user updates from dashboard
-            chrome.storage.local.set({ selectedUser: request.userName }, () => {
-                // Notify all popups about user change
-                chrome.runtime.sendMessage({
-                    action: 'updateUser',
-                    userName: request.userName
-                }).catch(() => {
-                    // Popup might not be open, ignore error
-                });
-                sendResponse({ success: true });
-            });
-            return true;
+
             
         default:
             sendResponse({ error: 'Unknown action' });

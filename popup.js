@@ -5,8 +5,6 @@ class PopupManager {
             constructor() {
             this.initializeEventListeners();
             this.autoAnalyze();
-            this.loadSavedUser();
-            this.listenForUserUpdates();
         }
 
     initializeEventListeners() {
@@ -265,8 +263,7 @@ class PopupManager {
                     job_number: jobNumber,
                     page_url: pageUrl,
                     submitted_at: new Date().toISOString(),
-                    source: 'Page Price Analyzer Extension',
-                    user_name: localStorage.getItem('selectedUser') || 'Unknown'
+                    source: 'Page Price Analyzer Extension'
                 })
             });
 
@@ -310,66 +307,7 @@ class PopupManager {
         }
     }
 
-    // Load saved user from localStorage and chrome.storage
-    async loadSavedUser() {
-        try {
-            // Try to get from chrome.storage first
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.get(['selectedUser'], (result) => {
-                    if (result.selectedUser) {
-                        this.updateUserDisplay(result.selectedUser);
-                        // Also save to localStorage for fallback
-                        localStorage.setItem('selectedUser', result.selectedUser);
-                        return;
-                    }
-                    // Fallback to localStorage
-                    this.loadFromLocalStorage();
-                });
-            } else {
-                // Fallback to localStorage
-                this.loadFromLocalStorage();
-            }
-        } catch (error) {
-            console.error('Error loading saved user:', error);
-            this.loadFromLocalStorage();
-        }
-    }
 
-    // Load from localStorage as fallback
-    loadFromLocalStorage() {
-        try {
-            const savedUser = localStorage.getItem('selectedUser');
-            if (savedUser) {
-                this.updateUserDisplay(savedUser);
-            } else {
-                this.updateUserDisplay('No user selected');
-            }
-        } catch (error) {
-            console.error('Error loading from localStorage:', error);
-            this.updateUserDisplay('No user selected');
-        }
-    }
-
-    // Update user display in popup
-    updateUserDisplay(userName) {
-        const userText = document.getElementById('userText');
-        if (userText) {
-            userText.textContent = userName;
-        }
-    }
-
-    // Listen for messages from dashboard
-    listenForUserUpdates() {
-        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
-            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-                if (request.action === 'updateUser') {
-                    this.updateUserDisplay(request.userName);
-                    // Save to localStorage
-                    localStorage.setItem('selectedUser', request.userName);
-                }
-            });
-        }
-    }
 }
 
 // Initialize popup when DOM is loaded

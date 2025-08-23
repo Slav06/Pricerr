@@ -45,74 +45,7 @@
             opacity: 0.9;
         }
 
-        .user-selection {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-        }
 
-        .user-selection label {
-            display: block;
-            color: white;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-
-        .user-select {
-            padding: 12px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 16px;
-            margin-right: 15px;
-            min-width: 200px;
-        }
-
-        .user-select option {
-            background: #6b46c1;
-            color: white;
-        }
-
-        .save-user-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .save-user-btn:hover {
-            background: #218838;
-        }
-
-        .user-status {
-            margin-top: 10px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            display: none;
-        }
-
-        .user-status.success {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
-
-        .user-status.error {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-            border: 1px solid rgba(220, 53, 69, 0.3);
-        }
 
         .controls {
             padding: 30px;
@@ -288,6 +221,26 @@
             font-weight: 600;
         }
 
+        .user-dropdown {
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .user-dropdown:focus {
+            outline: none;
+            border-color: #6b46c1;
+        }
+
+        .user-dropdown option {
+            background: white;
+            color: #495057;
+        }
+
         .page-url {
             color: #007bff;
             text-decoration: none;
@@ -407,21 +360,7 @@
             <h1>Job Submissions Dashboard</h1>
             <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
             
-            <!-- User Selection Section -->
-            <div class="user-selection">
-                <label for="currentUser">Select Your Name:</label>
-                <select id="currentUser" class="user-select">
-                    <option value="">Choose your name...</option>
-                    <option value="Roman">Roman</option>
-                    <option value="Michael">Michael</option>
-                    <option value="Molly">Molly</option>
-                    <option value="Tony">Tony</option>
-                    <option value="Steve">Steve</option>
-                    <option value="Bobby">Bobby</option>
-                </select>
-                <button id="saveUserBtn" class="save-user-btn">Save & Sync</button>
-                <div id="userStatus" class="user-status"></div>
-            </div>
+
         </div>
 
         <div class="controls">
@@ -444,18 +383,7 @@
                     <option value="month">This Month</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label for="nameFilter">User:</label>
-                <select id="nameFilter">
-                    <option value="">All Users</option>
-                    <option value="Roman">Roman</option>
-                    <option value="Michael">Michael</option>
-                    <option value="Molly">Molly</option>
-                    <option value="Tony">Tony</option>
-                    <option value="Steve">Steve</option>
-                    <option value="Bobby">Bobby</option>
-                </select>
-            </div>
+
             <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
             <button class="refresh-btn" id="autoRefreshBtn" style="background: #28a745; display: none;">🔄 Auto-refresh ON</button>
         </div>
@@ -525,21 +453,12 @@
                     this.filterData();
                 });
 
-                document.getElementById('nameFilter').addEventListener('change', () => {
-                    this.filterData();
-                });
-
                 document.getElementById('refreshBtn').addEventListener('click', () => {
                     this.loadData();
                 });
 
-                // User selection event listeners
-                document.getElementById('saveUserBtn').addEventListener('click', () => {
-                    this.saveUserSelection();
-                });
-
-                // Load saved user selection
-                this.loadSavedUser();
+                // Set up user dropdown change listeners after data loads
+                this.setupUserDropdownListeners();
             }
 
             async loadData() {
@@ -571,7 +490,6 @@
                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
                 const sourceFilter = document.getElementById('sourceFilter').value;
                 const dateFilter = document.getElementById('dateFilter').value;
-                const nameFilter = document.getElementById('nameFilter').value;
 
                 this.filteredData = this.allData.filter(item => {
                     // Search filter
@@ -605,10 +523,7 @@
                         }
                     }
 
-                    // User filter
-                    const matchesName = !nameFilter || item.user_name === nameFilter;
-
-                    return matchesSearch && matchesSource && matchesDate && matchesName;
+                    return matchesSearch && matchesSource && matchesDate;
                 });
 
                 this.currentPage = 1;
@@ -645,10 +560,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${pageData.map(item => `
-                                <tr>
+                            ${pageData.map((item, index) => `
+                                <tr data-job-id="${item.id || index}">
                                     <td class="job-number">${item.job_number || 'N/A'}</td>
-                                    <td><span class="user-badge">${item.user_name || 'Unknown'}</span></td>
+                                    <td>
+                                        <select class="user-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
+                                            <option value="">Select User</option>
+                                            <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
+                                            <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
+                                            <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
+                                            <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
+                                            <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
+                                            <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
+                                        </select>
+                                    </td>
                                     <td>
                                         <a href="${item.page_url || '#'}" target="_blank" class="page-url" title="${item.page_url || 'N/A'}">
                                             ${item.page_url || 'N/A'}
@@ -666,6 +591,7 @@
                 tableCount.textContent = `Showing ${startIndex + 1}-${Math.min(endIndex, this.filteredData.length)} of ${this.filteredData.length} records`;
                 
                 this.updatePagination();
+                this.setupUserDropdownListeners();
             }
 
             updatePagination() {
@@ -859,77 +785,105 @@
                 }
             }
 
-            // Save user selection to localStorage and sync with extension
-            saveUserSelection() {
-                const selectedUser = document.getElementById('currentUser').value;
-                const userStatus = document.getElementById('userStatus');
-                
-                if (!selectedUser) {
-                    this.showUserStatus('Please select a name first!', 'error');
+            // Set up user dropdown change listeners
+            setupUserDropdownListeners() {
+                const userDropdowns = document.querySelectorAll('.user-dropdown');
+                userDropdowns.forEach(dropdown => {
+                    dropdown.addEventListener('change', (e) => {
+                        this.handleUserChange(e.target);
+                    });
+                });
+            }
+
+            // Handle user dropdown change
+            async handleUserChange(dropdown) {
+                const jobId = dropdown.dataset.jobId;
+                const newUser = dropdown.value;
+                const originalUser = dropdown.dataset.originalUser;
+
+                if (!newUser) {
+                    // Reset to original user if "Select User" is chosen
+                    dropdown.value = originalUser;
                     return;
                 }
 
                 try {
-                    // Save to localStorage
-                    localStorage.setItem('selectedUser', selectedUser);
+                    // Update the user in the database
+                    await this.updateUserInDatabase(jobId, newUser);
                     
-                    // Send message to Chrome extension if available
-                    this.syncWithExtension(selectedUser);
+                    // Update the original user data
+                    dropdown.dataset.originalUser = newUser;
                     
-                    this.showUserStatus(`Name saved: ${selectedUser}`, 'success');
+                    // Show success message
+                    this.showRowMessage(dropdown, `User updated to ${newUser}`, 'success');
                     
-                    // Update the current user display
-                    this.updateCurrentUserDisplay(selectedUser);
+                    // Update local data
+                    const item = this.allData.find(item => (item.id || item.tempId) == jobId);
+                    if (item) {
+                        item.user_name = newUser;
+                    }
+                    
+                    // Update stats
+                    this.updateStats();
                     
                 } catch (error) {
-                    console.error('Error saving user selection:', error);
-                    this.showUserStatus('Error saving user selection', 'error');
+                    console.error('Error updating user:', error);
+                    this.showRowMessage(dropdown, 'Failed to update user', 'error');
+                    
+                    // Reset to original value
+                    dropdown.value = originalUser;
                 }
             }
 
-            // Show user status message
-            showUserStatus(message, type) {
-                const userStatus = document.getElementById('userStatus');
-                userStatus.textContent = message;
-                userStatus.className = `user-status ${type}`;
-                userStatus.style.display = 'block';
+            // Update user in database
+            async updateUserInDatabase(jobId, newUser) {
+                const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?id=eq.${jobId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': this.supabaseKey,
+                        'Authorization': `Bearer ${this.supabaseKey}`,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        user_name: newUser,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to update user: ${response.status}`);
+                }
+            }
+
+            // Show message for specific row
+            showRowMessage(dropdown, message, type) {
+                const row = dropdown.closest('tr');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `row-message ${type}`;
+                messageDiv.textContent = message;
+                messageDiv.style.cssText = `
+                    position: absolute;
+                    background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    z-index: 1000;
+                    white-space: nowrap;
+                `;
                 
-                // Hide after 3 seconds
+                // Position the message above the dropdown
+                const rect = dropdown.getBoundingClientRect();
+                messageDiv.style.left = `${rect.left}px`;
+                messageDiv.style.top = `${rect.top - 30}px`;
+                
+                document.body.appendChild(messageDiv);
+                
+                // Remove after 2 seconds
                 setTimeout(() => {
-                    userStatus.style.display = 'none';
-                }, 3000);
-            }
-
-            // Load saved user selection
-            loadSavedUser() {
-                const savedUser = localStorage.getItem('selectedUser');
-                if (savedUser) {
-                    document.getElementById('currentUser').value = savedUser;
-                    this.updateCurrentUserDisplay(savedUser);
-                }
-            }
-
-            // Update current user display
-            updateCurrentUserDisplay(userName) {
-                const currentUserDisplay = document.getElementById('currentUserDisplay');
-                if (currentUserDisplay) {
-                    currentUserDisplay.textContent = `Current User: ${userName}`;
-                }
-            }
-
-            // Sync with Chrome extension
-            syncWithExtension(userName) {
-                // Try to send message to extension if it's available
-                if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-                    try {
-                        chrome.runtime.sendMessage({
-                            action: 'updateUser',
-                            userName: userName
-                        });
-                    } catch (error) {
-                        console.log('Extension not available for sync');
-                    }
-                }
+                    messageDiv.remove();
+                }, 2000);
             }
         }
 
