@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricerr - Job Submissions Dashboard</title>
+    <meta name="description" content="Track all job numbers submitted through the Page Price Analyzer Extension">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #6b46c1;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: #6b46c1;
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #553c9a;
+        }
+
+        .features {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .feature-icon {
+            color: #6b46c1;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📊</div>
+        <h1 class="title">Pricerr Dashboard</h1>
+        <p class="description">
+            Professional dashboard for tracking job submissions from the Page Price Analyzer Extension. 
+            View statistics, search records, and manage your data with ease.
+        </p>
+        
+        <a href="/dashboard" class="btn">Open Dashboard</a>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">✅</span>
+                <span>Real-time job submission tracking</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📈</span>
+                <span>Comprehensive statistics and analytics</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🔍</span>
+                <span>Advanced search and filtering</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📱</span>
+                <span>Mobile-responsive design</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect to dashboard after 3 seconds
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 3000);
+    </script>
+</body>
+</html>
