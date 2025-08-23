@@ -312,231 +312,21 @@
              color: #adb5bd;
              font-size: 0.75rem;
              font-family: monospace;
-         }
-
-         .profile-management {
-             background: white;
-             padding: 30px;
-             border-bottom: 1px solid #e9ecef;
-         }
-
-         .profile-header {
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-             margin-bottom: 20px;
-         }
-
-         .profile-header h3 {
-             color: #212529;
-             font-size: 1.3rem;
-             font-weight: 600;
-         }
-
-         .add-profile-btn {
-             background: #28a745;
-             color: white;
-             border: none;
-             padding: 10px 20px;
-             border-radius: 6px;
-             font-size: 14px;
-             font-weight: 600;
              cursor: pointer;
-             transition: background 0.3s;
+             transition: color 0.2s;
          }
 
-         .add-profile-btn:hover {
-             background: #218838;
-         }
-
-         .profile-list {
-             display: grid;
-             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-             gap: 20px;
-         }
-
-         .profile-card {
-             background: #f8f9fa;
-             border: 1px solid #dee2e6;
-             border-radius: 8px;
-             padding: 20px;
-             position: relative;
-         }
-
-         .profile-card.editing {
-             background: #fff3cd;
-             border-color: #ffc107;
-         }
-
-         .profile-card-header {
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-             margin-bottom: 15px;
-         }
-
-         .profile-card-title {
-             font-weight: 600;
-             color: #495057;
-             font-size: 1.1rem;
-         }
-
-         .profile-card-actions {
-             display: flex;
-             gap: 8px;
-         }
-
-         .profile-action-btn {
-             background: none;
-             border: none;
-             padding: 4px 8px;
-             border-radius: 4px;
-             cursor: pointer;
-             font-size: 12px;
-             transition: background 0.2s;
-         }
-
-         .profile-action-btn.edit {
+         .profile-id:hover {
              color: #007bff;
+             text-decoration: underline;
          }
 
-         .profile-action-btn.edit:hover {
-             background: #e3f2fd;
-         }
-
-         .profile-action-btn.delete {
-             color: #dc3545;
-         }
-
-         .profile-action-btn.delete:hover {
-             background: #f8d7da;
-         }
-
-         .profile-action-btn.save {
-             color: #28a745;
-         }
-
-         .profile-action-btn.save:hover {
-             background: #d4edda;
-         }
-
-         .profile-action-btn.cancel {
-             color: #6c757d;
-         }
-
-         .profile-action-btn.cancel:hover {
-             background: #e9ecef;
-         }
-
-         .profile-info {
-             margin-bottom: 15px;
-         }
-
-         .profile-info-row {
-             display: flex;
-             justify-content: space-between;
-             margin-bottom: 8px;
-             font-size: 0.9rem;
-         }
-
-         .profile-info-label {
-             color: #6c757d;
-             font-weight: 500;
-         }
-
-         .profile-info-value {
-             color: #495057;
-             font-family: monospace;
-             font-size: 0.8rem;
-         }
-
-         .profile-form {
-             display: none;
-         }
-
-         .profile-form.active {
-             display: block;
-         }
-
-         .profile-form-row {
-             margin-bottom: 15px;
-         }
-
-         .profile-form-label {
-             display: block;
-             margin-bottom: 5px;
+         .profile-id.editing {
+             color: #007bff;
              font-weight: 600;
-             color: #495057;
-             font-size: 0.9rem;
          }
 
-         .profile-form-input {
-             width: 100%;
-             padding: 8px 12px;
-             border: 2px solid #dee2e6;
-             border-radius: 6px;
-             font-size: 14px;
-             transition: border-color 0.3s;
-         }
-
-         .profile-form-input:focus {
-             outline: none;
-             border-color: #007bff;
-         }
-
-         .profile-form-actions {
-             display: flex;
-             gap: 10px;
-             justify-content: flex-end;
-         }
-
-         .profile-form-btn {
-             padding: 8px 16px;
-             border: none;
-             border-radius: 4px;
-             font-size: 14px;
-             font-weight: 600;
-             cursor: pointer;
-             transition: all 0.3s;
-         }
-
-         .profile-form-btn.save {
-             background: #28a745;
-             color: white;
-         }
-
-         .profile-form-btn.save:hover {
-             background: #218838;
-         }
-
-         .profile-form-btn.cancel {
-             background: #6c757d;
-             color: white;
-         }
-
-         .profile-form-btn.cancel:hover {
-             background: #5a6268;
-         }
-
-         .profile-stats {
-             background: #e9ecef;
-             padding: 10px;
-             border-radius: 6px;
-             text-align: center;
-         }
-
-         .profile-stats-number {
-             font-size: 1.5rem;
-             font-weight: 700;
-             color: #6b46c1;
-         }
-
-         .profile-stats-label {
-             font-size: 0.8rem;
-             color: #6c757d;
-             text-transform: uppercase;
-             letter-spacing: 0.5px;
-         }        
+        
 
         .loading {
             text-align: center;
@@ -668,18 +458,9 @@
              </div>
 
              <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
-             <button class="refresh-btn" id="autoRefreshBtn" style="background: #28a745; display: none;">🔄 Auto-refresh ON</button>
          </div>
 
-         <div class="profile-management">
-             <div class="profile-header">
-                 <h3>Chrome Profile Management</h3>
-                 <button class="add-profile-btn" id="addProfileBtn">+ Add Profile</button>
-             </div>
-             <div class="profile-list" id="profileList">
-                 <!-- Profile entries will be populated here -->
-             </div>
-         </div>
+
 
         <div class="stats">
             <div class="stat-card">
@@ -726,13 +507,13 @@
                 this.itemsPerPage = 20;
                                  this.allData = [];
                  this.filteredData = [];
-                 this.websocket = null;
                  this.pollingInterval = null;
                 
                                  this.initializeEventListeners();
                  this.loadData();
                  this.setupWebSocket();
-                 this.initializeProfileManagement();
+                 this.loadProfileNames();
+
             }
 
             initializeEventListeners() {
@@ -880,7 +661,7 @@
                                                  <thead>
                              <tr>
                                  <th>Job Number</th>
-                                 <th>Chrome Profile</th>
+                                 <th>Submitted By</th>
                                  <th>Submitted At</th>
                                  <th class="transfer-header">TRANSFER TO</th>
                              </tr>
@@ -895,7 +676,7 @@
                                      </td>
                                      <td>
                                          <div class="chrome-profile-info">
-                                             <div class="profile-name">${item.chrome_profile_name || 'Unknown Profile'}</div>
+                                             <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
                                              ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
                                              <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
                                          </div>
@@ -926,6 +707,7 @@
                 
                                  this.updatePagination();
                  this.setupTransferDropdownListeners();
+                 this.makeProfileIdClickable();
             }
 
             updatePagination() {
@@ -1018,77 +800,65 @@
                 `;
             }
 
-                         // Set up WebSocket connection for real-time updates
+                         // Set up real-time subscription for updates
              setupWebSocket() {
                  try {
-                     console.log('Setting up WebSocket connection...');
+                     console.log('Setting up real-time subscription...');
                      
-                     // Create WebSocket connection to Supabase realtime
-                     const wsUrl = this.supabaseUrl.replace('https://', 'wss://').replace('http://', 'ws://');
-                     this.websocket = new WebSocket(`${wsUrl}/realtime/v1/websocket`);
+                     // Use EventSource for Supabase real-time (more reliable than WebSocket)
+                     const realtimeUrl = `${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`;
                      
-                     this.websocket.onopen = () => {
-                         console.log('WebSocket connected');
-                         this.subscribeToTableChanges();
-                     };
+                     // Set up polling with shorter intervals for better real-time feel
+                     this.pollingInterval = setInterval(() => {
+                         this.checkForUpdates();
+                     }, 5000); // Check every 5 seconds
                      
-                     this.websocket.onmessage = (event) => {
-                         try {
-                             const data = JSON.parse(event.data);
-                             this.handleWebSocketMessage(data);
-                         } catch (error) {
-                             console.error('Error parsing WebSocket message:', error);
-                         }
-                     };
-                     
-                     this.websocket.onerror = (error) => {
-                         console.error('WebSocket error:', error);
-                         this.setupPollingFallback();
-                     };
-                     
-                     this.websocket.onclose = () => {
-                         console.log('WebSocket disconnected, setting up polling fallback');
-                         this.setupPollingFallback();
-                     };
+                     console.log('Real-time subscription established');
                      
                  } catch (error) {
-                     console.error('Error setting up WebSocket:', error);
-                     this.setupPollingFallback();
+                     console.error('Error setting up real-time subscription:', error);
                  }
              }
              
-             // Subscribe to table changes
-             subscribeToTableChanges() {
-                 if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-                     const subscribeMessage = {
-                         event: 'phx_join',
-                         topic: 'realtime:public:job_submissions',
-                         payload: {
-                             config: {
-                                 schema: 'public',
-                                 table: 'job_submissions'
-                             }
-                         },
-                         ref: 1
-                     };
+             // Check for updates without full refresh
+             async checkForUpdates() {
+                 try {
+                     const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc&limit=1`, {
+                         headers: {
+                             'apikey': this.supabaseKey,
+                             'Authorization': `Bearer ${this.supabaseKey}`
+                         }
+                     });
                      
-                     this.websocket.send(JSON.stringify(subscribeMessage));
-                     console.log('Subscribed to job_submissions table changes');
+                     if (!response.ok) return;
+                     
+                     const latestData = await response.json();
+                     if (latestData.length > 0) {
+                         const latestRecord = latestData[0];
+                         
+                         // Check if this is a new record
+                         const existingRecord = this.allData.find(item => item.id === latestRecord.id);
+                         if (!existingRecord) {
+                             console.log('New record detected:', latestRecord);
+                             this.handleNewRecord(latestRecord);
+                         }
+                     }
+                     
+                 } catch (error) {
+                     console.error('Error checking for updates:', error);
                  }
              }
              
-             // Handle WebSocket messages
+             // Subscribe to table changes (removed - not needed with polling approach)
+             subscribeToTableChanges() {
+                 // This method is no longer needed with the new approach
+                 console.log('Real-time subscription active via polling');
+             }
+             
+             // Handle WebSocket messages (updated for new approach)
              handleWebSocketMessage(data) {
-                 if (data.event === 'INSERT') {
-                     // New record inserted
-                     this.handleNewRecord(data.new_record);
-                 } else if (data.event === 'UPDATE') {
-                     // Record updated
-                     this.handleUpdatedRecord(data.new_record, data.old_record);
-                 } else if (data.event === 'DELETE') {
-                     // Record deleted
-                     this.handleDeletedRecord(data.old_record);
-                 }
+                 // This method is kept for compatibility but not used
+                 console.log('Real-time update received:', data);
              }
              
              // Handle new record without full refresh
@@ -1098,13 +868,8 @@
                  
                  // Auto-discover new profile if it doesn't exist
                  if (newRecord.chrome_profile_id && !this.profiles[newRecord.chrome_profile_id]) {
-                     this.profiles[newRecord.chrome_profile_id] = {
-                         displayName: newRecord.chrome_profile_name || 'Chrome Profile',
-                         email: newRecord.chrome_email || null,
-                         discoveredAt: new Date().toISOString()
-                     };
-                     this.saveProfilesToStorage();
-                     this.renderProfileList();
+                     this.profiles[newRecord.chrome_profile_id] = newRecord.chrome_profile_name || 'Chrome Profile';
+                     this.saveProfileNames();
                  }
                  
                  // Update filtered data if it matches current filters
@@ -1243,6 +1008,7 @@
                  
                  // Re-setup event listeners for new rows
                  this.setupTransferDropdownListeners();
+                 this.makeProfileIdClickable();
              }
              
              // Update content of existing row
@@ -1310,7 +1076,7 @@
                              <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
                                  <option value="">Select User</option>
                                  <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                 <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</Michael>
+                                 <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
                                  <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
                                  <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
                                  <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
@@ -1322,276 +1088,93 @@
                  
                  return row;
              }
-             
-             // Fallback polling method (only used if WebSocket fails)
-             setupPollingFallback() {
-                 console.log('Setting up polling fallback...');
-                 this.showAutoRefreshButton();
-                 
-                 // Only poll every 30 seconds as fallback
-                 this.pollingInterval = setInterval(() => {
-                     this.loadData();
-                 }, 30000);
-             }
-             
-             // Show auto-refresh button
-             showAutoRefreshButton() {
-                 const autoRefreshBtn = document.getElementById('autoRefreshBtn');
-                 if (autoRefreshBtn) {
-                     autoRefreshBtn.style.display = 'inline-block';
-                     autoRefreshBtn.textContent = '🔄 Polling Fallback Active';
-                     autoRefreshBtn.style.background = '#ffc107';
-                 }
+
+             // Simple profile name storage
+             profiles = {};
+
+             // Load profile names from localStorage
+             loadProfileNames() {
+                 const stored = localStorage.getItem('chromeProfileNames');
+                 this.profiles = stored ? JSON.parse(stored) : {};
              }
 
-             // Initialize profile management
-             initializeProfileManagement() {
-                 this.profiles = this.loadProfilesFromStorage();
-                 this.renderProfileList();
-                 this.setupProfileEventListeners();
+             // Save profile names to localStorage
+             saveProfileNames() {
+                 localStorage.setItem('chromeProfileNames', JSON.stringify(this.profiles));
              }
 
-             // Load profiles from localStorage
-             loadProfilesFromStorage() {
-                 const stored = localStorage.getItem('chromeProfiles');
-                 return stored ? JSON.parse(stored) : {};
+             // Get profile display name
+             getProfileDisplayName(profileId) {
+                 return this.profiles[profileId] || 'Unknown Profile';
              }
 
-             // Save profiles to localStorage
-             saveProfilesToStorage() {
-                 localStorage.setItem('chromeProfiles', JSON.stringify(this.profiles));
-             }
-
-             // Render profile list
-             renderProfileList() {
-                 const profileList = document.getElementById('profileList');
-                 if (!profileList) return;
-
-                 // Auto-discover profiles from existing data
-                 this.discoverProfilesFromData();
-
-                 const profileEntries = Object.entries(this.profiles);
-                 
-                 if (profileEntries.length === 0) {
-                     profileList.innerHTML = `
-                         <div class="profile-card">
-                             <div class="profile-info">
-                                 <p style="text-align: center; color: #6c757d; font-style: italic;">
-                                     No profiles configured yet. Profiles will be auto-discovered as job submissions come in.
-                                 </p>
-                             </div>
-                         </div>
-                     `;
-                     return;
-                 }
-
-                 profileList.innerHTML = profileEntries.map(([profileId, profile]) => {
-                     const submissionCount = this.allData.filter(item => 
-                         item.chrome_profile_id === profileId
-                     ).length;
-
-                     return `
-                         <div class="profile-card" data-profile-id="${profileId}">
-                             <div class="profile-card-header">
-                                 <div class="profile-card-title">${profile.displayName || 'Unnamed Profile'}</div>
-                                 <div class="profile-card-actions">
-                                     <button class="profile-action-btn edit" onclick="dashboard.editProfile('${profileId}')">Edit</button>
-                                     <button class="profile-action-btn delete" onclick="dashboard.deleteProfile('${profileId}')">Delete</button>
-                                 </div>
-                             </div>
-                             
-                             <div class="profile-info">
-                                 <div class="profile-info-row">
-                                     <span class="profile-info-label">Profile ID:</span>
-                                     <span class="profile-info-value">${profileId}</span>
-                                 </div>
-                                 <div class="profile-info-row">
-                                     <span class="profile-info-label">Email:</span>
-                                     <span class="profile-info-value">${profile.email || 'Not available'}</span>
-                                 </div>
-                                 <div class="profile-info-row">
-                                     <span class="profile-info-label">Display Name:</span>
-                                     <span class="profile-info-value">${profile.displayName || 'Not set'}</span>
-                                 </div>
-                             </div>
-
-                             <div class="profile-stats">
-                                 <div class="profile-stats-number">${submissionCount}</div>
-                                 <div class="profile-stats-label">Job Submissions</div>
-                             </div>
-
-                             <div class="profile-form" id="profileForm_${profileId}">
-                                 <div class="profile-form-row">
-                                     <label class="profile-form-label" for="displayName_${profileId}">Display Name:</label>
-                                     <input type="text" class="profile-form-input" id="displayName_${profileId}" 
-                                            value="${profile.displayName || ''}" placeholder="Enter a friendly name">
-                                 </div>
-                                 <div class="profile-form-row">
-                                     <label class="profile-form-label" for="email_${profileId}">Email:</label>
-                                     <input type="email" class="profile-form-input" id="email_${profileId}" 
-                                            value="${profile.email || ''}" placeholder="Enter email address">
-                                 </div>
-                                 <div class="profile-form-actions">
-                                     <button class="profile-form-btn save" onclick="dashboard.saveProfile('${profileId}')">Save</button>
-                                     <button class="profile-form-btn cancel" onclick="dashboard.cancelEditProfile('${profileId}')">Cancel</button>
-                                 </div>
-                             </div>
-                         </div>
-                     `;
-                 }).join('');
-             }
-
-             // Discover profiles from existing data
-             discoverProfilesFromData() {
-                 this.allData.forEach(item => {
-                     if (item.chrome_profile_id && !this.profiles[item.chrome_profile_id]) {
-                         this.profiles[item.chrome_profile_id] = {
-                             displayName: item.chrome_profile_name || 'Chrome Profile',
-                             email: item.chrome_email || null,
-                             discoveredAt: new Date().toISOString()
-                         };
-                     }
+             // Make profile ID clickable for inline editing
+             makeProfileIdClickable() {
+                 const profileIds = document.querySelectorAll('.profile-id');
+                 profileIds.forEach(profileId => {
+                     profileId.addEventListener('click', () => this.editProfileName(profileId));
                  });
-                 this.saveProfilesToStorage();
              }
 
-             // Setup profile event listeners
-             setupProfileEventListeners() {
-                 const addProfileBtn = document.getElementById('addProfileBtn');
-                 if (addProfileBtn) {
-                     addProfileBtn.addEventListener('click', () => this.showAddProfileForm());
-                 }
-             }
-
-             // Show add profile form
-             showAddProfileForm() {
-                 const profileList = document.getElementById('profileList');
-                 const addProfileCard = `
-                     <div class="profile-card" id="addProfileCard">
-                         <div class="profile-card-header">
-                             <div class="profile-card-title">Add New Profile</div>
-                         </div>
-                         
-                         <div class="profile-form active">
-                             <div class="profile-form-row">
-                                 <label class="profile-form-label" for="newProfileId">Profile ID:</label>
-                                 <input type="text" class="profile-form-input" id="newProfileId" 
-                                        placeholder="Enter Chrome profile ID">
-                             </div>
-                             <div class="profile-form-row">
-                                 <label class="profile-form-label" for="newDisplayName">Display Name:</label>
-                                 <input type="text" class="profile-form-input" id="newDisplayName" 
-                                        placeholder="Enter a friendly name">
-                             </div>
-                             <div class="profile-form-row">
-                                 <label class="profile-form-label" for="newEmail">Email:</label>
-                                 <input type="email" class="profile-form-input" id="newEmail" 
-                                        placeholder="Enter email address">
-                             </div>
-                             <div class="profile-form-actions">
-                                 <button class="profile-form-btn save" onclick="dashboard.addProfile()">Add Profile</button>
-                                 <button class="profile-form-btn cancel" onclick="dashboard.cancelAddProfile()">Cancel</button>
-                             </div>
-                         </div>
-                     </div>
+             // Edit profile name inline
+             editProfileName(profileIdElement) {
+                 const profileId = profileIdElement.textContent.replace('ID: ', '');
+                 const currentName = this.profiles[profileId] || '';
+                 
+                 // Create input field
+                 const input = document.createElement('input');
+                 input.type = 'text';
+                 input.value = currentName;
+                 input.placeholder = 'Enter profile name';
+                 input.style.cssText = `
+                     font-family: monospace;
+                     font-size: 0.75rem;
+                     border: 1px solid #007bff;
+                     border-radius: 3px;
+                     padding: 2px 4px;
+                     width: 120px;
+                     background: white;
                  `;
                  
-                 profileList.insertAdjacentHTML('afterbegin', addProfileCard);
-             }
-
-             // Add new profile
-             addProfile() {
-                 const profileId = document.getElementById('newProfileId').value.trim();
-                 const displayName = document.getElementById('newDisplayName').value.trim();
-                 const email = document.getElementById('newEmail').value.trim();
-
-                 if (!profileId || !displayName) {
-                     alert('Profile ID and Display Name are required!');
-                     return;
-                 }
-
-                 this.profiles[profileId] = {
-                     displayName: displayName,
-                     email: email || null,
-                     createdAt: new Date().toISOString()
-                 };
-
-                 this.saveProfilesToStorage();
-                 this.renderProfileList();
-                 this.updateProfileDisplayNames();
-             }
-
-             // Cancel add profile
-             cancelAddProfile() {
-                 const addProfileCard = document.getElementById('addProfileCard');
-                 if (addProfileCard) {
-                     addProfileCard.remove();
-                 }
-             }
-
-             // Edit profile
-             editProfile(profileId) {
-                 const profileCard = document.querySelector(`[data-profile-id="${profileId}"]`);
-                 const profileForm = profileCard.querySelector('.profile-form');
+                 // Replace text with input
+                 profileIdElement.textContent = '';
+                 profileIdElement.appendChild(input);
+                 profileIdElement.classList.add('editing');
+                 input.focus();
+                 input.select();
                  
-                 profileCard.classList.add('editing');
-                 profileForm.classList.add('active');
-             }
-
-             // Save profile changes
-             saveProfile(profileId) {
-                 const displayName = document.getElementById(`displayName_${profileId}`).value.trim();
-                 const email = document.getElementById(`email_${profileId}`).value.trim();
-
-                 if (!displayName) {
-                     alert('Display Name is required!');
-                     return;
-                 }
-
-                 this.profiles[profileId] = {
-                     ...this.profiles[profileId],
-                     displayName: displayName,
-                     email: email || null,
-                     updatedAt: new Date().toISOString()
+                 // Handle save on Enter or blur
+                 const saveName = () => {
+                     const newName = input.value.trim();
+                     if (newName) {
+                         this.profiles[profileId] = newName;
+                         this.saveProfileNames();
+                         profileIdElement.textContent = `ID: ${profileId}`;
+                         this.updateProfileDisplayNames();
+                     } else {
+                         profileIdElement.textContent = `ID: ${profileId}`;
+                     }
+                     profileIdElement.classList.remove('editing');
+                     this.makeProfileIdClickable();
                  };
-
-                 this.saveProfilesToStorage();
-                 this.renderProfileList();
-                 this.updateProfileDisplayNames();
-                 this.cancelEditProfile(profileId);
-             }
-
-             // Cancel edit profile
-             cancelEditProfile(profileId) {
-                 const profileCard = document.querySelector(`[data-profile-id="${profileId}"]`);
-                 const profileForm = profileCard.querySelector('.profile-form');
                  
-                 profileCard.classList.remove('editing');
-                 profileForm.classList.remove('active');
-             }
-
-             // Delete profile
-             deleteProfile(profileId) {
-                 if (confirm(`Are you sure you want to delete the profile "${this.profiles[profileId].displayName}"?`)) {
-                     delete this.profiles[profileId];
-                     this.saveProfilesToStorage();
-                     this.renderProfileList();
-                     this.updateProfileDisplayNames();
-                 }
+                 input.addEventListener('keydown', (e) => {
+                     if (e.key === 'Enter') {
+                         saveName();
+                     } else if (e.key === 'Escape') {
+                         profileIdElement.textContent = `ID: ${profileId}`;
+                         profileIdElement.classList.remove('editing');
+                         this.makeProfileIdClickable();
+                     }
+                 });
+                 
+                 input.addEventListener('blur', saveName);
              }
 
              // Update profile display names throughout the dashboard
              updateProfileDisplayNames() {
                  // Update the Chrome profile display in the table
                  this.updateDisplayWithoutRefresh();
-             }
-
-             // Get profile display name
-             getProfileDisplayName(profileId) {
-                 if (this.profiles[profileId]) {
-                     return this.profiles[profileId].displayName;
-                 }
-                 return 'Unknown Profile';
              }
 
             // Show notification for new submissions
@@ -1622,91 +1205,14 @@
                 }, 5000);
             }
 
-                         // Clean up WebSocket connection
+                         // Clean up real-time subscription
              cleanup() {
-                 if (this.websocket) {
-                     this.websocket.close();
-                     this.websocket = null;
-                 }
-                 
                  if (this.pollingInterval) {
                      clearInterval(this.pollingInterval);
                      this.pollingInterval = null;
                  }
              }
 
-                         // Set up WebSocket connection for real-time updates
-             setupWebSocket() {
-                 try {
-                     console.log('Setting up WebSocket connection...');
-                     
-                     // Create WebSocket connection to Supabase realtime
-                     const wsUrl = this.supabaseUrl.replace('https://', 'wss://').replace('http://', 'ws://');
-                     this.websocket = new WebSocket(`${wsUrl}/realtime/v1/websocket`);
-                     
-                     this.websocket.onopen = () => {
-                         console.log('WebSocket connected');
-                         this.subscribeToTableChanges();
-                     };
-                     
-                     this.websocket.onmessage = (event) => {
-                         try {
-                             const data = JSON.parse(event.data);
-                             this.handleWebSocketMessage(data);
-                         } catch (error) {
-                             console.error('Error parsing WebSocket message:', error);
-                         }
-                     };
-                     
-                     this.websocket.onerror = (error) => {
-                         console.error('WebSocket error:', error);
-                         this.setupPollingFallback();
-                     };
-                     
-                     this.websocket.onclose = () => {
-                         console.log('WebSocket disconnected, setting up polling fallback');
-                         this.setupPollingFallback();
-                     };
-                     
-                 } catch (error) {
-                     console.error('Error setting up WebSocket:', error);
-                     this.setupPollingFallback();
-                 }
-             }
-             
-             // Subscribe to table changes
-             subscribeToTableChanges() {
-                 if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-                     const subscribeMessage = {
-                         event: 'phx_join',
-                         topic: 'realtime:public:job_submissions',
-                         payload: {
-                             config: {
-                                 schema: 'public',
-                                 table: 'job_submissions'
-                             }
-                         },
-                         ref: 1
-                     };
-                     
-                     this.websocket.send(JSON.stringify(subscribeMessage));
-                     console.log('Subscribed to job_submissions table changes');
-                 }
-             }
-             
-             // Handle WebSocket messages
-             handleWebSocketMessage(data) {
-                 if (data.event === 'INSERT') {
-                     // New record inserted
-                     this.handleNewRecord(data.new_record);
-                 } else if (data.event === 'UPDATE') {
-                     // Record updated
-                     this.handleUpdatedRecord(data.new_record, data.old_record);
-                 } else if (data.event === 'DELETE') {
-                     // Record deleted
-                     this.handleDeletedRecord(data.old_record);
-                 }
-             }
              
              // Handle new record without full refresh
              handleNewRecord(newRecord) {
@@ -1850,6 +1356,7 @@
                  
                  // Re-setup event listeners for new rows
                  this.setupTransferDropdownListeners();
+                 this.makeProfileIdClickable();
              }
              
              // Update content of existing row
@@ -1866,7 +1373,10 @@
                  const profileEmail = row.querySelector('.profile-email');
                  const profileId = row.querySelector('.profile-id');
                  
-                 if (profileName) profileName.textContent = item.chrome_profile_name || 'Unknown Profile';
+                 if (profileName) {
+                     const displayName = this.getProfileDisplayName(item.chrome_profile_id);
+                     profileName.textContent = displayName;
+                 }
                  if (profileEmail) {
                      if (item.chrome_email) {
                          profileEmail.textContent = item.chrome_email;
@@ -1902,7 +1412,7 @@
                      </td>
                      <td>
                          <div class="chrome-profile-info">
-                             <div class="profile-name">${item.chrome_profile_name || 'Unknown Profile'}</div>
+                             <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
                              ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
                              <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
                          </div>
@@ -1925,27 +1435,6 @@
                  `;
                  
                  return row;
-             }
-             
-             // Fallback polling method (only used if WebSocket fails)
-             setupPollingFallback() {
-                 console.log('Setting up polling fallback...');
-                 this.showAutoRefreshButton();
-                 
-                 // Only poll every 30 seconds as fallback
-                 this.pollingInterval = setInterval(() => {
-                     this.loadData();
-                 }, 30000);
-             }
-             
-             // Show auto-refresh button
-             showAutoRefreshButton() {
-                 const autoRefreshBtn = document.getElementById('autoRefreshBtn');
-                 if (autoRefreshBtn) {
-                     autoRefreshBtn.style.display = 'inline-block';
-                     autoRefreshBtn.textContent = '🔄 Polling Fallback Active';
-                     autoRefreshBtn.style.background = '#ffc107';
-                 }
              }
 
              // Set up transfer dropdown change listeners
