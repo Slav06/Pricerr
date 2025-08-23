@@ -296,6 +296,32 @@ document.addEventListener('DOMContentLoaded', function() {
         handleLogin();
     };
     
+    // Test function to check Supabase connection
+    window.testSupabaseConnection = async function() {
+        console.log('🧪 Testing Supabase connection...');
+        try {
+            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&limit=1', {
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Supabase connection successful!');
+                console.log('📊 Sample data:', data);
+                showNotification('Supabase connection successful!', 'success');
+            } else {
+                console.log('❌ Supabase connection failed:', response.status, response.statusText);
+                showNotification('Supabase connection failed!', 'error');
+            }
+        } catch (error) {
+            console.error('❌ Supabase connection error:', error);
+            showNotification('Supabase connection error!', 'error');
+        }
+    };
+    
     // Initial check
     checkTransferUpdates();
     
@@ -304,4 +330,5 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('- testTransferUpdate() - Test transfer functionality');
     console.log('- testExtensionStatus() - Check extension status');
     console.log('- testLogin() - Test login with admin key');
+    console.log('- testSupabaseConnection() - Test Supabase connection');
 });
