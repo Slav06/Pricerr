@@ -69,22 +69,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                                         if (response.ok) {
-                         const users = await response.json();
-                         console.log(`✅ Found table ${tableName} with ${users.length} users:`, users);
-                         
-                         // Debug: Show the actual column names from first user
-                         if (users.length > 0) {
-                             console.log('🔍 First user object keys:', Object.keys(users[0]));
-                             console.log('🔍 Sample user data:', users[0]);
-                         }
+                    if (response.ok) {
+                        const users = await response.json();
+                        console.log(`✅ Found table ${tableName} with ${users.length} users:`, users);
                         
-                                                 // Now try to find user by secret key (handle different column names)
-                         const user = users.find(u => 
-                             u.secretKey === secretKey || 
-                             u.secret_key === secretKey || 
-                             u.secretkey === secretKey
-                         );
+                        // Debug: Show the actual column names from first user
+                        if (users.length > 0) {
+                            console.log('🔍 First user object keys:', Object.keys(users[0]));
+                            console.log('🔍 Sample user data:', users[0]);
+                        }
+                        
+                        // Now try to find user by secret key (handle different column names)
+                        const user = users.find(u => 
+                            u.secretKey === secretKey || 
+                            u.secret_key === secretKey || 
+                            u.secretkey === secretKey
+                        );
                         
                         if (user) {
                             console.log('✅ User found:', user);
@@ -274,9 +274,34 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification(`Test function called by ${currentUserData.name}`, 'success');
     };
     
+    // Test function to check extension status
+    window.testExtensionStatus = function() {
+        console.log('🔍 Extension Status Check:');
+        console.log('- Current user data:', currentUserData);
+        console.log('- Login section visible:', loginSection.style.display !== 'none');
+        console.log('- User info visible:', userInfo.style.display !== 'none');
+        console.log('- Transfer section visible:', transferSection.style.display !== 'none');
+        
+        chrome.storage.local.get(['popupUser'], (result) => {
+            console.log('- Stored popup user:', result.popupUser);
+        });
+        
+        showNotification('Check console for extension status', 'success');
+    };
+    
+    // Test function to simulate login
+    window.testLogin = function() {
+        console.log('🧪 Testing login functionality...');
+        secretKeyInput.value = 'ADMIN123456789';
+        handleLogin();
+    };
+    
     // Initial check
     checkTransferUpdates();
     
     console.log('Dashboard-integrated popup system initialized');
-    console.log('Available test function: testTransferUpdate()');
+    console.log('Available test functions:');
+    console.log('- testTransferUpdate() - Test transfer functionality');
+    console.log('- testExtensionStatus() - Check extension status');
+    console.log('- testLogin() - Test login with admin key');
 });
