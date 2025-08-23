@@ -510,16 +510,30 @@ class PageAnalyzer {
             }
         }
         
-        // Extract Cubes - look for "Cubes - 300" pattern
-        const cubesMatch = textContent.match(/Cubes[:\s-]+(\d+)/i);
-        if (cubesMatch) {
-            this.data.movingDetails.cubes = cubesMatch[1];
+        // Extract Cubes from CFLBS input field
+        const cubesInput = document.querySelector('input[name="CFLBS"]');
+        if (cubesInput && cubesInput.value) {
+            this.data.movingDetails.cubes = cubesInput.value;
+            console.log('Cubes extracted from CFLBS input:', cubesInput.value);
+        } else {
+            // Fallback: try regex pattern
+            const cubesMatch = textContent.match(/Cubes[:\s-]+(\d+)/i);
+            if (cubesMatch) {
+                this.data.movingDetails.cubes = cubesMatch[1];
+            }
         }
         
-        // Extract Pick Up Date - look for "Pick Up Date - 01/23/2026" pattern
-        const pickupMatch = textContent.match(/Pick\s+Up\s+Date[:\s-]+(\d{1,2}\/\d{1,2}\/\d{4})/i);
-        if (pickupMatch) {
-            this.data.movingDetails.pickupDate = pickupMatch[1];
+        // Extract Pick Up Date from PUDTE input field
+        const pickupInput = document.querySelector('input[name="PUDTE"]');
+        if (pickupInput && pickupInput.value) {
+            this.data.movingDetails.pickupDate = pickupInput.value;
+            console.log('Pickup date extracted from PUDTE input:', pickupInput.value);
+        } else {
+            // Fallback: try regex pattern
+            const pickupMatch = textContent.match(/Pick\s+Up\s+Date[:\s-]+(\d{1,2}\/\d{1,2}\/\d{4})/i);
+            if (pickupMatch) {
+                this.data.movingDetails.pickupDate = pickupMatch[1];
+            }
         }
         
         // Extract Distance - look for "Distance: 439 Miles" pattern
