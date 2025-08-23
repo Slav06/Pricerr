@@ -640,7 +640,7 @@
                      }
                      
                                            // Now fetch the full data - order by newest first
-                      const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc.nulls_last`, {
+                      const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`, {
                          headers: {
                              'apikey': this.supabaseKey,
                              'Authorization': `Bearer ${this.supabaseKey}`
