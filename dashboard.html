@@ -639,8 +639,8 @@
                          throw new Error(`Database connection failed: ${testResponse.status} - ${errorText}`);
                      }
                      
-                     // Now fetch the full data
-                     const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc`, {
+                                           // Now fetch the full data - order by newest first
+                      const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=submitted_at.desc.nulls_last`, {
                          headers: {
                              'apikey': this.supabaseKey,
                              'Authorization': `Bearer ${this.supabaseKey}`
@@ -953,33 +953,33 @@
                  console.log('Real-time update received:', data);
              }
              
-             // Handle new record without full refresh
-             handleNewRecord(newRecord) {
-                 // Add to beginning of data
-                 this.allData.unshift(newRecord);
-                 
-                 // Auto-discover new profile if it doesn't exist
-                 if (newRecord.chrome_profile_id && !this.profiles[newRecord.chrome_profile_id]) {
-                     this.profiles[newRecord.chrome_profile_id] = newRecord.chrome_profile_name || 'Chrome Profile';
-                     this.saveProfileNames();
-                 }
-                 
-                 // Update filtered data if it matches current filters
-                 if (this.matchesCurrentFilters(newRecord)) {
-                     this.filteredData.unshift(newRecord);
-                     
-                     // Only update display if we're on the first page
-                     if (this.currentPage === 1) {
-                         this.updateDisplayWithoutRefresh();
-                     }
-                 }
-                 
-                 // Update stats
-                 this.updateStats();
-                 
-                 // Show notification
-                 this.showNotification(`New job submitted: ${newRecord.job_number}`);
-             }
+                           // Handle new record without full refresh
+              handleNewRecord(newRecord) {
+                  console.log('New record received:', newRecord);
+                  
+                  // Add to beginning of data (newest first)
+                  this.allData.unshift(newRecord);
+                  
+                  // Auto-discover new profile if it doesn't exist
+                  if (newRecord.chrome_profile_id && !this.profiles[newRecord.chrome_profile_id]) {
+                      this.profiles[newRecord.chrome_profile_id] = newRecord.chrome_profile_name || 'Chrome Profile';
+                      this.saveProfileNames();
+                  }
+                  
+                  // Update filtered data if it matches current filters
+                  if (this.matchesCurrentFilters(newRecord)) {
+                      this.filteredData.unshift(newRecord);
+                      
+                      // Always update display for new records (they should appear at top)
+                      this.updateDisplayWithoutRefresh();
+                  }
+                  
+                  // Update stats
+                  this.updateStats();
+                  
+                  // Show notification
+                  this.showNotification(`New job submitted: ${newRecord.job_number}`);
+              }
              
              // Handle updated record without full refresh
              handleUpdatedRecord(newRecord, oldRecord) {
@@ -1857,21 +1857,38 @@
             }
         });
         
-        // Make test function globally available
-        window.testDashboardTransferOverlay = function() {
-            if (dashboard) {
-                const testData = {
-                    jobId: 'test123',
-                    user_name: 'Test User',
-                    job_number: 'TEST001',
-                    chrome_profile_id: 'test_profile'
-                };
-                dashboard.createTransferOverlay(testData);
-                console.log('Test transfer overlay created');
-            } else {
-                console.log('Dashboard not initialized yet');
-            }
-        };
+                 // Make test function globally available
+         window.testDashboardTransferOverlay = function() {
+             if (dashboard) {
+                 const testData = {
+                     jobId: 'test123',
+                     user_name: 'Test User',
+                     job_number: 'TEST001',
+                     chrome_profile_id: 'test_profile'
+                 };
+                 dashboard.createTransferOverlay(testData);
+                 console.log('Test transfer overlay created');
+             } else {
+                 console.log('Dashboard not initialized yet');
+             }
+         };
+         
+         // Test function to simulate transfer notification
+         window.testTransferNotification = function() {
+             if (dashboard) {
+                 const testData = {
+                     jobId: 'test123',
+                     user_name: 'Test User',
+                     job_number: 'TEST001',
+                     chrome_profile_id: 'test_profile',
+                     page_url: window.location.href
+                 };
+                 dashboard.notifyChromeExtension('test123', 'Test User', testData);
+                 console.log('Test transfer notification sent');
+             } else {
+                 console.log('Dashboard not initialized yet');
+             }
+         };
         
         console.log('testDashboardTransferOverlay function made globally available');
     </script>
