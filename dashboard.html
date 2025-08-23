@@ -203,42 +203,91 @@
             font-size: 0.9rem;
         }
 
-        .source {
-            background: #e6d9ff;
-            color: #6b46c1;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+                 .source {
+             background: #e6d9ff;
+             color: #6b46c1;
+             padding: 4px 8px;
+             border-radius: 4px;
+             font-size: 0.8rem;
+             font-weight: 600;
+         }
 
-        .user-badge {
-            background: #17a2b8;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+                 .job-link {
+             color: #6b46c1;
+             text-decoration: none;
+             font-weight: 600;
+             transition: all 0.3s ease;
+         }
 
-        .user-dropdown {
-            padding: 6px 8px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background: white;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
+         .job-link:hover {
+             color: #553c9a;
+             text-decoration: underline;
+             transform: scale(1.05);
+         }
 
-        .user-dropdown:focus {
-            outline: none;
-            border-color: #6b46c1;
-        }
+         .transfer-header {
+             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+             color: white;
+             text-align: center;
+             font-weight: 800;
+             text-transform: uppercase;
+             letter-spacing: 2px;
+             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+         }
 
-                 .user-dropdown option {
+         .transfer-cell {
+             background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+             border-left: 4px solid #dc3545;
+         }
+
+         .transfer-container {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             gap: 8px;
+             padding: 8px;
+         }
+
+         .transfer-label {
+             font-weight: 700;
+             color: #dc3545;
+             text-transform: uppercase;
+             font-size: 0.75rem;
+             letter-spacing: 1px;
+             text-align: center;
+         }
+
+         .transfer-dropdown {
+             padding: 8px 12px;
+             border: 2px solid #dc3545;
+             border-radius: 8px;
+             background: white;
+             font-size: 0.9rem;
+             font-weight: 600;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             min-width: 120px;
+             text-align: center;
+         }
+
+         .transfer-dropdown:focus {
+             outline: none;
+             border-color: #c82333;
+             box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+             transform: scale(1.02);
+         }
+
+         .transfer-dropdown:hover {
+             background: #dc3545;
+             color: white;
+             transform: translateY(-2px);
+             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+         }
+
+         .transfer-dropdown option {
              background: white;
              color: #495057;
+             font-weight: 600;
          }
 
          .chrome-profile-info {
@@ -265,19 +314,7 @@
              font-family: monospace;
          }
 
-        .page-url {
-            color: #007bff;
-            text-decoration: none;
-            max-width: 200px;
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .page-url:hover {
-            text-decoration: underline;
-        }
+        
 
         .loading {
             text-align: center;
@@ -481,8 +518,8 @@
                     this.loadData();
                 });
 
-                // Set up user dropdown change listeners after data loads
-                this.setupUserDropdownListeners();
+                             // Set up transfer dropdown change listeners after data loads
+             this.setupTransferDropdownListeners();
             }
 
                          async loadData() {
@@ -610,16 +647,18 @@
                              <tr>
                                  <th>Job Number</th>
                                  <th>Chrome Profile</th>
-                                 <th>Assigned User</th>
-                                 <th>Page URL</th>
-                                 <th>Source</th>
                                  <th>Submitted At</th>
+                                 <th class="transfer-header">TRANSFER TO</th>
                              </tr>
                          </thead>
                         <tbody>
                                                          ${pageData.map((item, index) => `
                                  <tr data-job-id="${item.id || index}">
-                                     <td class="job-number">${item.job_number || 'N/A'}</td>
+                                     <td class="job-number">
+                                         <a href="${item.page_url || '#'}" target="_blank" class="job-link" title="View original page">
+                                             ${item.job_number || 'N/A'}
+                                         </a>
+                                     </td>
                                      <td>
                                          <div class="chrome-profile-info">
                                              <div class="profile-name">${item.chrome_profile_name || 'Unknown Profile'}</div>
@@ -627,24 +666,21 @@
                                              <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
                                          </div>
                                      </td>
-                                     <td>
-                                         <select class="user-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
-                                             <option value="">Select User</option>
-                                             <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                             <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
-                                             <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
-                                             <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
-                                             <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
-                                             <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
-                                         </select>
-                                     </td>
-                                     <td>
-                                         <a href="${item.page_url || '#'}" target="_blank" class="page-url" title="${item.page_url || 'N/A'}">
-                                             ${item.page_url || 'N/A'}
-                                         </a>
-                                     </td>
-                                     <td><span class="source">${item.source || 'N/A'}</span></td>
                                      <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
+                                     <td class="transfer-cell">
+                                         <div class="transfer-container">
+                                             <div class="transfer-label">TRANSFER TO:</div>
+                                             <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
+                                                 <option value="">Select User</option>
+                                                 <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
+                                                 <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
+                                                 <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
+                                                 <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
+                                                 <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
+                                                 <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
+                                             </select>
+                                         </div>
+                                     </td>
                                  </tr>
                              `).join('')}
                         </tbody>
@@ -654,8 +690,8 @@
                 tableContent.innerHTML = table;
                 tableCount.textContent = `Showing ${startIndex + 1}-${Math.min(endIndex, this.filteredData.length)} of ${this.filteredData.length} records`;
                 
-                this.updatePagination();
-                this.setupUserDropdownListeners();
+                                 this.updatePagination();
+                 this.setupTransferDropdownListeners();
             }
 
             updatePagination() {
@@ -844,18 +880,18 @@
                 }
             }
 
-            // Set up user dropdown change listeners
-            setupUserDropdownListeners() {
-                const userDropdowns = document.querySelectorAll('.user-dropdown');
-                userDropdowns.forEach(dropdown => {
-                    dropdown.addEventListener('change', (e) => {
-                        this.handleUserChange(e.target);
-                    });
-                });
-            }
+                         // Set up transfer dropdown change listeners
+             setupTransferDropdownListeners() {
+                 const transferDropdowns = document.querySelectorAll('.transfer-dropdown');
+                 transferDropdowns.forEach(dropdown => {
+                     dropdown.addEventListener('change', (e) => {
+                         this.handleTransferChange(e.target);
+                     });
+                 });
+             }
 
-            // Handle user dropdown change
-            async handleUserChange(dropdown) {
+                         // Handle transfer dropdown change
+             async handleTransferChange(dropdown) {
                 const jobId = dropdown.dataset.jobId;
                 const newUser = dropdown.value;
                 const originalUser = dropdown.dataset.originalUser;
@@ -867,14 +903,14 @@
                 }
 
                 try {
-                    // Update the user in the database
-                    await this.updateUserInDatabase(jobId, newUser);
+                                     // Update the transfer in the database
+                 await this.updateTransferInDatabase(jobId, newUser);
                     
                     // Update the original user data
                     dropdown.dataset.originalUser = newUser;
                     
-                    // Show success message
-                    this.showRowMessage(dropdown, `User updated to ${newUser}`, 'success');
+                                     // Show success message
+                 this.showRowMessage(dropdown, `Transferred to ${newUser}!`, 'success');
                     
                     // Update local data
                     const item = this.allData.find(item => (item.id || item.tempId) == jobId);
@@ -885,17 +921,17 @@
                     // Update stats
                     this.updateStats();
                     
-                } catch (error) {
-                    console.error('Error updating user:', error);
-                    this.showRowMessage(dropdown, 'Failed to update user', 'error');
+                                 } catch (error) {
+                     console.error('Error updating transfer:', error);
+                     this.showRowMessage(dropdown, 'Failed to transfer', 'error');
                     
                     // Reset to original value
                     dropdown.value = originalUser;
                 }
             }
 
-            // Update user in database
-            async updateUserInDatabase(jobId, newUser) {
+                         // Update transfer in database
+             async updateTransferInDatabase(jobId, newUser) {
                 const response = await fetch(`${this.supabaseUrl}/rest/v1/job_submissions?id=eq.${jobId}`, {
                     method: 'PATCH',
                     headers: {
