@@ -823,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createSubmitButtonOverlay();
     
     // Create the security monitoring overlay
+    console.log('About to create security overlay...');
     createSecurityOverlay();
 });
 
@@ -840,6 +841,7 @@ window.addEventListener('load', () => {
     
     // Ensure security overlay is created
     if (!document.getElementById('security-overlay')) {
+        console.log('Creating security overlay on window load...');
         createSecurityOverlay();
     }
 });
@@ -1112,6 +1114,8 @@ function testTransferOverlay() {
 
 // Make test function globally available for debugging
 window.testTransferOverlay = testTransferOverlay;
+window.testSecurityOverlay = createSecurityOverlay;
+console.log('testTransferOverlay and testSecurityOverlay functions made globally available');
 
 // Function to show success message
 function showSuccessMessage(message) {
