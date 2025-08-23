@@ -1893,10 +1893,11 @@
                          jobId: jobId,
                          user_name: newUser,
                          job_number: item.job_number,
+                         customer_name: item.customer_name,
                          chrome_profile_id: item.chrome_profile_id,
                          initiated_by: currentProfileName || 'Unknown User',
                          initiated_by_id: currentProfileId,
-                         page_url: item.page_url // Include the page URL to find the correct tab
+                         page_url: item.page_url // Keep for reference but won't be used for matching
                      };
                      
                      // Try to send a message to the Chrome extension

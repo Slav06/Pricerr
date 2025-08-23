@@ -1394,23 +1394,41 @@ function startTransferUpdatePolling() {
             const currentProfileId = getCurrentChromeProfileId();
             
             // Look for updates for this profile
+            console.log('Current profile ID:', currentProfileId);
+            console.log('Available transfer updates:', transferUpdates);
+            
             Object.keys(transferUpdates).forEach(key => {
                 const update = transferUpdates[key];
+                console.log('Checking update:', update);
+                console.log('Update profile ID:', update.chrome_profile_id);
+                console.log('Profile ID match:', update.chrome_profile_id === currentProfileId);
                 
-                // Check if this update is for the current profile and page
-                if (update.chrome_profile_id === currentProfileId && 
-                    update.page_url === window.location.href) {
+                // Check if this update is for the current profile
+                if (update.chrome_profile_id === currentProfileId) {
+                    console.log('Found transfer update for current profile:', update);
                     
-                    console.log('Found transfer update for current profile and page:', update);
+                    // Check if this page contains the job number or customer name
+                    const pageContent = document.body.textContent.toLowerCase();
+                    const jobNumberMatch = update.job_number && pageContent.includes(update.job_number.toLowerCase());
+                    const customerNameMatch = update.customer_name && pageContent.includes(update.customer_name.toLowerCase());
                     
-                    // Show the transfer overlay
-                    showTransferOverlay(update);
-                    
-                    // Remove this update from localStorage to prevent showing it again
-                    delete transferUpdates[key];
-                    localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
-                    
-                    console.log('Transfer overlay shown and update removed from storage');
+                    if (jobNumberMatch || customerNameMatch) {
+                        console.log('Job number match:', jobNumberMatch, 'Customer name match:', customerNameMatch);
+                        console.log('Showing transfer overlay for job:', update.job_number);
+                        
+                        // Show the transfer overlay
+                        showTransferOverlay(update);
+                        
+                        // Remove this update from localStorage to prevent showing it again
+                        delete transferUpdates[key];
+                        localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                        
+                        console.log('Transfer overlay shown and update removed from storage');
+                    } else {
+                        console.log('Page does not contain job number or customer name from transfer update');
+                        console.log('Looking for:', update.job_number, 'or', update.customer_name);
+                        console.log('Page content preview:', pageContent.substring(0, 200) + '...');
+                    }
                 }
             });
             
@@ -1426,6 +1444,7 @@ function getCurrentChromeProfileId() {
     try {
         const profileInfo = JSON.parse(localStorage.getItem('chrome_profile_info') || '{}');
         if (profileInfo.profileId) {
+            console.log('Using profile ID from background script:', profileInfo.profileId);
             return profileInfo.profileId;
         }
     } catch (error) {
@@ -1439,6 +1458,9 @@ function getCurrentChromeProfileId() {
     if (!sessionId) {
         sessionId = 'profile_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem(sessionKey, sessionId);
+        console.log('Generated new session-based profile ID:', sessionId);
+    } else {
+        console.log('Using existing session-based profile ID:', sessionId);
     }
     
     return sessionId;
@@ -1446,3 +1468,37 @@ function getCurrentChromeProfileId() {
 
 // Start polling when content script loads
 startTransferUpdatePolling();
+
+// Add a test function for manual transfer overlay testing
+window.testTransferOverlayManual = function() {
+    const testData = {
+        job_number: 'TEST123',
+        user_name: 'Test User',
+        initiated_by: 'Dashboard User',
+        customer_name: 'Test Customer'
+    };
+    showTransferOverlay(testData);
+    console.log('Manual transfer overlay test triggered');
+};
+
+// Add a test function to simulate transfer update from dashboard
+window.testTransferUpdateFromDashboard = function() {
+    const testUpdate = {
+        jobId: 'test123',
+        user_name: 'Test User',
+        job_number: 'TEST123',
+        customer_name: 'Test Customer',
+        chrome_profile_id: getCurrentChromeProfileId(),
+        initiated_by: 'Dashboard User',
+        page_url: window.location.href
+    };
+    
+    // Store in localStorage as if it came from dashboard
+    const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+    const key = `${testUpdate.jobId}_${testUpdate.chrome_profile_id}`;
+    transferUpdates[key] = testUpdate;
+    localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+    
+    console.log('Test transfer update stored in localStorage:', testUpdate);
+    console.log('The polling system should detect this within 2 seconds');
+};
