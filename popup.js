@@ -255,6 +255,22 @@ class PopupManager {
             const profileInfo = await this.getChromeProfileInfo();
             console.log('Chrome profile info:', profileInfo);
             
+            // Get moving details from the current page
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            let movingDetails = {};
+            
+            if (tab) {
+                try {
+                    const analysisResponse = await chrome.tabs.sendMessage(tab.id, { action: 'analyzePage' });
+                    if (analysisResponse && analysisResponse.success && analysisResponse.data.movingDetails) {
+                        movingDetails = analysisResponse.data.movingDetails;
+                        console.log('Moving details extracted:', movingDetails);
+                    }
+                } catch (error) {
+                    console.log('Could not extract moving details:', error);
+                }
+            }
+            
             const response = await fetch(`${supabaseUrl}/rest/v1/job_submissions`, {
                 method: 'POST',
                 headers: {
@@ -270,7 +286,13 @@ class PopupManager {
                     source: 'Page Price Analyzer Extension',
                     chrome_profile_id: profileInfo.profileId,
                     chrome_profile_name: profileInfo.profileName,
-                    user_identifier: profileInfo.userIdentifier
+                    user_identifier: profileInfo.userIdentifier,
+                    customer_name: movingDetails.customerName || null,
+                    moving_from: movingDetails.movingFrom || null,
+                    moving_to: movingDetails.movingTo || null,
+                    cubes: movingDetails.cubes || null,
+                    pickup_date: movingDetails.pickupDate || null,
+                    distance: movingDetails.distance || null
                 })
             });
 

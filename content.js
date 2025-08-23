@@ -18,6 +18,14 @@ class PageAnalyzer {
                 jobNumber: '',
                 status: '',
                 pickupDate: ''
+            },
+            movingDetails: {
+                customerName: '',
+                movingFrom: '',
+                movingTo: '',
+                cubes: '',
+                pickupDate: '',
+                distance: ''
             }
         };
         this.pricingData = null;
@@ -156,6 +164,7 @@ class PageAnalyzer {
             this.extractLocationInfo();
             this.extractPricingInfo();
             this.extractJobDetails();
+            this.extractMovingDetails();
             
             console.log('Final extracted data:', this.data);
             
@@ -438,6 +447,55 @@ class PageAnalyzer {
         if (pickupMatch) {
             this.data.jobDetails.pickupDate = pickupMatch[1];
         }
+    }
+
+    // Extract moving details (customer name, locations, cubes, dates, distance)
+    extractMovingDetails() {
+        const textContent = document.body.innerText;
+        
+        // Extract customer name - look for "Name - <b>Rebecca Rodgers</b>" pattern
+        const nameMatch = textContent.match(/Name\s*-\s*<b>([^<]+)<\/b>/i);
+        if (nameMatch) {
+            this.data.movingDetails.customerName = nameMatch[1].trim();
+        } else {
+            // Fallback: look for name patterns
+            const nameFallback = textContent.match(/Name[:\s-]+([A-Za-z\s]+)/i);
+            if (nameFallback) {
+                this.data.movingDetails.customerName = nameFallback[1].trim();
+            }
+        }
+        
+        // Extract Moving From - look for "Moving From - Orlando" pattern
+        const fromMatch = textContent.match(/Moving\s+From[:\s-]+([A-Za-z\s]+)/i);
+        if (fromMatch) {
+            this.data.movingDetails.movingFrom = fromMatch[1].trim();
+        }
+        
+        // Extract Moving To - look for "Moving To - 30269" pattern
+        const toMatch = textContent.match(/Moving\s+To[:\s-]+([A-Za-z0-9\s]+)/i);
+        if (toMatch) {
+            this.data.movingDetails.movingTo = toMatch[1].trim();
+        }
+        
+        // Extract Cubes - look for "Cubes - 300" pattern
+        const cubesMatch = textContent.match(/Cubes[:\s-]+(\d+)/i);
+        if (cubesMatch) {
+            this.data.movingDetails.cubes = cubesMatch[1];
+        }
+        
+        // Extract Pick Up Date - look for "Pick Up Date - 01/23/2026" pattern
+        const pickupMatch = textContent.match(/Pick\s+Up\s+Date[:\s-]+(\d{1,2}\/\d{1,2}\/\d{4})/i);
+        if (pickupMatch) {
+            this.data.movingDetails.pickupDate = pickupMatch[1];
+        }
+        
+        // Extract Distance - look for "Distance: 439 Miles" pattern
+        const distanceMatch = textContent.match(/Distance[:\s]*(\d+)\s*Miles/i);
+        if (distanceMatch) {
+            this.data.movingDetails.distance = `${distanceMatch[1]} Miles`;
+        }
+        
+        console.log('Moving details extracted:', this.data.movingDetails);
     }
 
     // Enhanced analysis for moving company specific pages

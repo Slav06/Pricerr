@@ -352,12 +352,47 @@
              text-decoration: underline;
          }
 
-         .profile-id.editing {
-             color: #007bff;
-             font-weight: 600;
-         }
+                 .profile-id.editing {
+            color: #007bff;
+            font-weight: 600;
+        }
 
-        
+        /* New moving details columns styling */
+        .customer-name {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .moving-from, .moving-to {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .cubes {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .pickup-date {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .distance {
+            background: #fff3e0;
+            color: #f57c00;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+        }
 
         .loading {
             text-align: center;
@@ -693,43 +728,55 @@
                                                  <thead>
                              <tr>
                                  <th>Job Number</th>
+                                 <th>Customer</th>
+                                 <th>Moving From</th>
+                                 <th>Moving To</th>
+                                 <th>Cubes</th>
+                                 <th>Pickup Date</th>
+                                 <th>Distance</th>
                                  <th>Submitted By</th>
                                  <th>Submitted At</th>
                                  <th class="transfer-header">TRANSFER TO</th>
                              </tr>
                          </thead>
                         <tbody>
-                                                         ${pageData.map((item, index) => `
-                                 <tr data-job-id="${item.id || index}">
-                                     <td class="job-number">
-                                         <a href="${item.page_url || '#'}" target="_blank" class="job-link" title="View original page">
-                                             ${item.job_number || 'N/A'}
-                                         </a>
-                                     </td>
-                                     <td>
-                                         <div class="chrome-profile-info">
-                                             <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
-                                             ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
-                                             <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
-                                         </div>
-                                     </td>
-                                     <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
-                                     <td class="transfer-cell">
-                                         <div class="transfer-container">
-                                             <div class="transfer-label">TRANSFER TO:</div>
-                                             <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
-                                                 <option value="">Select User</option>
-                                                 <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                                 <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
-                                                 <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
-                                                 <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
-                                                 <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
-                                                 <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
-                                             </select>
-                                         </div>
-                                     </td>
-                                 </tr>
-                             `).join('')}
+                                                                                  ${pageData.map((item, index) => `
+                                  <tr data-job-id="${item.id || index}">
+                                      <td class="job-number">
+                                          <a href="${item.page_url || '#'}" target="_blank" class="job-link" title="View original page">
+                                              ${item.job_number || 'N/A'}
+                                          </a>
+                                      </td>
+                                      <td class="customer-name">${item.customer_name || 'N/A'}</td>
+                                      <td class="moving-from">${item.moving_from || 'N/A'}</td>
+                                      <td class="moving-to">${item.moving_to || 'N/A'}</td>
+                                      <td class="cubes">${item.cubes || 'N/A'}</td>
+                                      <td class="pickup-date">${item.pickup_date || 'N/A'}</td>
+                                      <td class="distance">${item.distance || 'N/A'}</td>
+                                      <td>
+                                          <div class="chrome-profile-info">
+                                              <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
+                                              ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
+                                              <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
+                                          </div>
+                                      </td>
+                                      <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
+                                      <td class="transfer-cell">
+                                          <div class="transfer-container">
+                                              <div class="transfer-label">TRANSFER TO:</div>
+                                              <select class="transfer-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
+                                                  <option value="">Select User</option>
+                                                  <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
+                                                  <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
+                                                  <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
+                                                  <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
+                                                  <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
+                                                  <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
+                                              </select>
+                                          </div>
+                                      </td>
+                                  </tr>
+                              `).join('')}
                         </tbody>
                     </table>
                 `;
