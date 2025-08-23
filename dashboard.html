@@ -505,7 +505,7 @@
 
                  <div class="controls">
              <div class="search-box">
-                 <input type="text" id="searchInput" placeholder="Search by job number, profile, or user...">
+                 <input type="text" id="searchInput" placeholder="Search by job number, customer, location, cubes, date, or profile...">
              </div>
              <div class="filter-group">
                  <label for="sourceFilter">Source:</label>
@@ -672,7 +672,13 @@
                         item.job_number?.toLowerCase().includes(searchTerm) ||
                         item.page_url?.toLowerCase().includes(searchTerm) ||
                         item.source?.toLowerCase().includes(searchTerm) ||
-                        item.user_name?.toLowerCase().includes(searchTerm);
+                        item.user_name?.toLowerCase().includes(searchTerm) ||
+                        item.customer_name?.toLowerCase().includes(searchTerm) ||
+                        item.moving_from?.toLowerCase().includes(searchTerm) ||
+                        item.moving_to?.toLowerCase().includes(searchTerm) ||
+                        item.cubes?.toLowerCase().includes(searchTerm) ||
+                        item.pickup_date?.toLowerCase().includes(searchTerm) ||
+                        item.distance?.toLowerCase().includes(searchTerm);
 
                     // Source filter
                     const matchesSource = !sourceFilter || item.source === sourceFilter;
@@ -1012,7 +1018,13 @@
                      record.job_number?.toLowerCase().includes(searchTerm) ||
                      record.page_url?.toLowerCase().includes(searchTerm) ||
                      record.source?.toLowerCase().includes(searchTerm) ||
-                     record.user_name?.toLowerCase().includes(searchTerm);
+                     record.user_name?.toLowerCase().includes(searchTerm) ||
+                     record.customer_name?.toLowerCase().includes(searchTerm) ||
+                     record.moving_from?.toLowerCase().includes(searchTerm) ||
+                     record.moving_to?.toLowerCase().includes(searchTerm) ||
+                     record.cubes?.toLowerCase().includes(searchTerm) ||
+                     record.pickup_date?.toLowerCase().includes(searchTerm) ||
+                     record.distance?.toLowerCase().includes(searchTerm);
                  
                  // Source filter
                  const matchesSource = !sourceFilter || record.source === sourceFilter;
@@ -1099,6 +1111,25 @@
                      jobLink.textContent = item.job_number || 'N/A';
                  }
                  
+                 // Update moving details columns
+                 const customerName = row.querySelector('.customer-name');
+                 if (customerName) customerName.textContent = item.customer_name || 'N/A';
+                 
+                 const movingFrom = row.querySelector('.moving-from');
+                 if (movingFrom) movingFrom.textContent = item.moving_from || 'N/A';
+                 
+                 const movingTo = row.querySelector('.moving-to');
+                 if (movingTo) movingTo.textContent = item.moving_to || 'N/A';
+                 
+                 const cubes = row.querySelector('.cubes');
+                 if (cubes) cubes.textContent = item.cubes || 'N/A';
+                 
+                 const pickupDate = row.querySelector('.pickup-date');
+                 if (pickupDate) pickupDate.textContent = item.pickup_date || 'N/A';
+                 
+                 const distance = row.querySelector('.distance');
+                 if (distance) distance.textContent = item.distance || 'N/A';
+                 
                  // Update Chrome profile info
                  const profileName = row.querySelector('.profile-name');
                  const profileEmail = row.querySelector('.profile-email');
@@ -1141,6 +1172,12 @@
                              ${item.job_number || 'N/A'}
                          </a>
                      </td>
+                     <td class="customer-name">${item.customer_name || 'N/A'}</td>
+                     <td class="moving-from">${item.moving_from || 'N/A'}</td>
+                     <td class="moving-to">${item.moving_to || 'N/A'}</td>
+                     <td class="cubes">${item.cubes || 'N/A'}</td>
+                     <td class="pickup-date">${item.pickup_date || 'N/A'}</td>
+                     <td class="distance">${item.distance || 'N/A'}</td>
                      <td>
                          <div class="chrome-profile-info">
                              <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
@@ -1359,7 +1396,13 @@
                      record.job_number?.toLowerCase().includes(searchTerm) ||
                      record.page_url?.toLowerCase().includes(searchTerm) ||
                      record.source?.toLowerCase().includes(searchTerm) ||
-                     record.user_name?.toLowerCase().includes(searchTerm);
+                     record.user_name?.toLowerCase().includes(searchTerm) ||
+                     record.customer_name?.toLowerCase().includes(searchTerm) ||
+                     record.moving_from?.toLowerCase().includes(searchTerm) ||
+                     record.moving_to?.toLowerCase().includes(searchTerm) ||
+                     record.cubes?.toLowerCase().includes(searchTerm) ||
+                     record.pickup_date?.toLowerCase().includes(searchTerm) ||
+                     record.distance?.toLowerCase().includes(searchTerm);
                  
                  // Source filter
                  const matchesSource = !sourceFilter || record.source === sourceFilter;
@@ -1447,6 +1490,25 @@
                      jobLink.textContent = item.job_number || 'N/A';
                  }
                  
+                 // Update moving details columns
+                 const customerName = row.querySelector('.customer-name');
+                 if (customerName) customerName.textContent = item.customer_name || 'N/A';
+                 
+                 const movingFrom = row.querySelector('.moving-from');
+                 if (movingFrom) movingFrom.textContent = item.moving_from || 'N/A';
+                 
+                 const movingTo = row.querySelector('.moving-to');
+                 if (movingTo) movingTo.textContent = item.moving_to || 'N/A';
+                 
+                 const cubes = row.querySelector('.cubes');
+                 if (cubes) cubes.textContent = item.cubes || 'N/A';
+                 
+                 const pickupDate = row.querySelector('.pickup-date');
+                 if (pickupDate) pickupDate.textContent = item.pickup_date || 'N/A';
+                 
+                 const distance = row.querySelector('.distance');
+                 if (distance) distance.textContent = item.distance || 'N/A';
+                 
                  // Update Chrome profile info
                  const profileName = row.querySelector('.profile-name');
                  const profileEmail = row.querySelector('.profile-email');
@@ -1489,6 +1551,12 @@
                              ${item.job_number || 'N/A'}
                          </a>
                      </td>
+                     <td class="customer-name">${item.customer_name || 'N/A'}</td>
+                     <td class="moving-from">${item.moving_from || 'N/A'}</td>
+                     <td class="moving-to">${item.moving_to || 'N/A'}</td>
+                     <td class="cubes">${item.cubes || 'N/A'}</td>
+                     <td class="pickup-date">${item.pickup_date || 'N/A'}</td>
+                     <td class="distance">${item.distance || 'N/A'}</td>
                      <td>
                          <div class="chrome-profile-info">
                              <div class="profile-name">${this.getProfileDisplayName(item.chrome_profile_id)}</div>
