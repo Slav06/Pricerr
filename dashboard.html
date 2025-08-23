@@ -1696,22 +1696,103 @@
             // Show transfer overlay on the current page
             showTransferOverlayOnPage(transferData) {
                 try {
-                    // Try to send message to content script on current tab
-                    if (window.chrome && window.chrome.tabs) {
-                        window.chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                            if (tabs[0]) {
-                                window.chrome.tabs.sendMessage(tabs[0].id, {
-                                    action: 'showTransferOverlay',
-                                    data: transferData
-                                }).catch(() => {
-                                    // Content script might not be ready, ignore error
-                                });
-                            }
-                        });
-                    }
+                    // Create and show transfer overlay directly on the dashboard
+                    this.createTransferOverlay(transferData);
                 } catch (error) {
                     console.log('Could not show overlay on page:', error);
                 }
+            }
+            
+            // Create transfer overlay on the dashboard
+            createTransferOverlay(transferData) {
+                // Remove any existing overlay
+                const existingOverlay = document.getElementById('dashboard-transfer-overlay');
+                if (existingOverlay) {
+                    existingOverlay.remove();
+                }
+                
+                // Create the overlay
+                const overlay = document.createElement('div');
+                overlay.id = 'dashboard-transfer-overlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                    color: white;
+                    padding: 30px;
+                    border-radius: 15px;
+                    box-shadow: 0 10px 40px rgba(40, 167, 69, 0.4);
+                    z-index: 10000;
+                    font-family: Arial, sans-serif;
+                    max-width: 400px;
+                    text-align: center;
+                    border: 3px solid rgba(255,255,255,0.3);
+                    animation: slideInScale 0.5s ease-out;
+                `;
+                
+                // Create content
+                overlay.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                            🎯 JOB TRANSFERRED!
+                        </h3>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                        <div style="margin-bottom: 15px; font-weight: 600; color: #fff; font-size: 18px;">
+                            Job: <strong>${transferData.job_number}</strong>
+                        </div>
+                        <div style="margin-bottom: 10px; font-size: 16px; line-height: 1.4;">
+                            <strong>TRANSFERRED TO:</strong><br>
+                            <span style="font-size: 20px; color: #fff;">${transferData.user_name}</span>
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.9; color: #fff; font-style: italic;">
+                            Transfer completed at ${new Date().toLocaleTimeString()}
+                        </div>
+                    </div>
+                    <button id="close-transfer-overlay" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; width: 100%;">✓ CLOSE</button>
+                `;
+                
+                // Add CSS animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideInScale {
+                        from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+                        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Add close functionality
+                const closeBtn = overlay.querySelector('#close-transfer-overlay');
+                closeBtn.addEventListener('click', () => {
+                    overlay.style.animation = 'slideInScale 0.5s ease-out reverse';
+                    setTimeout(() => overlay.remove(), 500);
+                });
+                
+                // Add hover effects
+                closeBtn.addEventListener('mouseenter', () => {
+                    closeBtn.style.background = 'rgba(255,255,255,0.3)';
+                    closeBtn.style.borderColor = 'rgba(255,255,255,0.7)';
+                });
+                
+                closeBtn.addEventListener('mouseleave', () => {
+                    closeBtn.style.background = 'rgba(255,255,255,0.2)';
+                    closeBtn.style.borderColor = 'rgba(255,255,255,0.5)';
+                });
+                
+                // Add to page
+                document.body.appendChild(overlay);
+                
+                // Auto-remove after 10 minutes (600,000 ms)
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.remove();
+                    }
+                }, 600000);
+                
+                console.log('Transfer overlay created on dashboard:', transferData);
             }
 
             // Show message for specific row
@@ -1757,6 +1838,24 @@
                 dashboard.cleanup();
             }
         });
+        
+        // Make test function globally available
+        window.testDashboardTransferOverlay = function() {
+            if (dashboard) {
+                const testData = {
+                    jobId: 'test123',
+                    user_name: 'Test User',
+                    job_number: 'TEST001',
+                    chrome_profile_id: 'test_profile'
+                };
+                dashboard.createTransferOverlay(testData);
+                console.log('Test transfer overlay created');
+            } else {
+                console.log('Dashboard not initialized yet');
+            }
+        };
+        
+        console.log('testDashboardTransferOverlay function made globally available');
     </script>
 </body>
 </html>
