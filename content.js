@@ -1232,16 +1232,22 @@ async function getChromeProfileInfo() {
 // Function to show transfer overlay on the page
 function showTransferOverlay(transferData) {
     console.log('showTransferOverlay called with data:', transferData);
+    console.log('Current time:', new Date().toISOString());
     
     // Remove any existing overlay
     const existingOverlay = document.getElementById('transfer-overlay');
     if (existingOverlay) {
+        console.log('Removing existing overlay');
         existingOverlay.remove();
     }
     
     // Create the overlay
     const overlay = document.createElement('div');
     overlay.id = 'transfer-overlay';
+    
+    // Add a data attribute to mark this as a protected overlay
+    overlay.setAttribute('data-protected', 'true');
+    overlay.setAttribute('data-created-at', Date.now().toString());
     overlay.style.cssText = `
         position: fixed;
         top: 20px;
@@ -1313,14 +1319,59 @@ function showTransferOverlay(transferData) {
     
     // Auto-remove after 10 minutes (600 seconds)
     setTimeout(() => {
-        if (overlay.parentNode) {
-            overlay.style.animation = 'fadeOut 0.3s ease-out';
-            setTimeout(() => overlay.remove(), 300);
+        const overlayStillThere = document.getElementById('transfer-overlay');
+        if (overlayStillThere && overlayStillThere.parentNode) {
+            console.log('Auto-removing overlay after 10 minutes');
+            overlayStillThere.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                if (overlayStillThere.parentNode) {
+                    overlayStillThere.remove();
+                    console.log('Overlay auto-removed');
+                }
+            }, 300);
+        } else {
+            console.log('Overlay already removed before auto-removal');
         }
     }, 600000);
     
     // Add to page
     document.body.appendChild(overlay);
     
-    console.log('Transfer overlay displayed:', transferData);
+    // Set up a mutation observer to detect if the overlay is removed
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                mutation.removedNodes.forEach((node) => {
+                    if (node === overlay || (node.nodeType === Node.ELEMENT_NODE && node.id === 'transfer-overlay')) {
+                        console.log('WARNING: Transfer overlay was removed by external code!');
+                        console.log('Removal detected at:', new Date().toISOString());
+                        console.log('Removing node:', node);
+                        
+                        // Try to re-add the overlay after a short delay
+                        setTimeout(() => {
+                            if (!document.getElementById('transfer-overlay')) {
+                                console.log('Re-adding transfer overlay...');
+                                document.body.appendChild(overlay.cloneNode(true));
+                            }
+                        }, 100);
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, { childList: true });
+    
+    console.log('Transfer overlay displayed and added to DOM:', transferData);
+    console.log('Overlay element:', overlay);
+    console.log('Overlay parent:', overlay.parentNode);
+    
+    // Verify overlay is still there after a short delay
+    setTimeout(() => {
+        const stillThere = document.getElementById('transfer-overlay');
+        console.log('Overlay still in DOM after 1 second:', !!stillThere);
+        if (stillThere) {
+            console.log('Overlay content:', stillThere.innerHTML.substring(0, 100) + '...');
+        }
+    }, 1000);
 }
