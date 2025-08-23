@@ -453,15 +453,21 @@ class PageAnalyzer {
     extractMovingDetails() {
         const textContent = document.body.innerText;
         
-        // Extract customer name - look for "Name - <b>Rebecca Rodgers</b>" pattern
-        const nameMatch = textContent.match(/Name\s*-\s*<b>([^<]+)<\/b>/i);
-        if (nameMatch) {
-            this.data.movingDetails.customerName = nameMatch[1].trim();
+        // Extract customer name - look for the specific HTML structure
+        const nameRow = document.querySelector('tr td[colspan="3"] font[face="Verdana"][color="#31557B"][size="4"] b');
+        if (nameRow) {
+            this.data.movingDetails.customerName = nameRow.textContent.trim();
         } else {
-            // Fallback: look for name patterns
-            const nameFallback = textContent.match(/Name[:\s-]+([A-Za-z\s]+)/i);
+            // Fallback: look for any font with Verdana, color #31557B, size 4, and bold text
+            const nameFallback = document.querySelector('font[face="Verdana"][color="#31557B"][size="4"] b');
             if (nameFallback) {
-                this.data.movingDetails.customerName = nameFallback[1].trim();
+                this.data.movingDetails.customerName = nameFallback.textContent.trim();
+            } else {
+                // Additional fallback: look for any bold text in a table row
+                const boldText = document.querySelector('tr td b');
+                if (boldText && boldText.textContent.trim().match(/^[A-Za-z\s]+$/)) {
+                    this.data.movingDetails.customerName = boldText.textContent.trim();
+                }
             }
         }
         
