@@ -31,7 +31,21 @@
             background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
             color: white;
             padding: 30px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .header-logo {
+            height: 80px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+        }
+
+        .header-text {
+            text-align: left;
         }
 
         .header h1 {
@@ -43,6 +57,23 @@
         .header p {
             font-size: 1.1rem;
             opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 30px 20px;
+                text-align: center;
+            }
+            
+            .header-text {
+                text-align: center;
+            }
+            
+            .header-logo {
+                height: 60px;
+            }
         }
 
 
@@ -430,10 +461,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Job Submissions Dashboard</h1>
-            <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
-            
-
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMjAwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSIxMDAiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjNGE5MGU2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QZXJmZWN0bHk8L3RleHQ+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9Im5vcm1hbCIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RmFzdCBNb3Zpbmc8L3RleHQ+Cjwvc3ZnPgo=" alt="Perfectly Fast Moving" class="header-logo">
+            <div class="header-text">
+                <h1>Transfer Log</h1>
+                <p>Track all job numbers submitted through the Page Price Analyzer Extension</p>
+            </div>
         </div>
 
                  <div class="controls">
