@@ -69,12 +69,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    if (response.ok) {
-                        const users = await response.json();
-                        console.log(`✅ Found table ${tableName} with ${users.length} users:`, users);
+                                         if (response.ok) {
+                         const users = await response.json();
+                         console.log(`✅ Found table ${tableName} with ${users.length} users:`, users);
+                         
+                         // Debug: Show the actual column names from first user
+                         if (users.length > 0) {
+                             console.log('🔍 First user object keys:', Object.keys(users[0]));
+                             console.log('🔍 Sample user data:', users[0]);
+                         }
                         
-                        // Now try to find user by secret key
-                        const user = users.find(u => u.secretKey === secretKey || u.secret_key === secretKey);
+                                                 // Now try to find user by secret key (handle different column names)
+                         const user = users.find(u => 
+                             u.secretKey === secretKey || 
+                             u.secret_key === secretKey || 
+                             u.secretkey === secretKey
+                         );
                         
                         if (user) {
                             console.log('✅ User found:', user);
