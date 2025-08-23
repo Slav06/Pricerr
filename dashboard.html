@@ -1897,21 +1897,35 @@
                          chrome_profile_id: item.chrome_profile_id,
                          initiated_by: currentProfileName || 'Unknown User',
                          initiated_by_id: currentProfileId,
-                         page_url: item.page_url // Keep for reference but won't be used for matching
+                         page_url: item.page_url
                      };
                      
-                     // Try to send a message to the Chrome extension
-                     if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-                         window.chrome.runtime.sendMessage({
-                             action: 'transferUpdated',
-                             data: transferData
-                         });
+                     // Store transfer update in localStorage for popup to pick up
+                     try {
+                         const transferUpdates = JSON.parse(localStorage.getItem('chromeExtensionTransferUpdates') || '{}');
+                         const key = `${transferData.jobId}_${transferData.chrome_profile_id}`;
+                         transferUpdates[key] = transferData;
+                         localStorage.setItem('chromeExtensionTransferUpdates', JSON.stringify(transferUpdates));
+                         
+                         console.log('Transfer update stored in localStorage:', transferData);
+                         
+                         // Show overlay on the current page
+                         this.showTransferOverlayOnPage(transferData);
+                         
+                         // Also try to send to extension as backup
+                         if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
+                             window.chrome.runtime.sendMessage({
+                                 action: 'transferUpdated',
+                                 data: transferData
+                             }).catch(error => {
+                                 console.log('Extension message failed (expected):', error);
+                             });
+                         }
+                         
+                     } catch (error) {
+                         console.error('Error storing transfer update:', error);
+                         showNotification('Error initiating transfer', 'error');
                      }
-                     
-                     // Show overlay on the current page
-                     this.showTransferOverlayOnPage(transferData);
-                     
-                     console.log('Chrome extension notified about transfer update');
                  } catch (error) {
                      console.log('Could not notify Chrome extension:', error);
                  }

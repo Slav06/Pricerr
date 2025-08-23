@@ -9,6 +9,24 @@
 <body>
     <div class="container">
 
+        <!-- User Login Section -->
+        <div class="login-section" id="loginSection">
+            <h3>👤 User Login</h3>
+            <input type="text" id="userName" placeholder="Enter your name" class="login-input">
+            <button id="loginBtn" class="login-btn">Login</button>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <p>Logged in as: <strong id="currentUser"></strong></p>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+
+        <!-- Transfer Notifications Section -->
+        <div class="transfer-section" id="transferSection" style="display: none;">
+            <h3>🔄 Transfer Updates</h3>
+            <div id="transferList" class="transfer-list">
+                <p class="no-transfers">No transfer updates</p>
+            </div>
+        </div>
 
         <!-- Submit Job Number Button Section -->
         <div class="top-button" id="submitJobButton">
