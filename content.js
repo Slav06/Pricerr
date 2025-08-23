@@ -379,10 +379,52 @@ class PageAnalyzer {
     extractJobDetails() {
         const textContent = document.body.innerText;
         
-        // Extract job number
-        const jobMatch = textContent.match(/job\s*no[:\s]*([A-Z0-9]+)/i);
-        if (jobMatch) {
-            this.data.jobDetails.jobNumber = jobMatch[1];
+        // Extract job number - try multiple methods
+        let jobNumber = null;
+        
+        // Method 1: Look for the specific HTML structure you mentioned
+        const deptElement = document.querySelector('#dept');
+        if (deptElement) {
+            const deptLetter = deptElement.textContent.trim();
+            // Look for the number that follows the dept element
+            const nextText = deptElement.nextSibling;
+            if (nextText && nextText.textContent) {
+                const numberMatch = nextText.textContent.match(/(\d+)/);
+                if (numberMatch) {
+                    jobNumber = deptLetter + numberMatch[1];
+                }
+            }
+        }
+        
+        // Method 2: Look for the combined format in text content
+        if (!jobNumber) {
+            const combinedMatch = textContent.match(/([A-Z]\d{7})/);
+            if (combinedMatch) {
+                jobNumber = combinedMatch[1];
+            }
+        }
+        
+        // Method 3: Look for the old format (job no:)
+        if (!jobNumber) {
+            const jobMatch = textContent.match(/job\s*no[:\s]*([A-Z0-9]+)/i);
+            if (jobMatch) {
+                jobNumber = jobMatch[1];
+            }
+        }
+        
+        // Method 4: Look for any pattern that matches A + 7 digits
+        if (!jobNumber) {
+            const patternMatch = textContent.match(/([A-Z]\d{7})/g);
+            if (patternMatch && patternMatch.length > 0) {
+                jobNumber = patternMatch[0];
+            }
+        }
+        
+        if (jobNumber) {
+            this.data.jobDetails.jobNumber = jobNumber;
+            console.log('Job number extracted:', jobNumber);
+        } else {
+            console.log('No job number found using any method');
         }
 
         // Extract status
@@ -601,6 +643,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         
         try {
             const analyzer = new PageAnalyzer();
+            
+            // Debug: Check what was extracted
+            console.log('Analyzer data:', analyzer.data);
+            console.log('Job details:', analyzer.data.jobDetails);
+            
             const jobNumber = analyzer.data.jobDetails.jobNumber;
             
             if (jobNumber) {
@@ -611,6 +658,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
             } else {
                 console.log('No job number found on page');
+                
+                // Additional debugging for the specific element you mentioned
+                const deptElement = document.querySelector('#dept');
+                if (deptElement) {
+                    console.log('Found #dept element:', deptElement.outerHTML);
+                    console.log('Dept text:', deptElement.textContent);
+                    
+                    // Try to manually extract the job number
+                    const deptLetter = deptElement.textContent.trim();
+                    const nextText = deptElement.nextSibling;
+                    if (nextText && nextText.textContent) {
+                        console.log('Next sibling text:', nextText.textContent);
+                        const numberMatch = nextText.textContent.match(/(\d+)/);
+                        if (numberMatch) {
+                            const extractedJobNumber = deptLetter + numberMatch[1];
+                            console.log('Manually extracted job number:', extractedJobNumber);
+                            sendResponse({ 
+                                success: true, 
+                                jobNumber: extractedJobNumber 
+                            });
+                            return;
+                        }
+                    }
+                }
+                
                 sendResponse({ 
                     success: false, 
                     error: 'No job number found on page' 

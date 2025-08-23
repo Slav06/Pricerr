@@ -246,6 +246,17 @@
             100% { transform: rotate(360deg); }
         }
 
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         .error {
             text-align: center;
             padding: 60px;
@@ -340,6 +351,7 @@
                 </select>
             </div>
             <button class="refresh-btn" id="refreshBtn">Refresh Data</button>
+            <button class="refresh-btn" id="autoRefreshBtn" style="background: #28a745; display: none;">🔄 Auto-refresh ON</button>
         </div>
 
         <div class="stats">
@@ -381,15 +393,17 @@
     <script>
         class JobDashboard {
             constructor() {
-                this.supabaseUrl = 'https://your-project.supabase.co';
-                this.supabaseKey = 'your-anon-key';
+                this.supabaseUrl = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+                this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
                 this.currentPage = 1;
                 this.itemsPerPage = 20;
                 this.allData = [];
                 this.filteredData = [];
+                this.realtimeSubscription = null;
                 
                 this.initializeEventListeners();
                 this.loadData();
+                this.setupRealtimeSubscription();
             }
 
             initializeEventListeners() {
@@ -618,12 +632,120 @@
                     </div>
                 `;
             }
+
+            // Set up real-time subscription to Supabase
+            setupRealtimeSubscription() {
+                try {
+                    console.log('Setting up real-time subscription...');
+                    
+                    // Create EventSource for real-time updates
+                    const eventSource = new EventSource(`${this.supabaseUrl}/rest/v1/job_submissions?select=*&order=id.desc&limit=1`, {
+                        headers: {
+                            'apikey': this.supabaseKey,
+                            'Authorization': `Bearer ${this.supabaseKey}`
+                        }
+                    });
+
+                    eventSource.onmessage = (event) => {
+                        try {
+                            const newData = JSON.parse(event.data);
+                            console.log('Real-time update received:', newData);
+                            
+                            if (newData && newData.length > 0) {
+                                // Add new record to the beginning of the list
+                                this.allData.unshift(newData[0]);
+                                this.filterData();
+                                this.updateStats();
+                                
+                                // Show notification
+                                this.showNotification(`New job submitted: ${newData[0].job_number}`);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing real-time data:', error);
+                        }
+                    };
+
+                    eventSource.onerror = (error) => {
+                        console.error('EventSource error:', error);
+                        // Fallback to polling if real-time fails
+                        this.setupPolling();
+                    };
+
+                    this.realtimeSubscription = eventSource;
+                    console.log('Real-time subscription established');
+                    
+                } catch (error) {
+                    console.error('Error setting up real-time subscription:', error);
+                    // Fallback to polling
+                    this.setupPolling();
+                }
+            }
+
+            // Fallback polling method
+            setupPolling() {
+                console.log('Setting up polling fallback...');
+                this.showAutoRefreshButton();
+                setInterval(() => {
+                    this.loadData();
+                }, 5000); // Poll every 5 seconds
+            }
+
+            // Show auto-refresh button
+            showAutoRefreshButton() {
+                const autoRefreshBtn = document.getElementById('autoRefreshBtn');
+                if (autoRefreshBtn) {
+                    autoRefreshBtn.style.display = 'inline-block';
+                }
+            }
+
+            // Show notification for new submissions
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                
+                // Add notification styles
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }
+
+            // Clean up real-time subscription
+            cleanup() {
+                if (this.realtimeSubscription) {
+                    this.realtimeSubscription.close();
+                    this.realtimeSubscription = null;
+                }
+            }
         }
 
         // Initialize dashboard when page loads
         let dashboard;
         document.addEventListener('DOMContentLoaded', () => {
             dashboard = new JobDashboard();
+        });
+
+        // Clean up when page unloads
+        window.addEventListener('beforeunload', () => {
+            if (dashboard) {
+                dashboard.cleanup();
+            }
         });
     </script>
 </body>

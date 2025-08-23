@@ -19,21 +19,28 @@ class PopupManager {
                     return;
                 }
 
+                console.log('Current tab:', tab.url);
+
                 // Get job number from the current page
                 const response = await chrome.tabs.sendMessage(tab.id, { 
                     action: 'getJobNumber'
                 });
                 
+                console.log('Response from content script:', response);
+                
                 if (response && response.success && response.jobNumber) {
+                    console.log('Job number found:', response.jobNumber);
                     // Submit to database
                     await this.submitJobToDatabase(response.jobNumber, tab.url);
                     console.log('Job number submitted successfully');
                 } else {
-                    console.error('Failed to get job number:', response?.error);
+                    console.error('Failed to get job number:', response?.error || 'No response');
+                    this.showMessage('No job number found on this page', 'error');
                 }
                 
             } catch (error) {
                 console.error('Error submitting job number:', error);
+                this.showMessage(`Error: ${error.message}`, 'error');
             }
         });
 
@@ -233,9 +240,16 @@ class PopupManager {
     // Submit job number to Supabase
     async submitJobToDatabase(jobNumber, pageUrl) {
         try {
-            // Supabase configuration
-            const supabaseUrl = 'https://your-project.supabase.co';
-            const supabaseKey = 'your-anon-key';
+            // Get Supabase configuration from config file
+            const supabaseUrl = window.CONFIG?.SUPABASE?.URL || 'https://your-project.supabase.co';
+            const supabaseKey = window.CONFIG?.SUPABASE?.ANON_KEY || 'your-anon-key';
+            
+            // Check if credentials are still placeholder
+            if (supabaseUrl === 'https://your-project.supabase.co' || supabaseKey === 'your-anon-key') {
+                throw new Error('Please update Supabase credentials in config.js');
+            }
+            
+            console.log('Submitting job number:', jobNumber, 'to URL:', pageUrl);
             
             const response = await fetch(`${supabaseUrl}/rest/v1/job_submissions`, {
                 method: 'POST',
@@ -255,7 +269,6 @@ class PopupManager {
 
             if (response.ok) {
                 console.log('Job submitted to Supabase successfully');
-                // Show success message
                 this.showMessage('Job number submitted successfully!', 'success');
             } else {
                 const errorData = await response.json();
@@ -263,7 +276,6 @@ class PopupManager {
             }
         } catch (error) {
             console.error('Error submitting to Supabase:', error);
-            // Show error message
             this.showMessage(`Failed to submit: ${error.message}`, 'error');
         }
     }
