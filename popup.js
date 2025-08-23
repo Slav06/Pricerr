@@ -251,6 +251,10 @@ class PopupManager {
             
             console.log('Submitting job number:', jobNumber, 'to URL:', pageUrl);
             
+            // Get Chrome profile information
+            const profileInfo = await this.getChromeProfileInfo();
+            console.log('Chrome profile info:', profileInfo);
+            
             const response = await fetch(`${supabaseUrl}/rest/v1/job_submissions`, {
                 method: 'POST',
                 headers: {
@@ -263,13 +267,16 @@ class PopupManager {
                     job_number: jobNumber,
                     page_url: pageUrl,
                     submitted_at: new Date().toISOString(),
-                    source: 'Page Price Analyzer Extension'
+                    source: 'Page Price Analyzer Extension',
+                    chrome_profile_id: profileInfo.profileId,
+                    chrome_profile_name: profileInfo.profileName,
+                    user_identifier: profileInfo.userIdentifier
                 })
             });
 
             if (response.ok) {
                 console.log('Job submitted to Supabase successfully');
-                this.showMessage('Job number submitted successfully!', 'success');
+                this.showMessage(`Job submitted by ${profileInfo.profileName}!`, 'success');
             } else {
                 const errorData = await response.json();
                 throw new Error(`Supabase submission failed: ${response.status} - ${errorData.message || 'Unknown error'}`);
@@ -277,6 +284,38 @@ class PopupManager {
         } catch (error) {
             console.error('Error submitting to Supabase:', error);
             this.showMessage(`Failed to submit: ${error.message}`, 'error');
+        }
+    }
+
+    // Get Chrome profile information
+    async getChromeProfileInfo() {
+        try {
+            // Get Chrome profile information
+            const profileInfo = await new Promise((resolve) => {
+                chrome.storage.local.get(['profileInfo'], (result) => {
+                    if (result.profileInfo) {
+                        resolve(result.profileInfo);
+                    } else {
+                        // Fallback: generate a profile identifier
+                        const fallbackInfo = {
+                            profileId: 'profile_' + Math.random().toString(36).substr(2, 9),
+                            profileName: 'Chrome Profile',
+                            userIdentifier: 'user_' + Math.random().toString(36).substr(2, 9)
+                        };
+                        resolve(fallbackInfo);
+                    }
+                });
+            });
+
+            return profileInfo;
+        } catch (error) {
+            console.error('Error getting profile info:', error);
+            // Return fallback info if anything fails
+            return {
+                profileId: 'profile_fallback',
+                profileName: 'Chrome Profile',
+                userIdentifier: 'user_fallback'
+            };
         }
     }
 

@@ -14,10 +14,51 @@ chrome.runtime.onInstalled.addListener((details) => {
                 pricingCurrency: 'USD'
             }
         });
+        
+        // Detect and store Chrome profile information
+        detectChromeProfile();
     } else if (details.reason === 'update') {
         console.log('Page Price Analyzer extension updated');
+        // Re-detect profile info on update
+        detectChromeProfile();
     }
 });
+
+// Detect Chrome profile information
+async function detectChromeProfile() {
+    try {
+        // Get profile information from Chrome
+        const profileInfo = await chrome.identity.getProfileUserInfo();
+        
+        // Get additional profile details
+        const profileDetails = {
+            profileId: profileInfo.id || 'unknown',
+            profileName: profileInfo.email ? profileInfo.email.split('@')[0] : 'Chrome Profile',
+            userIdentifier: profileInfo.email || 'anonymous',
+            email: profileInfo.email || null,
+            isManaged: profileInfo.isManaged || false
+        };
+        
+        // Store profile information
+        chrome.storage.local.set({ profileInfo: profileDetails });
+        console.log('Chrome profile detected and stored:', profileDetails);
+        
+    } catch (error) {
+        console.error('Error detecting Chrome profile:', error);
+        
+        // Fallback: generate a unique profile identifier
+        const fallbackProfile = {
+            profileId: 'profile_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            profileName: 'Chrome Profile',
+            userIdentifier: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            email: null,
+            isManaged: false
+        };
+        
+        chrome.storage.local.set({ profileInfo: fallbackProfile });
+        console.log('Fallback profile created:', fallbackProfile);
+    }
+}
 
 // Handle extension startup
 chrome.runtime.onStartup.addListener(() => {

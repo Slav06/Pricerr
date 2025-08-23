@@ -236,10 +236,34 @@
             border-color: #6b46c1;
         }
 
-        .user-dropdown option {
-            background: white;
-            color: #495057;
-        }
+                 .user-dropdown option {
+             background: white;
+             color: #495057;
+         }
+
+         .chrome-profile-info {
+             display: flex;
+             flex-direction: column;
+             gap: 2px;
+         }
+
+         .profile-name {
+             font-weight: 600;
+             color: #495057;
+             font-size: 0.9rem;
+         }
+
+         .profile-email {
+             color: #6c757d;
+             font-size: 0.8rem;
+             font-style: italic;
+         }
+
+         .profile-id {
+             color: #adb5bd;
+             font-size: 0.75rem;
+             font-family: monospace;
+         }
 
         .page-url {
             color: #007bff;
@@ -582,39 +606,47 @@
 
                 const table = `
                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Job Number</th>
-                                <th>User</th>
-                                <th>Page URL</th>
-                                <th>Source</th>
-                                <th>Submitted At</th>
-                            </tr>
-                        </thead>
+                                                 <thead>
+                             <tr>
+                                 <th>Job Number</th>
+                                 <th>Chrome Profile</th>
+                                 <th>Assigned User</th>
+                                 <th>Page URL</th>
+                                 <th>Source</th>
+                                 <th>Submitted At</th>
+                             </tr>
+                         </thead>
                         <tbody>
-                            ${pageData.map((item, index) => `
-                                <tr data-job-id="${item.id || index}">
-                                    <td class="job-number">${item.job_number || 'N/A'}</td>
-                                    <td>
-                                        <select class="user-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
-                                            <option value="">Select User</option>
-                                            <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
-                                            <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
-                                            <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
-                                            <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
-                                            <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
-                                            <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <a href="${item.page_url || '#'}" target="_blank" class="page-url" title="${item.page_url || 'N/A'}">
-                                            ${item.page_url || 'N/A'}
-                                        </a>
-                                    </td>
-                                    <td><span class="source">${item.source || 'N/A'}</span></td>
-                                    <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
-                                </tr>
-                            `).join('')}
+                                                         ${pageData.map((item, index) => `
+                                 <tr data-job-id="${item.id || index}">
+                                     <td class="job-number">${item.job_number || 'N/A'}</td>
+                                     <td>
+                                         <div class="chrome-profile-info">
+                                             <div class="profile-name">${item.chrome_profile_name || 'Unknown Profile'}</div>
+                                             ${item.chrome_email ? `<div class="profile-email">${item.chrome_email}</div>` : ''}
+                                             <div class="profile-id">ID: ${item.chrome_profile_id || 'N/A'}</div>
+                                         </div>
+                                     </td>
+                                     <td>
+                                         <select class="user-dropdown" data-job-id="${item.id || index}" data-original-user="${item.user_name || ''}">
+                                             <option value="">Select User</option>
+                                             <option value="Roman" ${item.user_name === 'Roman' ? 'selected' : ''}>Roman</option>
+                                             <option value="Michael" ${item.user_name === 'Michael' ? 'selected' : ''}>Michael</option>
+                                             <option value="Molly" ${item.user_name === 'Molly' ? 'selected' : ''}>Molly</option>
+                                             <option value="Tony" ${item.user_name === 'Tony' ? 'selected' : ''}>Tony</option>
+                                             <option value="Steve" ${item.user_name === 'Steve' ? 'selected' : ''}>Steve</option>
+                                             <option value="Bobby" ${item.user_name === 'Bobby' ? 'selected' : ''}>Bobby</option>
+                                         </select>
+                                     </td>
+                                     <td>
+                                         <a href="${item.page_url || '#'}" target="_blank" class="page-url" title="${item.page_url || 'N/A'}">
+                                             ${item.page_url || 'N/A'}
+                                         </a>
+                                     </td>
+                                     <td><span class="source">${item.source || 'N/A'}</span></td>
+                                     <td class="timestamp">${this.formatDate(item.submitted_at)}</td>
+                                 </tr>
+                             `).join('')}
                         </tbody>
                     </table>
                 `;

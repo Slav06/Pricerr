@@ -3,11 +3,12 @@
   "name": "Page Price Analyzer - Job Number Extractor",
   "version": "1.0.0",
   "description": "Extract job numbers from web pages and submit them to your database. Perfect for job tracking and analysis.",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "scripting"
-  ],
+          "permissions": [
+          "activeTab",
+          "storage",
+          "scripting",
+          "identity"
+        ],
   "host_permissions": [
     "<all_urls>"
   ],
