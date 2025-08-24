@@ -44,8 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
             loginBtn.disabled = true;
             
             console.log('🔐 Attempting login with key:', secretKey);
+            console.log('🔍 Secret key length:', secretKey.length);
             
             // First, let's test the connection and see what tables exist
+            console.log('🔗 Testing Supabase connection...');
             const testResponse = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/', {
                 headers: {
                     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
@@ -69,6 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
+                    console.log(`📡 Response for ${tableName}:`, response.status, response.statusText);
+                    
                     if (response.ok) {
                         const users = await response.json();
                         console.log(`✅ Found table ${tableName} with ${users.length} users:`, users);
@@ -80,17 +84,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
                         // Now try to find user by secret key (handle different column names)
-                        const user = users.find(u => 
-                            u.secretKey === secretKey || 
-                            u.secret_key === secretKey || 
-                            u.secretkey === secretKey
-                        );
+                        console.log('🔍 Looking for user with secret key:', secretKey);
+                        const user = users.find(u => {
+                            const match = u.secretKey === secretKey || 
+                                         u.secret_key === secretKey || 
+                                         u.secretkey === secretKey;
+                            console.log(`🔍 Checking user ${u.name}:`, {
+                                secretKey: u.secretKey,
+                                secret_key: u.secret_key,
+                                secretkey: u.secretkey,
+                                match: match
+                            });
+                            return match;
+                        });
                         
                         if (user) {
                             console.log('✅ User found:', user);
                             
                             // Check if user is active (handle different possible field names)
                             const isActive = user.isActive !== false && user.is_active !== false && user.isactive !== false;
+                            console.log('🔍 User active status:', {
+                                isActive: user.isActive,
+                                is_active: user.is_active,
+                                isactive: user.isactive,
+                                final: isActive
+                            });
                             
                             if (isActive) {
                                 // Store user info in Chrome storage
@@ -110,9 +128,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                 showNotification('User account is inactive', 'error');
                                 return;
                             }
+                        } else {
+                            console.log('❌ No user found with that secret key');
                         }
                     } else {
                         console.log(`❌ Table ${tableName} not accessible:`, response.status, response.statusText);
+                        try {
+                            const errorText = await response.text();
+                            console.log(`❌ Error details:`, errorText);
+                        } catch (e) {
+                            console.log(`❌ Could not read error response`);
+                        }
                     }
                 } catch (error) {
                     console.log(`❌ Error accessing table ${tableName}:`, error);
@@ -120,10 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // If we get here, no user was found
+            console.log('❌ No valid user found in any table');
             showNotification('Invalid secret key or user not found', 'error');
             
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('❌ Login error:', error);
             showNotification('Network error. Please check your connection.', 'error');
         } finally {
             // Reset button state
@@ -274,61 +301,68 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification(`Test function called by ${currentUserData.name}`, 'success');
     };
     
-    // Test function to check extension status
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const userModal = document.getElementById('userModal');
+        const editUserModal = document.getElementById('editUserModal');
+        
+        if (event.target === userModal) {
+            userModal.style.display = 'none';
+        }
+        if (event.target === editUserModal) {
+            editUserModal.style.display = 'none';
+        }
+    }
+    
+    // Debug functions for testing
     window.testExtensionStatus = function() {
-        console.log('🔍 Extension Status Check:');
-        console.log('- Current user data:', currentUserData);
-        console.log('- Login section visible:', loginSection.style.display !== 'none');
-        console.log('- User info visible:', userInfo.style.display !== 'none');
-        console.log('- Transfer section visible:', transferSection.style.display !== 'none');
+        console.log('🧪 Testing extension status...');
+        console.log('Current user data:', currentUserData);
+        console.log('Login section visible:', loginSection.style.display !== 'none');
+        console.log('User info visible:', userInfo.style.display !== 'none');
         
         chrome.storage.local.get(['popupUser'], (result) => {
-            console.log('- Stored popup user:', result.popupUser);
+            console.log('Chrome storage popupUser:', result.popupUser);
         });
-        
-        showNotification('Check console for extension status', 'success');
     };
     
-    // Test function to simulate login
     window.testLogin = function() {
-        console.log('🧪 Testing login functionality...');
-        secretKeyInput.value = 'ADMIN123456789';
+        console.log('🧪 Testing login function...');
+        const testKey = 'admin'; // Use your admin key
+        console.log('Testing with key:', testKey);
+        
+        // Temporarily set the input value and trigger login
+        secretKeyInput.value = testKey;
         handleLogin();
     };
     
-    // Test function to check Supabase connection
     window.testSupabaseConnection = async function() {
         console.log('🧪 Testing Supabase connection...');
         try {
-            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&limit=1', {
+            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*', {
                 headers: {
                     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
                 }
             });
             
+            console.log('Supabase test response:', response.status, response.statusText);
+            
             if (response.ok) {
-                const data = await response.json();
-                console.log('✅ Supabase connection successful!');
-                console.log('📊 Sample data:', data);
-                showNotification('Supabase connection successful!', 'success');
+                const users = await response.json();
+                console.log('Users found:', users.length);
+                console.log('First user:', users[0]);
             } else {
-                console.log('❌ Supabase connection failed:', response.status, response.statusText);
-                showNotification('Supabase connection failed!', 'error');
+                const errorText = await response.text();
+                console.log('Error response:', errorText);
             }
         } catch (error) {
-            console.error('❌ Supabase connection error:', error);
-            showNotification('Supabase connection error!', 'error');
+            console.error('Supabase test error:', error);
         }
     };
     
-    // Initial check
-    checkTransferUpdates();
-    
-    console.log('Dashboard-integrated popup system initialized');
-    console.log('Available test functions:');
-    console.log('- testTransferUpdate() - Test transfer functionality');
-    console.log('- testExtensionStatus() - Check extension status');
+    console.log('🔧 Debug functions available:');
+    console.log('- testExtensionStatus() - Check extension state');
     console.log('- testLogin() - Test login with admin key');
     console.log('- testSupabaseConnection() - Test Supabase connection');
 });
