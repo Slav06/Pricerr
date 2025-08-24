@@ -26,30 +26,30 @@
 
         .header {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
         .header-logo-text {
-            font-size: 48px;
+            font-size: 24px;
             font-weight: bold;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .header-text h1 {
-            font-size: 32px;
+            font-size: 18px;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .header-text p {
-            font-size: 18px;
+            font-size: 14px;
             color: #666;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .role-badge {
@@ -178,110 +178,35 @@
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
 
-        .users-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
 
-        .user-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 2px solid #e9ecef;
-            transition: transform 0.2s ease;
-        }
-
-        .user-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .user-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .user-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .user-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .user-details {
-            margin-bottom: 15px;
-        }
-
-        .user-detail {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 5px 0;
-        }
-
-        .user-detail .label {
-            font-weight: 600;
-            color: #666;
-        }
-
-        .user-detail .value {
-            color: #333;
-            font-family: monospace;
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .secret-key {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 6px;
-            padding: 10px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 14px;
-            color: #856404;
-            text-align: center;
-            word-break: break-all;
-        }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 8px;
+            padding: 15px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
         .stat-number {
-            font-size: 36px;
+            font-size: 24px;
             font-weight: bold;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .stat-label {
-            font-size: 16px;
+            font-size: 12px;
             color: #666;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .table-container {
@@ -293,7 +218,7 @@
 
         .table-header {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid #e9ecef;
             display: flex;
             justify-content: space-between;
@@ -332,7 +257,7 @@
         }
 
         th, td {
-            padding: 15px;
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
         }
@@ -341,18 +266,6 @@
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-        }
-
-        .transfer-cell {
-            position: relative;
-        }
-
-        .transfer-dropdown {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
         }
 
         .transfer-status {
@@ -428,64 +341,7 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
 
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
-        .qr-code {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .qr-code img {
-            max-width: 200px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-        }
-
-        .copy-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-left: 10px;
-        }
-
-        .copy-btn:hover {
-            background: #5a6268;
-        }
     </style>
 </head>
 <body>
@@ -518,42 +374,10 @@
         <div id="dashboardTabs" style="display: none;">
             <div class="tabs">
                 <div class="tab active" onclick="showTab('submissions')">📋 Job Submissions</div>
-                <div class="tab" onclick="showTab('transfers')">🔄 Transfers</div>
                 <div class="tab" onclick="showTab('profile')">👤 Profile</div>
             </div>
 
-            <!-- Users Tab -->
-            <div id="usersTab" class="tab-content">
-                <div class="user-form">
-                    <h2>👥 Create New User</h2>
-                    <div class="form-group">
-                        <label for="newUserName">Full Name:</label>
-                        <input type="text" id="newUserName" placeholder="Enter full name">
-                    </div>
-                    <div class="form-group">
-                        <label for="newUserRole">Role:</label>
-                        <select id="newUserRole">
-                            <option value="fronter">Fronter - Can submit jobs</option>
-                            <option value="closer">Closer - Can receive transfers</option>
-                            <option value="admin">Admin - Full access</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="newUserSecretKey">Secret Key (optional):</label>
-                        <input type="text" id="newUserSecretKey" placeholder="Leave blank for auto-generated key">
-                        <small style="color: #666; font-size: 12px;">If left blank, a random key will be generated automatically</small>
-                    </div>
-                    <button class="btn" onclick="createUser()">Create User</button>
-                </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>Current Users</h2>
-                    <button class="btn btn-secondary" onclick="loadUsers()">🔄 Refresh Users</button>
-                </div>
-                <div id="usersGrid" class="users-grid">
-                    <!-- Users will be populated here -->
-                </div>
-            </div>
 
             <!-- Submissions Tab -->
             <div id="submissionsTab" class="tab-content active">
@@ -591,13 +415,7 @@
                 </div>
             </div>
 
-            <!-- Transfers Tab -->
-            <div id="transfersTab" class="tab-content">
-                <h2>🔄 Transfer Management</h2>
-                <div id="transfersList">
-                    <!-- Transfers will be populated here -->
-                </div>
-            </div>
+
 
             <!-- Profile Tab -->
             <div id="profileTab" class="tab-content">
@@ -622,72 +440,22 @@
         </div>
     </div>
 
-    <!-- User Details Modal -->
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeUserModal()">&times;</span>
-            <h2 id="modalUserName">User Details</h2>
-            <div id="modalUserDetails"></div>
-            <div class="qr-code" id="modalQRCode"></div>
-            <div class="secret-key" id="modalSecretKey"></div>
-            <button class="copy-btn" onclick="copyModalSecretKey()">Copy Key</button>
-        </div>
-    </div>
 
-    <!-- Edit User Modal -->
-    <div id="editUserModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeEditUserModal()">&times;</span>
-            <h2 id="editModalUserName">Edit User</h2>
-            <div class="user-form">
-                <div class="form-group">
-                    <label for="editUserName">Full Name:</label>
-                    <input type="text" id="editUserName" placeholder="Enter full name">
-                </div>
-                <div class="form-group">
-                    <label for="editUserRole">Role:</label>
-                    <select id="editUserRole">
-                        <option value="fronter">Fronter - Can submit jobs</option>
-                        <option value="closer">Closer - Can receive transfers</option>
-                        <option value="admin">Admin - Full access</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="editUserSecretKey">Secret Key:</label>
-                    <input type="text" id="editUserSecretKey" placeholder="Enter new secret key">
-                    <small style="color: #666; font-size: 12px;">Leave blank to keep current key</small>
-                </div>
-                <div class="form-group">
-                    <label for="editUserStatus">Status:</label>
-                    <select id="editUserStatus">
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="saveUserChanges()">Save Changes</button>
-                <button class="btn btn-secondary" onclick="closeEditUserModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // Global variables
         let currentUser = null;
-        let users = [];
         let submissions = [];
-        let transfers = [];
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initialized');
             
-            // Only clear old fake user data, not current session
-            localStorage.removeItem('dashboardUsers');
+
             
             // Try to restore current user immediately
             restoreCurrentUser();
             
-            loadUsers();
             checkLoginStatus();
             
             // Check session every 5 minutes to keep user logged in
@@ -695,7 +463,7 @@
             
             // Auto-refresh submissions every 4 seconds for real-time updates
             setInterval(() => {
-                if (currentUser && currentUser.role === 'admin') {
+                if (currentUser) {
                     loadRealSubmissions();
                 }
             }, 4000);
@@ -739,39 +507,7 @@
             return false;
         }
         
-        // Check if this is first-time setup (no users exist)
-        function isFirstTimeSetup() {
-            return users.length === 0;
-        }
-        
-        // Show first-time setup form
-        function showFirstTimeSetup() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardTabs').style.display = 'block';
-            
-            // Show only the users tab
-            showTab('users');
-            
-            // Show special message for first admin
-            const usersTab = document.getElementById('usersTab');
-            const firstTimeMessage = document.createElement('div');
-            firstTimeMessage.className = 'user-form';
-            firstTimeMessage.style.background = '#e8f5e8';
-            firstTimeMessage.style.border = '2px solid #28a745';
-            firstTimeMessage.innerHTML = `
-                <h2>🎉 Welcome to Your Dashboard!</h2>
-                <p><strong>This is your first time setting up the dashboard.</strong></p>
-                <p>Create your first admin user below. This user will have full access to manage the system.</p>
-                <hr style="margin: 20px 0;">
-            `;
-            
-            // Insert the message before the existing form
-            const existingForm = usersTab.querySelector('.user-form');
-            usersTab.insertBefore(firstTimeMessage, existingForm);
-            
-            // Update the form title
-            existingForm.querySelector('h2').textContent = '👑 Create First Admin User';
-        }
+
         
         // Check if current session is still valid
         function checkSessionValidity() {
@@ -817,22 +553,6 @@
             try {
                 console.log('🔐 Starting checkLoginStatus...');
                 
-                // Load users from Supabase first to make sure we have real data
-                console.log('🔄 About to call loadUsers()...');
-                await loadUsers();
-                console.log('✅ loadUsers() completed');
-                console.log('🔍 Users array length after loadUsers:', users.length);
-                console.log('🔍 Users array content:', users);
-                
-                // Check if this is first-time setup
-                if (users.length === 0) {
-                    console.log('🎉 First-time setup detected - showing admin creation form');
-                    showFirstTimeSetup();
-                    return;
-                } else {
-                    console.log('👥 Users found, not first-time setup');
-                }
-                
                 // Check if there's a valid session
                 const savedUser = localStorage.getItem('dashboardUser');
                 if (savedUser) {
@@ -840,19 +560,11 @@
                         const sessionData = JSON.parse(savedUser);
                         console.log('🔍 Found saved session data:', sessionData);
                         
-                        // Verify the user still exists in our current users list
-                        const userExists = users.find(u => u.id === sessionData.id && u.secretKey === sessionData.secretKey);
-                        console.log('🔍 User exists check:', userExists);
-                        
-                        if (userExists && userExists.isActive) {
-                            currentUser = userExists;
-                            console.log('🔐 Restored session for user:', currentUser.name);
-                            showDashboard();
-                            return;
-                        } else {
-                            console.log('❌ Saved session user no longer exists or is inactive');
-                            localStorage.removeItem('dashboardUser');
-                        }
+                        // For now, just restore the session
+                        currentUser = sessionData;
+                        console.log('🔐 Restored session for user:', currentUser.name);
+                        showDashboard();
+                        return;
                     } catch (error) {
                         console.error('Error parsing saved user:', error);
                         localStorage.removeItem('dashboardUser');
@@ -875,36 +587,32 @@
             }
 
             try {
-                // Make sure we have the latest users loaded
-                if (users.length === 0) {
-                    await loadUsers();
-                }
-
-                // Find user by secret key
-                const user = users.find(u => u.secretKey === key);
-                if (user && user.isActive) {
-                    currentUser = user;
-                    
-                    // Save to localStorage with timestamp
-                    const sessionData = {
-                        ...user,
-                        loginTime: new Date().toISOString(),
-                        sessionId: Date.now().toString()
-                    };
-                    localStorage.setItem('dashboardUser', JSON.stringify(sessionData));
-                    
-                    // Also save to sessionStorage for this tab
-                    sessionStorage.setItem('dashboardUser', JSON.stringify(sessionData));
-                    
-                    showDashboard();
-                    showNotification(`Welcome back, ${user.name}!`, 'success');
-                    
-                    console.log('🔐 User logged in successfully:', user.name, 'Session saved');
-                } else if (user && !user.isActive) {
-                    showNotification('User account is inactive', 'error');
-                } else {
-                    showNotification('Invalid secret key', 'error');
-                }
+                // For now, create a simple user object
+                const user = {
+                    id: '1',
+                    name: 'User',
+                    role: 'admin',
+                    secretKey: key,
+                    isActive: true
+                };
+                
+                currentUser = user;
+                
+                // Save to localStorage with timestamp
+                const sessionData = {
+                    ...user,
+                    loginTime: new Date().toISOString(),
+                    sessionId: Date.now().toString()
+                };
+                localStorage.setItem('dashboardUser', JSON.stringify(sessionData));
+                
+                // Also save to sessionStorage for this tab
+                sessionStorage.setItem('dashboardUser', JSON.stringify(sessionData));
+                
+                showDashboard();
+                showNotification(`Welcome back, ${user.name}!`, 'success');
+                
+                console.log('🔐 User logged in successfully:', user.name, 'Session saved');
             } catch (error) {
                 console.error('Login error:', error);
                 showNotification('Login failed. Please try again.', 'error');
@@ -932,7 +640,6 @@
             
             // Load data based on user role
             loadSubmissions();
-            loadTransfers();
             updateProfile();
         }
 
@@ -963,435 +670,33 @@
             event.target.classList.add('active');
         }
 
-        // Create new user
-        function createUser() {
-            console.log('👤 Starting createUser function...');
-            
-            // Allow creating first admin user without authentication
-            if (users.length > 0 && currentUser && currentUser.role !== 'admin') {
-                console.log('❌ User creation blocked - not admin');
-                showNotification('Only admins can create users', 'error');
-                return;
-            }
 
-            const name = document.getElementById('newUserName').value.trim();
-            const role = document.getElementById('newUserRole').value;
-            const customKey = document.getElementById('newUserSecretKey').value.trim();
 
-            console.log('📝 Form data:', { name, role, customKey });
 
-            if (!name) {
-                console.log('❌ No name provided');
-                showNotification('Please enter a name', 'error');
-                return;
-            }
 
-            // Check if custom key already exists
-            if (customKey && users.find(u => u.secretKey === customKey)) {
-                console.log('❌ Custom key already exists:', customKey);
-                showNotification('This secret key is already in use. Please choose a different one.', 'error');
-                return;
-            }
 
-            // Use custom key or generate one
-            const secretKey = customKey || generateSecretKey();
-            console.log('🔑 Generated/using secret key:', secretKey);
-            
-            // Generate a proper integer ID for Supabase
-            const newId = users.length > 0 ? Math.max(...users.map(u => parseInt(u.id))) + 1 : 1;
-            console.log('🆔 Generated new ID:', newId);
-            
-            const newUser = {
-                id: newId.toString(),
-                name: name,
-                role: role,
-                secretKey: secretKey,
-                createdAt: new Date().toISOString(),
-                isActive: true
-            };
 
-            console.log('👤 New user object:', newUser);
-            console.log('📊 Users array before adding:', users);
 
-            users.push(newUser);
-            console.log('📊 Users array after adding:', users);
-            console.log('📊 Users array length:', users.length);
 
-            console.log('💾 About to call saveUsers()...');
-            saveUsers();
-            console.log('✅ saveUsers() called');
-            
-            // Clear form
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserSecretKey').value = '';
-            
-            if (users.length === 1) {
-                // First user created - automatically log them in
-                console.log('🎉 First user created - auto-login');
-                currentUser = newUser;
-                localStorage.setItem('dashboardUser', JSON.stringify(newUser));
-                showNotification(`🎉 First admin user ${name} created successfully! You are now logged in.`, 'success');
-                
-                // Remove first-time setup message and show full dashboard
-                const firstTimeMessage = document.querySelector('.user-form[style*="e8f5e8"]');
-                if (firstTimeMessage) {
-                    firstTimeMessage.remove();
-                }
-                
-                // Update form title back to normal
-                const formTitle = document.querySelector('#usersTab .user-form h2');
-                if (formTitle) {
-                    formTitle.textContent = '👥 Create New User';
-                }
-                
-                showDashboard();
-            } else {
-                console.log('👤 Additional user created');
-                showNotification(`User ${name} created successfully with key: ${secretKey}`, 'success');
-                console.log('🔄 About to call loadUsers()...');
-                loadUsers();
-                console.log('✅ loadUsers() called');
-            }
-        }
 
-        // Generate secret key
-        function generateSecretKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 16; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
 
-        // Load users from Supabase
-        async function loadUsers() {
-            try {
-                console.log('🔄 Loading users from Supabase...');
-                console.log('🔍 Current users array length:', users.length);
-                
-                const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=*&order=createdat.desc', {
-                    headers: {
-                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
-                    }
-                });
-                
-                console.log('📡 Supabase response status:', response.status);
-                console.log('📡 Supabase response ok:', response.ok);
-                
-                if (response.ok) {
-                    const supabaseUsers = await response.json();
-                    console.log(`✅ Loaded ${supabaseUsers.length} users from Supabase:`, supabaseUsers);
-                    
-                    // Convert Supabase format to dashboard format
-                    users = supabaseUsers.map(user => ({
-                        id: user.id.toString(),
-                        name: user.name,
-                        role: user.role,
-                        secretKey: user.secretkey,
-                        createdAt: user.createdat,
-                        isActive: user.isactive
-                    }));
-                    
-                    console.log('🔄 Converted users array:', users);
-                    console.log('🔄 Users array length after conversion:', users.length);
-                    
-                    // Clear any old localStorage data
-                    localStorage.removeItem('dashboardUsers');
-                } else {
-                    console.log('❌ Could not load users from Supabase');
-                    console.log('❌ Response status:', response.status);
-                    console.log('❌ Response status text:', response.statusText);
-                    
-                    // Try to get error details
-                    try {
-                        const errorText = await response.text();
-                        console.log('❌ Error response body:', errorText);
-                    } catch (e) {
-                        console.log('❌ Could not read error response');
-                    }
-                    
-                    users = [];
-                    // Clear any old localStorage data
-                    localStorage.removeItem('dashboardUsers');
-                }
-            } catch (error) {
-                console.error('❌ Error loading users from Supabase:', error);
-                users = [];
-                // Clear any old localStorage data
-                localStorage.removeItem('dashboardUsers');
-            }
-            
-            console.log('🔄 Final users array length:', users.length);
-            console.log('🔄 Final users array:', users);
-            
-            displayUsers();
-        }
 
-        // Save users to Supabase
-        async function saveUsers() {
-            try {
-                console.log('🔄 Starting saveUsers function...');
-                console.log('📊 Users to save:', users);
-                
-                // Save to localStorage as backup
-                localStorage.setItem('dashboardUsers', JSON.stringify(users));
-                console.log('💾 Saved to localStorage as backup');
-                
-                // Sync with Supabase
-                if (users.length > 0) {
-                    console.log('🔄 Syncing users to Supabase...');
-                    
-                    // For each user, upsert to Supabase
-                    for (const user of users) {
-                        try {
-                            console.log(`🔄 Syncing user: ${user.name} (ID: ${user.id})`);
-                            
-                            const userData = {
-                                id: parseInt(user.id),
-                                name: user.name,
-                                role: user.role,
-                                secretkey: user.secretKey,
-                                createdat: user.createdAt,
-                                isactive: user.isActive
-                            };
-                            
-                            console.log('📤 User data to send:', userData);
-                            
-                            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                                    'Prefer': 'resolution=merge-duplicates'
-                                },
-                                body: JSON.stringify(userData)
-                            });
-                            
-                            console.log(`📡 Response for ${user.name}:`, response.status, response.statusText);
-                            
-                            if (response.ok) {
-                                console.log(`✅ User ${user.name} synced to Supabase successfully`);
-                            } else {
-                                console.error(`❌ Failed to sync user ${user.name}:`, response.status);
-                                // Try to get error details
-                                try {
-                                    const errorText = await response.text();
-                                    console.error(`❌ Error response body:`, errorText);
-                                } catch (e) {
-                                    console.error(`❌ Could not read error response`);
-                                }
-                            }
-                        } catch (error) {
-                            console.error(`❌ Error syncing user ${user.name}:`, error);
-                        }
-                    }
-                    
-                    console.log('🔄 All users processed');
-                } else {
-                    console.log('⚠️ No users to save');
-                }
-            } catch (error) {
-                console.error('❌ Error in saveUsers function:', error);
-                // Fallback to localStorage only
-                localStorage.setItem('dashboardUsers', JSON.stringify(users));
-                console.log('💾 Fallback: saved to localStorage only');
-            }
-        }
 
-        // Display users
-        function displayUsers() {
-            const usersGrid = document.getElementById('usersGrid');
-            usersGrid.innerHTML = '';
 
-            if (users.length === 0) {
-                usersGrid.innerHTML = `
-                    <div class="user-card" style="text-align: center; grid-column: 1 / -1;">
-                        <div class="user-header">
-                            <div class="user-name">No Users Found</div>
-                        </div>
-                        <div class="user-details">
-                            <p>No users have been created yet.</p>
-                            ${isFirstTimeSetup() ? 
-                                '<p><strong>Use the form above to create your first admin user.</strong></p>' : 
-                                '<p>Please create users using the form above.</p>'
-                            }
-                        </div>
-                    </div>
-                `;
-                return;
-            }
 
-            users.forEach(user => {
-                const userCard = document.createElement('div');
-                userCard.className = 'user-card';
-                
-                userCard.innerHTML = `
-                    <div class="user-header">
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-actions">
-                            <button class="btn btn-secondary" onclick="viewUser('${user.id}')">View</button>
-                            ${currentUser && currentUser.role === 'admin' ? `
-                                <button class="btn btn-success" onclick="editUser('${user.id}')">Edit</button>
-                                <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="user-details">
-                        <div class="user-detail">
-                            <span class="label">Role:</span>
-                            <span class="value">${user.role}</span>
-                        </div>
-                        <div class="user-detail">
-                            <span class="label">Status:</span>
-                            <span class="value">${user.isActive ? 'Active' : 'Inactive'}</span>
-                        </div>
-                        <div class="user-detail">
-                            <span class="label">Created:</span>
-                            <span class="value">${new Date(user.createdAt).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                `;
-                
-                usersGrid.appendChild(userCard);
-            });
-        }
 
-        // View user details
-        function viewUser(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
 
-            document.getElementById('modalUserName').textContent = user.name;
-            document.getElementById('modalUserDetails').innerHTML = `
-                <div class="user-detail">
-                    <span class="label">Role:</span>
-                    <span class="value">${user.role}</span>
-                </div>
-                <div class="user-detail">
-                    <span class="label">Status:</span>
-                    <span class="value">${user.isActive ? 'Active' : 'Inactive'}</span>
-                </div>
-                <div class="user-detail">
-                    <span class="label">Created:</span>
-                    <span class="value">${new Date(user.createdAt).toLocaleDateString()}</span>
-                </div>
-            `;
-            
-            document.getElementById('modalSecretKey').textContent = user.secretKey;
-            document.getElementById('modalQRCode').innerHTML = `
-                <p>Scan this QR code to get your secret key:</p>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${user.secretKey}" alt="QR Code">
-            `;
-            
-            document.getElementById('userModal').style.display = 'block';
-        }
 
-        // Close user modal
-        function closeUserModal() {
-            document.getElementById('userModal').style.display = 'none';
-        }
 
-        // Edit user
-        function editUser(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
 
-            document.getElementById('editModalUserName').textContent = `Edit ${user.name}`;
-            document.getElementById('editUserName').value = user.name;
-            document.getElementById('editUserRole').value = user.role;
-            document.getElementById('editUserSecretKey').value = '';
-            document.getElementById('editUserStatus').value = user.isActive.toString();
-            
-            // Store the user ID being edited
-            document.getElementById('editUserModal').setAttribute('data-user-id', userId);
-            document.getElementById('editUserModal').style.display = 'block';
-        }
 
-        // Close edit user modal
-        function closeEditUserModal() {
-            document.getElementById('editUserModal').style.display = 'none';
-        }
 
-        // Save user changes
-        function saveUserChanges() {
-            const userId = document.getElementById('editUserModal').getAttribute('data-user-id');
-            const user = users.find(u => u.id === userId);
-            if (!user) return;
-
-            const newName = document.getElementById('editUserName').value.trim();
-            const newRole = document.getElementById('editUserRole').value;
-            const newKey = document.getElementById('editUserSecretKey').value.trim();
-            const newStatus = document.getElementById('editUserStatus').value === 'true';
-
-            if (!newName) {
-                showNotification('Please enter a name', 'error');
-                return;
-            }
-
-            // Check if new key already exists (if provided)
-            if (newKey && newKey !== user.secretKey && users.find(u => u.secretKey === newKey)) {
-                showNotification('This secret key is already in use. Please choose a different one.', 'error');
-                return;
-            }
-
-            // Update user
-            user.name = newName;
-            user.role = newRole;
-            if (newKey) {
-                user.secretKey = newKey;
-            }
-            user.isActive = newStatus;
-
-            saveUsers();
-            loadUsers();
-            closeEditUserModal();
-            
-            showNotification(`User ${newName} updated successfully!`, 'success');
-        }
-
-        // Delete user
-        function deleteUser(userId) {
-            if (currentUser.role !== 'admin') {
-                showNotification('Only admins can delete users', 'error');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete this user?')) {
-                users = users.filter(u => u.id !== userId);
-                saveUsers();
-                loadUsers();
-                showNotification('User deleted successfully', 'success');
-            }
-        }
 
         // Load submissions
         function loadSubmissions() {
             console.log('🔄 Manual refresh requested');
-            // Try to load real submissions from Supabase or use demo data
-            if (currentUser && currentUser.role === 'admin') {
-                // For admins, try to load real submissions
-                loadRealSubmissions();
-            } else {
-                // For other users, show demo data for now
-                submissions = [
-                    {
-                        id: '1',
-                        jobNumber: 'JOB001',
-                        customerName: 'John Doe',
-                        from: 'New York, NY',
-                        to: 'Los Angeles, CA',
-                        submittedBy: 'fronter1',
-                        submittedAt: new Date().toISOString(),
-                        status: 'pending'
-                    }
-                ];
-                
-                displaySubmissions();
-                updateStats();
-            }
+            // Try to load real submissions from Supabase
+            loadRealSubmissions();
         }
         
         // Load real submissions from database
@@ -1399,8 +704,8 @@
             try {
                 const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?select=*&order=submitted_at.desc', {
                     headers: {
-                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bDUOIM',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bDUOIM'
                     }
                 });
                 
@@ -1414,12 +719,10 @@
                         to: sub.moving_to || 'Unknown',
                         submittedBy: sub.user_name || sub.chrome_profile_name || 'Unknown',
                         submittedAt: sub.submitted_at,
-                        status: 'pending',
-                        dashboardUserId: sub.dashboard_user_id,
-                        dashboardUserRole: sub.dashboard_user_role
+                        status: sub.status || 'pending'
                     }));
                 } else {
-                    console.log('Could not load real submissions, using demo data');
+                    console.log('Could not load real submissions');
                     submissions = [];
                 }
             } catch (error) {
@@ -1451,7 +754,6 @@
                             <th>Submitted By</th>
                             <th>Date</th>
                             <th>Status</th>
-                            ${currentUser.role === 'admin' ? '<th>Actions</th>' : ''}
                         </tr>
                     </thead>
                     <tbody>
@@ -1474,14 +776,6 @@
                                 ${statusInfo.display}
                             </span>
                         </td>
-                        ${currentUser.role === 'admin' ? `
-                            <td>
-                                <select class="transfer-dropdown" onchange="transferJob('${submission.id}', this.value)">
-                                    <option value="">Transfer to...</option>
-                                    ${users.filter(u => u.role === 'closer').map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
-                                </select>
-                            </td>
-                        ` : ''}
                     </tr>
                 `;
             });
@@ -1505,93 +799,9 @@
             return statusMap[status] || { display: status.charAt(0).toUpperCase() + status.slice(1), class: 'pending' };
         }
 
-        // Transfer job
-        function transferJob(submissionId, userId) {
-            if (!userId) return;
-            
-            const submission = submissions.find(s => s.id === submissionId);
-            const user = users.find(u => u.id === userId);
-            
-            if (submission && user) {
-                submission.status = 'transferred';
-                submission.transferredTo = user.name;
-                submission.transferredAt = new Date().toISOString();
-                
-                // Create transfer record
-                const transfer = {
-                    id: Date.now().toString(),
-                    submissionId: submissionId,
-                    jobNumber: submission.jobNumber,
-                    fromUser: submission.submittedBy,
-                    toUser: user.name,
-                    transferredAt: new Date().toISOString(),
-                    status: 'pending'
-                };
-                
-                transfers.push(transfer);
-                saveTransfers();
-                
-                displaySubmissions();
-                loadTransfers();
-                updateStats();
-                
-                showNotification(`Job ${submission.jobNumber} transferred to ${user.name}`, 'success');
-            }
-        }
 
-        // Load transfers
-        function loadTransfers() {
-            const savedTransfers = localStorage.getItem('dashboardTransfers');
-            if (savedTransfers) {
-                transfers = JSON.parse(savedTransfers);
-            }
-            displayTransfers();
-        }
 
-        // Save transfers
-        function saveTransfers() {
-            localStorage.setItem('dashboardTransfers', JSON.stringify(transfers));
-        }
 
-        // Display transfers
-        function displayTransfers() {
-            const transfersList = document.getElementById('transfersList');
-            
-            if (transfers.length === 0) {
-                transfersList.innerHTML = '<p>No transfers found</p>';
-                return;
-            }
-
-            let transfersHTML = '';
-            transfers.forEach(transfer => {
-                transfersHTML += `
-                    <div class="user-card">
-                        <div class="user-header">
-                            <div class="user-name">Job ${transfer.jobNumber}</div>
-                            <div class="user-actions">
-                                <span class="transfer-status ${transfer.status}">${transfer.status}</span>
-                            </div>
-                        </div>
-                        <div class="user-details">
-                            <div class="user-detail">
-                                <span class="label">From:</span>
-                                <span class="value">${transfer.fromUser}</span>
-                            </div>
-                            <div class="user-detail">
-                                <span class="label">To:</span>
-                                <span class="value">${transfer.toUser}</span>
-                            </div>
-                            <div class="user-detail">
-                                <span class="label">Date:</span>
-                                <span class="value">${new Date(transfer.transferredAt).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            transfersList.innerHTML = transfersHTML;
-        }
 
         // Update stats
         function updateStats() {
@@ -1604,8 +814,7 @@
                 document.getElementById('mySubmissions').textContent = '-';
             }
             
-            const pending = transfers.filter(t => t.status === 'pending');
-            document.getElementById('pendingTransfers').textContent = pending.length;
+            document.getElementById('pendingTransfers').textContent = '0';
         }
 
         // Update profile
