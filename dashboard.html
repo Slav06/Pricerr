@@ -579,7 +579,7 @@
                     <div class="table-count" id="submissionsCount">Loading...</div>
                     <div class="refresh-controls">
                         <button class="btn btn-secondary" onclick="loadSubmissions()">🔄 Refresh Submissions</button>
-                        <span class="auto-refresh-indicator">🔄 Auto-refresh every 30s</span>
+                        <span class="auto-refresh-indicator">🔄 Auto-refresh every 4s</span>
                     </div>
                 </div>
                     <div id="submissionsTable">
@@ -693,12 +693,12 @@
             // Check session every 5 minutes to keep user logged in
             setInterval(checkSessionValidity, 5 * 60 * 1000);
             
-            // Auto-refresh submissions every 30 seconds for real-time updates
+            // Auto-refresh submissions every 4 seconds for real-time updates
             setInterval(() => {
                 if (currentUser && currentUser.role === 'admin') {
                     loadRealSubmissions();
                 }
-            }, 30000);
+            }, 4000);
             
             // Also check when page becomes visible again
             document.addEventListener('visibilitychange', function() {
