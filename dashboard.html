@@ -358,6 +358,11 @@
             background: #d4edda;
             color: #155724;
         }
+        
+        .transfer-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
         .loading {
             text-align: center;
@@ -1424,6 +1429,9 @@
             `;
 
             submissions.forEach(submission => {
+                // Get status display info
+                const statusInfo = getStatusDisplayInfo(submission.status);
+                
                 tableHTML += `
                     <tr>
                         <td>${submission.jobNumber}</td>
@@ -1433,8 +1441,8 @@
                         <td>${submission.submittedBy}</td>
                         <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
                         <td>
-                            <span class="transfer-status ${submission.status}">
-                                ${submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                            <span class="transfer-status ${statusInfo.class}">
+                                ${statusInfo.display}
                             </span>
                         </td>
                         ${currentUser.role === 'admin' ? `
@@ -1453,6 +1461,19 @@
             submissionsTable.innerHTML = tableHTML;
             
             document.getElementById('submissionsCount').textContent = `Showing ${submissions.length} submissions`;
+        }
+        
+        // Get status display information
+        function getStatusDisplayInfo(status) {
+            const statusMap = {
+                'pending': { display: 'Pending', class: 'pending' },
+                'inv_done': { display: 'Inv Done', class: 'completed' },
+                'transferred': { display: 'Transferred', class: 'initiated' },
+                'completed': { display: 'Completed', class: 'completed' },
+                'cancelled': { display: 'Cancelled', class: 'error' }
+            };
+            
+            return statusMap[status] || { display: status.charAt(0).toUpperCase() + status.slice(1), class: 'pending' };
         }
 
         // Transfer job

@@ -958,14 +958,14 @@ function createSubmitButtonOverlay() {
             // Get Chrome profile info
             const profileInfo = await getChromeProfileInfo();
             
-            // Create submission data with user info
+            // Create submission data with user info and status
             const submissionData = {
                 job_number: jobNumber,
                 page_url: window.location.href,
                 source: 'Page Price Analyzer Extension',
                 submitted_at: new Date().toISOString(),
                 chrome_profile_id: profileInfo.profileId,
-                chrome_profile_name: profileInfo.profileName,
+                chrome_profile_name: profileInfo.userName,
                 user_identifier: profileInfo.userIdentifier,
                 customer_name: analyzer.data.movingDetails.customerName || null,
                 moving_from: analyzer.data.movingDetails.movingFrom || null,
@@ -976,7 +976,9 @@ function createSubmitButtonOverlay() {
                 // Add dashboard user info
                 dashboard_user_id: popupUser.id,
                 dashboard_user_name: popupUser.name,
-                dashboard_user_role: popupUser.role
+                dashboard_user_role: popupUser.role,
+                // Add status column
+                status: 'pending'
             };
             
             // Submit to Supabase
@@ -1039,7 +1041,163 @@ function createSubmitButtonOverlay() {
     // Add to page
     document.body.appendChild(submitOverlay);
     
+    // Create the Inv Done button overlay
+    createInvDoneButtonOverlay();
+    
     console.log('Submit button overlay created');
+}
+
+// Function to create and show the Inv Done button overlay
+function createInvDoneButtonOverlay() {
+    // Remove any existing Inv Done button overlay
+    const existingInvDoneOverlay = document.getElementById('inv-done-button-overlay');
+    if (existingInvDoneOverlay) {
+        existingInvDoneOverlay.remove();
+    }
+    
+    // Create the Inv Done button overlay
+    const invDoneOverlay = document.createElement('div');
+    invDoneOverlay.id = 'inv-done-button-overlay';
+    invDoneOverlay.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 50px;
+        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4);
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid rgba(255,255,255,0.3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: 16px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    `;
+    
+    // Add hover effects
+    invDoneOverlay.addEventListener('mouseenter', () => {
+        invDoneOverlay.style.transform = 'translateY(-5px) scale(1.05)';
+        invDoneOverlay.style.boxShadow = '0 12px 40px rgba(40, 167, 69, 0.6)';
+    });
+    
+    invDoneOverlay.addEventListener('mouseleave', () => {
+        invDoneOverlay.style.transform = 'translateY(0) scale(1)';
+        invDoneOverlay.style.boxShadow = '0 8px 32px rgba(40, 167, 69, 0.4)';
+    });
+    
+    // Create Inv Done button content
+    invDoneOverlay.innerHTML = `
+        <span style="font-size: 20px;">✅</span>
+        <span>Inv Done</span>
+    `;
+    
+    // Add click functionality
+    invDoneOverlay.addEventListener('click', async () => {
+        try {
+            // Check if user is logged in via popup
+            const popupUser = await new Promise((resolve) => {
+                chrome.storage.local.get(['popupUser'], (result) => {
+                    resolve(result.popupUser || null);
+                });
+            });
+            
+            if (!popupUser) {
+                throw new Error('Please login to the extension popup first');
+            }
+            
+            // Show loading state
+            invDoneOverlay.innerHTML = `
+                <span style="font-size: 20px;">⏳</span>
+                <span>Updating...</span>
+            `;
+            invDoneOverlay.style.cursor = 'not-allowed';
+            
+            // Analyze the current page
+            const analyzer = new PageAnalyzer();
+            analyzer.analyzePage();
+            analyzer.analyzeMovingCompanyPage();
+            
+            // Get job details
+            const jobNumber = analyzer.data.jobDetails.jobNumber;
+            if (!jobNumber) {
+                throw new Error('No job number found on this page');
+            }
+            
+            // Update the submission status to 'inv_done'
+            const updateData = {
+                status: 'inv_done',
+                updated_at: new Date().toISOString(),
+                updated_by: popupUser.name,
+                updated_by_role: popupUser.role
+            };
+            
+            // Update in Supabase using PATCH method
+            const response = await fetch(`https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?job_number=eq.${jobNumber}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                },
+                body: JSON.stringify(updateData)
+            });
+            
+            if (response.ok) {
+                // Show success state
+                invDoneOverlay.innerHTML = `
+                    <span style="font-size: 20px;">✅</span>
+                    <span>Status Updated!</span>
+                `;
+                invDoneOverlay.style.background = 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)';
+                
+                // Show success message
+                showSuccessMessage(`Job ${jobNumber} status updated to "Inv Done" by ${popupUser.name}!`);
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    invDoneOverlay.innerHTML = `
+                        <span style="font-size: 20px;">✅</span>
+                        <span>Inv Done</span>
+                    `;
+                    invDoneOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                    invDoneOverlay.style.cursor = 'pointer';
+                }, 3000);
+            } else {
+                throw new Error(`Status update failed: ${response.status}`);
+            }
+            
+        } catch (error) {
+            console.error('Error updating job status:', error);
+            
+            // Show error state
+            invDoneOverlay.innerHTML = `
+                <span style="font-size: 20px;">❌</span>
+                <span>Error: ${error.message}</span>
+            `;
+            invDoneOverlay.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
+            
+            // Reset after 5 seconds
+            setTimeout(() => {
+                invDoneOverlay.innerHTML = `
+                    <span style="font-size: 20px;">✅</span>
+                    <span>Inv Done</span>
+                `;
+                invDoneOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                invDoneOverlay.style.cursor = 'pointer';
+            }, 5000);
+        }
+    });
+    
+    // Add to page
+    document.body.appendChild(invDoneOverlay);
+    
+    console.log('Inv Done button overlay created');
 }
 
 // Function to create and show the security monitoring overlay

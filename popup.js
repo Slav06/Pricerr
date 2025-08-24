@@ -10,16 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentUser = document.getElementById('currentUser');
     const userRole = document.getElementById('userRole');
     const logoutBtn = document.getElementById('logoutBtn');
-    const transferSection = document.getElementById('transferSection');
-    const transferList = document.getElementById('transferList');
     
     let currentUserData = null;
     
     // Check if user is already logged in
     checkLoginStatus();
-    
-    // Check for transfer updates every 3 seconds
-    setInterval(checkTransferUpdates, 3000);
     
     // Event listeners
     loginBtn.addEventListener('click', handleLogin);
@@ -173,9 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function showUserInfo(user) {
         loginSection.style.display = 'none';
         userInfo.style.display = 'block';
-        currentUser.textContent = user.name;
-        userRole.textContent = user.role;
-        transferSection.style.display = 'block';
         
         // Update page title to show user is logged in
         document.title = `Page Price Analyzer - ${user.name}`;
@@ -185,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function showLoginForm() {
         loginSection.style.display = 'block';
         userInfo.style.display = 'none';
-        transferSection.style.display = 'none';
         document.title = 'Page Price Analyzer';
     }
     
@@ -199,70 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showLoginForm();
             }
         });
-    }
-    
-    // Check for transfer updates from dashboard
-    function checkTransferUpdates() {
-        if (!currentUserData) return;
-        
-        chrome.storage.local.get(['dashboardTransfers'], (result) => {
-            const dashboardTransfers = result.dashboardTransfers || [];
-            
-            try {
-                // Filter transfers for this user based on role
-                let userTransfers = [];
-                
-                if (currentUserData.role === 'closer') {
-                    // Closers see transfers TO them
-                    userTransfers = dashboardTransfers.filter(transfer => 
-                        transfer.toUser === currentUserData.name
-                    );
-                } else if (currentUserData.role === 'fronter') {
-                    // Fronters see transfers FROM them
-                    userTransfers = dashboardTransfers.filter(transfer => 
-                        transfer.fromUser === currentUserData.name
-                    );
-                } else if (currentUserData.role === 'admin') {
-                    // Admins see all transfers
-                    userTransfers = dashboardTransfers;
-                }
-                
-                if (userTransfers.length > 0) {
-                    displayTransferUpdates(userTransfers);
-                } else {
-                    showNoTransfers();
-                }
-                
-            } catch (error) {
-                console.log('Error checking transfer updates:', error);
-            }
-        });
-    }
-    
-    // Display transfer updates
-    function displayTransferUpdates(transfers) {
-        transferList.innerHTML = '';
-        
-        transfers.forEach((transfer, index) => {
-            const transferItem = document.createElement('div');
-            transferItem.className = 'transfer-item';
-            
-            transferItem.innerHTML = `
-                <h4>🔄 Transfer Update</h4>
-                <p><strong>Job:</strong> ${transfer.jobNumber || 'Unknown'}</p>
-                <p><strong>From:</strong> ${transfer.fromUser || 'Unknown'}</p>
-                <p><strong>To:</strong> ${transfer.toUser || 'Unknown'}</p>
-                <p><strong>Status:</strong> <span class="transfer-status ${transfer.status}">${transfer.status}</span></p>
-                <p><strong>Date:</strong> ${new Date(transfer.transferredAt).toLocaleDateString()}</p>
-            `;
-            
-            transferList.appendChild(transferItem);
-        });
-    }
-    
-    // Show no transfers message
-    function showNoTransfers() {
-        transferList.innerHTML = '<div class="no-transfers">No transfer updates</div>';
     }
     
     // Show notification
@@ -289,29 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             notification.remove();
         }, 3000);
-    }
-    
-    // Test function to simulate transfer update
-    window.testTransferUpdate = function() {
-        if (!currentUserData) {
-            showNotification('Please login first', 'error');
-            return;
-        }
-        
-        showNotification(`Test function called by ${currentUserData.name}`, 'success');
-    };
-    
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const userModal = document.getElementById('userModal');
-        const editUserModal = document.getElementById('editUserModal');
-        
-        if (event.target === userModal) {
-            userModal.style.display = 'none';
-        }
-        if (event.target === editUserModal) {
-            editUserModal.style.display = 'none';
-        }
     }
     
     // Debug functions for testing
