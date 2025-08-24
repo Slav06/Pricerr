@@ -658,6 +658,9 @@
             // Only clear old fake user data, not current session
             localStorage.removeItem('dashboardUsers');
             
+            // Try to restore current user immediately
+            restoreCurrentUser();
+            
             loadUsers();
             checkLoginStatus();
             
@@ -672,6 +675,36 @@
                 }
             });
         });
+        
+        // Restore current user from localStorage
+        function restoreCurrentUser() {
+            try {
+                const savedUser = localStorage.getItem('dashboardUser');
+                if (savedUser) {
+                    const sessionData = JSON.parse(savedUser);
+                    console.log('🔄 Attempting to restore user from session:', sessionData.name);
+                    
+                    // Check if session is not expired
+                    const loginTime = new Date(sessionData.loginTime);
+                    const now = new Date();
+                    const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+                    
+                    if (hoursSinceLogin <= 24) {
+                        currentUser = sessionData;
+                        console.log('✅ User restored from session:', currentUser.name);
+                        return true;
+                    } else {
+                        console.log('❌ Session expired, clearing...');
+                        localStorage.removeItem('dashboardUser');
+                        return false;
+                    }
+                }
+            } catch (error) {
+                console.error('Error restoring user from session:', error);
+                localStorage.removeItem('dashboardUser');
+            }
+            return false;
+        }
         
         // Check if this is first-time setup (no users exist)
         function isFirstTimeSetup() {
@@ -709,7 +742,10 @@
         
         // Check if current session is still valid
         function checkSessionValidity() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                console.log('🔍 No current user to check session for');
+                return;
+            }
             
             try {
                 const savedUser = localStorage.getItem('dashboardUser');
@@ -719,6 +755,8 @@
                     const now = new Date();
                     const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
                     
+                    console.log('🔍 Session check - Hours since login:', hoursSinceLogin.toFixed(2));
+                    
                     // Session expires after 24 hours
                     if (hoursSinceLogin > 24) {
                         console.log('⏰ Session expired, logging out...');
@@ -726,7 +764,15 @@
                         showNotification('Session expired. Please login again.', 'error');
                     } else {
                         console.log('✅ Session valid, expires in', (24 - hoursSinceLogin).toFixed(1), 'hours');
+                        // Extend session by updating login time if less than 1 hour old
+                        if (hoursSinceLogin < 1) {
+                            console.log('🔄 Extending session...');
+                            sessionData.loginTime = new Date().toISOString();
+                            localStorage.setItem('dashboardUser', JSON.stringify(sessionData));
+                        }
                     }
+                } else {
+                    console.log('🔍 No saved session data found');
                 }
             } catch (error) {
                 console.error('Error checking session validity:', error);
@@ -759,8 +805,12 @@
                 if (savedUser) {
                     try {
                         const sessionData = JSON.parse(savedUser);
+                        console.log('🔍 Found saved session data:', sessionData);
+                        
                         // Verify the user still exists in our current users list
                         const userExists = users.find(u => u.id === sessionData.id && u.secretKey === sessionData.secretKey);
+                        console.log('🔍 User exists check:', userExists);
+                        
                         if (userExists && userExists.isActive) {
                             currentUser = userExists;
                             console.log('🔐 Restored session for user:', currentUser.name);
