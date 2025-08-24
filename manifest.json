@@ -1,32 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "Page Price Analyzer - Job Number Extractor",
+  "name": "Page Price Analyzer",
   "version": "1.0.0",
-  "description": "Extract job numbers from web pages and submit them to your database. Perfect for job tracking and analysis.",
+  "description": "Extract job numbers from web pages",
   "permissions": [
     "activeTab",
     "storage",
-    "scripting",
-    "identity"
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Page Price Analyzer - Job Number Extractor"
+    "default_popup": "popup.html"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_end"
+      "js": ["content.js"]
     }
   ],
   "background": {
     "service_worker": "background.js"
-  },
-  "author": "Your Name",
-  "homepage_url": "https://pricerr.vercel.app/",
-  "short_name": "Job Extractor"
+  }
 }
