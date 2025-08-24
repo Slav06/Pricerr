@@ -887,8 +887,11 @@
 
         // Create new user
         function createUser() {
+            console.log('👤 Starting createUser function...');
+            
             // Allow creating first admin user without authentication
             if (users.length > 0 && currentUser && currentUser.role !== 'admin') {
+                console.log('❌ User creation blocked - not admin');
                 showNotification('Only admins can create users', 'error');
                 return;
             }
@@ -897,19 +900,24 @@
             const role = document.getElementById('newUserRole').value;
             const customKey = document.getElementById('newUserSecretKey').value.trim();
 
+            console.log('📝 Form data:', { name, role, customKey });
+
             if (!name) {
+                console.log('❌ No name provided');
                 showNotification('Please enter a name', 'error');
                 return;
             }
 
             // Check if custom key already exists
             if (customKey && users.find(u => u.secretKey === customKey)) {
+                console.log('❌ Custom key already exists:', customKey);
                 showNotification('This secret key is already in use. Please choose a different one.', 'error');
                 return;
             }
 
             // Use custom key or generate one
             const secretKey = customKey || generateSecretKey();
+            console.log('🔑 Generated/using secret key:', secretKey);
             
             const newUser = {
                 id: Date.now().toString(),
@@ -920,8 +928,16 @@
                 isActive: true
             };
 
+            console.log('👤 New user object:', newUser);
+            console.log('📊 Users array before adding:', users);
+
             users.push(newUser);
+            console.log('📊 Users array after adding:', users);
+            console.log('📊 Users array length:', users.length);
+
+            console.log('💾 About to call saveUsers()...');
             saveUsers();
+            console.log('✅ saveUsers() called');
             
             // Clear form
             document.getElementById('newUserName').value = '';
@@ -929,6 +945,7 @@
             
             if (users.length === 1) {
                 // First user created - automatically log them in
+                console.log('🎉 First user created - auto-login');
                 currentUser = newUser;
                 localStorage.setItem('dashboardUser', JSON.stringify(newUser));
                 showNotification(`🎉 First admin user ${name} created successfully! You are now logged in.`, 'success');
@@ -947,8 +964,11 @@
                 
                 showDashboard();
             } else {
+                console.log('👤 Additional user created');
                 showNotification(`User ${name} created successfully with key: ${secretKey}`, 'success');
+                console.log('🔄 About to call loadUsers()...');
                 loadUsers();
+                console.log('✅ loadUsers() called');
             }
         }
 
@@ -1030,8 +1050,12 @@
         // Save users to Supabase
         async function saveUsers() {
             try {
+                console.log('🔄 Starting saveUsers function...');
+                console.log('📊 Users to save:', users);
+                
                 // Save to localStorage as backup
                 localStorage.setItem('dashboardUsers', JSON.stringify(users));
+                console.log('💾 Saved to localStorage as backup');
                 
                 // Sync with Supabase
                 if (users.length > 0) {
@@ -1040,6 +1064,19 @@
                     // For each user, upsert to Supabase
                     for (const user of users) {
                         try {
+                            console.log(`🔄 Syncing user: ${user.name} (ID: ${user.id})`);
+                            
+                            const userData = {
+                                id: parseInt(user.id),
+                                name: user.name,
+                                role: user.role,
+                                secretkey: user.secretKey,
+                                createdat: user.createdAt,
+                                isactive: user.isActive
+                            };
+                            
+                            console.log('📤 User data to send:', userData);
+                            
                             const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users', {
                                 method: 'POST',
                                 headers: {
@@ -1048,30 +1085,37 @@
                                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
                                     'Prefer': 'resolution=merge-duplicates'
                                 },
-                                body: JSON.stringify({
-                                    id: parseInt(user.id),
-                                    name: user.name,
-                                    role: user.role,
-                                    secretkey: user.secretKey,
-                                    createdat: user.createdAt,
-                                    isactive: user.isActive
-                                })
+                                body: JSON.stringify(userData)
                             });
                             
+                            console.log(`📡 Response for ${user.name}:`, response.status, response.statusText);
+                            
                             if (response.ok) {
-                                console.log(`✅ User ${user.name} synced to Supabase`);
+                                console.log(`✅ User ${user.name} synced to Supabase successfully`);
                             } else {
                                 console.error(`❌ Failed to sync user ${user.name}:`, response.status);
+                                // Try to get error details
+                                try {
+                                    const errorText = await response.text();
+                                    console.error(`❌ Error response body:`, errorText);
+                                } catch (e) {
+                                    console.error(`❌ Could not read error response`);
+                                }
                             }
                         } catch (error) {
                             console.error(`❌ Error syncing user ${user.name}:`, error);
                         }
                     }
+                    
+                    console.log('🔄 All users processed');
+                } else {
+                    console.log('⚠️ No users to save');
                 }
             } catch (error) {
-                console.error('Error saving users:', error);
+                console.error('❌ Error in saveUsers function:', error);
                 // Fallback to localStorage only
                 localStorage.setItem('dashboardUsers', JSON.stringify(users));
+                console.log('💾 Fallback: saved to localStorage only');
             }
         }
 
@@ -1273,7 +1317,7 @@
                 const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?select=*&order=submitted_at.desc', {
                     headers: {
                         'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bDOOIM'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
                     }
                 });
                 
