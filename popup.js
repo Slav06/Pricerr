@@ -169,6 +169,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loginSection.style.display = 'none';
         userInfo.style.display = 'block';
         
+        // Set the user information text content
+        currentUser.textContent = user.name;
+        userRole.textContent = user.role;
+        
         // Update page title to show user is logged in
         document.title = `Page Price Analyzer - ${user.name}`;
     }
