@@ -517,14 +517,13 @@
         <!-- Main Dashboard Tabs -->
         <div id="dashboardTabs" style="display: none;">
             <div class="tabs">
-                <div class="tab active" onclick="showTab('users')">👥 User Management</div>
-                <div class="tab" onclick="showTab('submissions')">📋 Job Submissions</div>
+                <div class="tab active" onclick="showTab('submissions')">📋 Job Submissions</div>
                 <div class="tab" onclick="showTab('transfers')">🔄 Transfers</div>
                 <div class="tab" onclick="showTab('profile')">👤 Profile</div>
             </div>
 
             <!-- Users Tab -->
-            <div id="usersTab" class="tab-content active">
+            <div id="usersTab" class="tab-content">
                 <div class="user-form">
                     <h2>👥 Create New User</h2>
                     <div class="form-group">
@@ -557,7 +556,7 @@
             </div>
 
             <!-- Submissions Tab -->
-            <div id="submissionsTab" class="tab-content">
+            <div id="submissionsTab" class="tab-content active">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="totalSubmissions">-</div>
@@ -580,6 +579,7 @@
                     <div class="refresh-controls">
                         <button class="btn btn-secondary" onclick="loadSubmissions()">🔄 Refresh Submissions</button>
                         <span class="auto-refresh-indicator">🔄 Auto-refresh every 4s</span>
+                        <button class="btn btn-success" id="manageUsersBtn" onclick="showTab('users')" style="display: none;">👥 Manage Users</button>
                     </div>
                 </div>
                     <div id="submissionsTable">
