@@ -983,11 +983,8 @@ function createSubmitButtonOverlay() {
                 cubes: analyzer.data.movingDetails.cubes || null,
                 pickup_date: analyzer.data.movingDetails.pickupDate || null,
                 distance: analyzer.data.movingDetails.distance || null,
-                // Add dashboard user info
-                dashboard_user_id: popupUser.id,
-                dashboard_user_name: popupUser.name,
-                dashboard_user_role: popupUser.role,
-                // Add status column
+                // Use the correct field names that exist in the database
+                user_name: popupUser.name,
                 status: 'pending'
             };
             
@@ -999,7 +996,7 @@ function createSubmitButtonOverlay() {
                 headers: {
                     'Content-Type': 'application/json',
                     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bDUOIM'
                 },
                 body: JSON.stringify(submissionData)
             });
@@ -1154,8 +1151,7 @@ function createInvDoneButtonOverlay() {
             const updateData = {
                 status: 'inv_done',
                 updated_at: new Date().toISOString(),
-                updated_by: popupUser.name,
-                updated_by_role: popupUser.role
+                updated_by: popupUser.name
             };
             
             console.log('📤 Updating status data:', updateData);
