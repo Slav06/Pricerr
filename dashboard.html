@@ -831,7 +831,9 @@
         
         // Load real submissions from database
         async function loadRealSubmissions() {
+            console.log('🔄 Starting loadRealSubmissions...');
             try {
+                console.log('📡 Fetching from Supabase...');
                 const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?select=*&order=submitted_at.desc', {
                     headers: {
                         'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bDUOIM',
@@ -839,8 +841,14 @@
                     }
                 });
                 
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response ok:', response.ok);
+                
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('📊 Raw data from Supabase:', data);
+                    console.log('📊 Data length:', data.length);
+                    
                     submissions = data.map(sub => ({
                         id: sub.id,
                         jobNumber: sub.job_number,
@@ -851,24 +859,34 @@
                         submittedAt: sub.submitted_at,
                         status: sub.status || 'pending'
                     }));
+                    
+                    console.log('📊 Processed submissions:', submissions);
+                    console.log('📊 Submissions length:', submissions.length);
                 } else {
-                    console.log('Could not load real submissions');
+                    console.log('❌ Could not load real submissions, status:', response.status);
                     submissions = [];
                 }
             } catch (error) {
-                console.log('Error loading real submissions:', error);
+                console.error('❌ Error loading real submissions:', error);
                 submissions = [];
             }
             
+            console.log('🔄 Calling displaySubmissions...');
             displaySubmissions();
+            console.log('🔄 Calling updateStats...');
             updateStats();
         }
 
         // Display submissions
         function displaySubmissions() {
+            console.log('📊 displaySubmissions called with submissions:', submissions);
+            console.log('📊 submissions length:', submissions.length);
+            
             const submissionsTable = document.getElementById('submissionsTable');
+            console.log('📊 submissionsTable element:', submissionsTable);
             
             if (submissions.length === 0) {
+                console.log('📊 No submissions, showing "No submissions found"');
                 submissionsTable.innerHTML = '<div class="loading">No submissions found</div>';
                 return;
             }
