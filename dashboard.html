@@ -655,9 +655,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initialized');
             
-            // Clear any old fake user data from localStorage
+            // Only clear old fake user data, not current session
             localStorage.removeItem('dashboardUsers');
-            localStorage.removeItem('dashboardUser');
             
             loadUsers();
             checkLoginStatus();
@@ -738,10 +737,6 @@
         async function checkLoginStatus() {
             try {
                 console.log('🔐 Starting checkLoginStatus...');
-                
-                // Clear any old localStorage data first
-                localStorage.removeItem('dashboardUser');
-                console.log('🧹 Cleared old localStorage data');
                 
                 // Load users from Supabase first to make sure we have real data
                 console.log('🔄 About to call loadUsers()...');
