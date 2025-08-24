@@ -674,6 +674,40 @@
             });
         });
         
+        // Check if this is first-time setup (no users exist)
+        function isFirstTimeSetup() {
+            return users.length === 0;
+        }
+        
+        // Show first-time setup form
+        function showFirstTimeSetup() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardTabs').style.display = 'block';
+            
+            // Show only the users tab
+            showTab('users');
+            
+            // Show special message for first admin
+            const usersTab = document.getElementById('usersTab');
+            const firstTimeMessage = document.createElement('div');
+            firstTimeMessage.className = 'user-form';
+            firstTimeMessage.style.background = '#e8f5e8';
+            firstTimeMessage.style.border = '2px solid #28a745';
+            firstTimeMessage.innerHTML = `
+                <h2>🎉 Welcome to Your Dashboard!</h2>
+                <p><strong>This is your first time setting up the dashboard.</strong></p>
+                <p>Create your first admin user below. This user will have full access to manage the system.</p>
+                <hr style="margin: 20px 0;">
+            `;
+            
+            // Insert the message before the existing form
+            const existingForm = usersTab.querySelector('.user-form');
+            usersTab.insertBefore(firstTimeMessage, existingForm);
+            
+            // Update the form title
+            existingForm.querySelector('h2').textContent = '👑 Create First Admin User';
+        }
+        
         // Check if current session is still valid
         function checkSessionValidity() {
             if (!currentUser) return;
@@ -709,9 +743,10 @@
                 // Load users from Supabase first to make sure we have real data
                 await loadUsers();
                 
-                // Only proceed if we have real users from Supabase
+                // Check if this is first-time setup
                 if (users.length === 0) {
-                    console.log('❌ No users found in Supabase - please create users first');
+                    console.log('🎉 First-time setup detected - showing admin creation form');
+                    showFirstTimeSetup();
                     return;
                 }
                 
@@ -843,7 +878,8 @@
 
         // Create new user
         function createUser() {
-            if (currentUser.role !== 'admin') {
+            // Allow creating first admin user without authentication
+            if (users.length > 0 && currentUser && currentUser.role !== 'admin') {
                 showNotification('Only admins can create users', 'error');
                 return;
             }
@@ -877,13 +913,34 @@
 
             users.push(newUser);
             saveUsers();
-            loadUsers();
             
             // Clear form
             document.getElementById('newUserName').value = '';
             document.getElementById('newUserSecretKey').value = '';
             
-            showNotification(`User ${name} created successfully with key: ${secretKey}`, 'success');
+            if (users.length === 1) {
+                // First user created - automatically log them in
+                currentUser = newUser;
+                localStorage.setItem('dashboardUser', JSON.stringify(newUser));
+                showNotification(`🎉 First admin user ${name} created successfully! You are now logged in.`, 'success');
+                
+                // Remove first-time setup message and show full dashboard
+                const firstTimeMessage = document.querySelector('.user-form[style*="e8f5e8"]');
+                if (firstTimeMessage) {
+                    firstTimeMessage.remove();
+                }
+                
+                // Update form title back to normal
+                const formTitle = document.querySelector('#usersTab .user-form h2');
+                if (formTitle) {
+                    formTitle.textContent = '👥 Create New User';
+                }
+                
+                showDashboard();
+            } else {
+                showNotification(`User ${name} created successfully with key: ${secretKey}`, 'success');
+                loadUsers();
+            }
         }
 
         // Generate secret key
@@ -993,6 +1050,24 @@
             const usersGrid = document.getElementById('usersGrid');
             usersGrid.innerHTML = '';
 
+            if (users.length === 0) {
+                usersGrid.innerHTML = `
+                    <div class="user-card" style="text-align: center; grid-column: 1 / -1;">
+                        <div class="user-header">
+                            <div class="user-name">No Users Found</div>
+                        </div>
+                        <div class="user-details">
+                            <p>No users have been created yet.</p>
+                            ${isFirstTimeSetup() ? 
+                                '<p><strong>Use the form above to create your first admin user.</strong></p>' : 
+                                '<p>Please create users using the form above.</p>'
+                            }
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
             users.forEach(user => {
                 const userCard = document.createElement('div');
                 userCard.className = 'user-card';
@@ -1002,7 +1077,7 @@
                         <div class="user-name">${user.name}</div>
                         <div class="user-actions">
                             <button class="btn btn-secondary" onclick="viewUser('${user.id}')">View</button>
-                            ${currentUser.role === 'admin' ? `
+                            ${currentUser && currentUser.role === 'admin' ? `
                                 <button class="btn btn-success" onclick="editUser('${user.id}')">Edit</button>
                                 <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
                             ` : ''}
