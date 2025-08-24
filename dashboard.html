@@ -180,6 +180,85 @@
 
 
 
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-details {
+            margin-bottom: 10px;
+        }
+
+        .user-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding: 3px 0;
+        }
+
+        .user-detail .label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .user-detail .value {
+            color: #333;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .secret-key {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 8px;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #856404;
+            text-align: center;
+            word-break: break-all;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -374,10 +453,44 @@
         <div id="dashboardTabs" style="display: none;">
             <div class="tabs">
                 <div class="tab active" onclick="showTab('submissions')">📋 Job Submissions</div>
+                <div class="tab" onclick="showTab('users')">👥 Users</div>
                 <div class="tab" onclick="showTab('profile')">👤 Profile</div>
             </div>
 
 
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <div class="user-form">
+                    <h2>👥 Create New User</h2>
+                    <div class="form-group">
+                        <label for="newUserName">Full Name:</label>
+                        <input type="text" id="newUserName" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserRole">Role:</label>
+                        <select id="newUserRole">
+                            <option value="fronter">Fronter - Can submit jobs</option>
+                            <option value="closer">Closer - Can receive transfers</option>
+                            <option value="admin">Admin - Full access</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserSecretKey">Secret Key (optional):</label>
+                        <input type="text" id="newUserSecretKey" placeholder="Leave blank for auto-generated key">
+                        <small style="color: #666; font-size: 12px;">If left blank, a random key will be generated automatically</small>
+                    </div>
+                    <button class="btn" onclick="createUser()">Create User</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Current Users</h2>
+                    <button class="btn btn-secondary" onclick="loadUsers()">🔄 Refresh Users</button>
+                </div>
+                <div id="usersGrid" class="users-grid">
+                    <!-- Users will be populated here -->
+                </div>
+            </div>
 
             <!-- Submissions Tab -->
             <div id="submissionsTab" class="tab-content active">
@@ -403,7 +516,7 @@
                     <div class="refresh-controls">
                         <button class="btn btn-secondary" onclick="loadSubmissions()">🔄 Refresh Submissions</button>
                         <span class="auto-refresh-indicator">🔄 Auto-refresh every 4s</span>
-                        <button class="btn btn-success" id="manageUsersBtn" onclick="showTab('users')" style="display: none;">👥 Manage Users</button>
+                        <button class="btn btn-success" onclick="showTab('users')">👥 Manage Users</button>
                     </div>
                 </div>
                     <div id="submissionsTable">
