@@ -295,6 +295,24 @@
             background: #f8f9fa;
             padding: 20px;
             border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .auto-refresh-indicator {
+            font-size: 12px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-style: italic;
         }
 
         .table-title {
@@ -559,7 +577,10 @@
                                     <div class="table-header">
                     <div class="table-title">Job Submissions</div>
                     <div class="table-count" id="submissionsCount">Loading...</div>
-                    <button class="btn btn-secondary" onclick="loadSubmissions()" style="margin-top: 10px;">🔄 Refresh Submissions</button>
+                    <div class="refresh-controls">
+                        <button class="btn btn-secondary" onclick="loadSubmissions()">🔄 Refresh Submissions</button>
+                        <span class="auto-refresh-indicator">🔄 Auto-refresh every 30s</span>
+                    </div>
                 </div>
                     <div id="submissionsTable">
                         <div class="loading">
@@ -671,6 +692,13 @@
             
             // Check session every 5 minutes to keep user logged in
             setInterval(checkSessionValidity, 5 * 60 * 1000);
+            
+            // Auto-refresh submissions every 30 seconds for real-time updates
+            setInterval(() => {
+                if (currentUser && currentUser.role === 'admin') {
+                    loadRealSubmissions();
+                }
+            }, 30000);
             
             // Also check when page becomes visible again
             document.addEventListener('visibilitychange', function() {
@@ -1341,6 +1369,7 @@
 
         // Load submissions
         function loadSubmissions() {
+            console.log('🔄 Manual refresh requested');
             // Try to load real submissions from Supabase or use demo data
             if (currentUser && currentUser.role === 'admin') {
                 // For admins, try to load real submissions
@@ -1383,7 +1412,7 @@
                         customerName: sub.customer_name || 'Unknown',
                         from: sub.moving_from || 'Unknown',
                         to: sub.moving_to || 'Unknown',
-                        submittedBy: sub.dashboard_user_name || sub.chrome_profile_name || 'Unknown',
+                        submittedBy: sub.user_name || sub.chrome_profile_name || 'Unknown',
                         submittedAt: sub.submitted_at,
                         status: 'pending',
                         dashboardUserId: sub.dashboard_user_id,
