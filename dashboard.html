@@ -433,6 +433,7 @@
                 <div id="currentUserInfo" style="margin-top: 20px;">
                     <span id="currentUserName">Not logged in</span>
                     <span id="currentUserRole" class="role-badge" style="display: none;"></span>
+                    <button onclick="testSupabaseConnection()" class="btn btn-secondary" style="margin-left: 10px;">🧪 Test Connection</button>
                 </div>
             </div>
         </div>
@@ -1195,6 +1196,51 @@
             }
             if (event.target === editUserModal) {
                 editUserModal.style.display = 'none';
+            }
+        }
+
+        // Test Supabase connection
+        async function testSupabaseConnection() {
+            console.log('🧪 Testing Supabase connection...');
+            try {
+                // Test 1: Simple connection test
+                const testResponse = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users?select=count', {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                    }
+                });
+                
+                console.log('🧪 Test 1 - dashboard_users count response:', testResponse.status);
+                
+                if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    console.log('🧪 Test 1 - dashboard_users count data:', testData);
+                } else {
+                    const errorText = await testResponse.text();
+                    console.log('🧪 Test 1 - Error response:', errorText);
+                }
+                
+                // Test 2: Check if table exists
+                const tableResponse = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?select=id&limit=1', {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+                    }
+                });
+                
+                console.log('🧪 Test 2 - job_submissions test response:', tableResponse.status);
+                
+                if (tableResponse.ok) {
+                    const tableData = await tableResponse.json();
+                    console.log('🧪 Test 2 - job_submissions test data:', tableData);
+                } else {
+                    const errorText = await tableResponse.text();
+                    console.log('🧪 Test 2 - Error response:', errorText);
+                }
+                
+            } catch (error) {
+                console.error('🧪 Test error:', error);
             }
         }
     </script>
