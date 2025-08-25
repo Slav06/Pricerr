@@ -557,19 +557,47 @@
 
 
     <script>
-        // Environment variables for browser use - FORCE DEPLOY
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3IiwicmF0aCI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
-        const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+        // Environment variables for browser use - FETCHING FROM API
+        let SUPABASE_ANON_KEY = null;
+        let SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
         
         // Global variables
         let currentUser = null;
         let submissions = [];
 
+                // Load configuration from API
+        async function loadConfig() {
+            try {
+                console.log('🔧 Loading configuration from API...');
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    SUPABASE_ANON_KEY = config.SUPABASE_ANON_KEY;
+                    SUPABASE_URL = config.SUPABASE_URL;
+                    console.log('✅ Configuration loaded successfully');
+                    console.log('🔑 API Key length:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.length : 0);
+                    return true;
+                } else {
+                    console.error('❌ Failed to load configuration:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error loading configuration:', error);
+                return false;
+            }
+        }
+
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('Dashboard initialized');
             
-
+            // Load configuration first
+            const configLoaded = await loadConfig();
+            if (!configLoaded) {
+                console.error('❌ Failed to load configuration - dashboard cannot function');
+                document.body.innerHTML = '<div style="text-align: center; padding: 50px; color: red;">Failed to load configuration. Please refresh the page.</div>';
+                return;
+            }
             
             // Try to restore current user immediately
             restoreCurrentUser();
