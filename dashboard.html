@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Moving Company Dashboard - User Management (v3.3-SPLIT)</title>
+            <title>Moving Company Dashboard - User Management (v4.0-FIXED)</title>
     <style>
         * {
             margin: 0;
@@ -557,10 +557,8 @@
 
 
     <script>
-        // SUPABASE API CREDENTIALS - SPLIT TO AVOID LINE WRAPPING
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + 
-                                  'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3IiwicmF0aCI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.' + 
-                                  'kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
+        // SUPABASE API CREDENTIALS - CORRECT KEY FROM CONFIG.JS
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
         const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
         
         // Global variables
@@ -569,7 +567,7 @@
 
                         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dashboard initialized - v3.3 SPLIT KEY FIX');
+            console.log('Dashboard initialized - v4.0 CORRECT API KEY!');
             console.log('🔑 API Key defined:', typeof SUPABASE_ANON_KEY);
             console.log('🔑 API Key length:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.length : 0);
             console.log('🔑 API Key ends with:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.slice(-10) : 'undefined');
