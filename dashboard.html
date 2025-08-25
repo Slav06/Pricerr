@@ -415,6 +415,13 @@
             background: #dc3545;
         }
 
+        .selected-transferee {
+            font-size: 11px;
+            color: #28a745;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -426,14 +433,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-logo-text">PFM</div>
             <div class="header-text">
-                <h1>Moving Company Dashboard</h1>
-                <p>User Management & Transfer System</p>
-                <div id="currentUserInfo" style="margin-top: 20px;">
+                <h1 style="margin-bottom: 5px;">Moving Company Dashboard</h1>
+                <div id="currentUserInfo" style="margin-top: 10px;">
                     <span id="currentUserName">Not logged in</span>
                     <span id="currentUserRole" class="role-badge" style="display: none;"></span>
-                    <button onclick="testSupabaseConnection()" class="btn btn-secondary" style="margin-left: 10px;">🧪 Test Connection</button>
+                    <button onclick="testSupabaseConnection()" class="btn btn-secondary" style="margin-left: 10px; font-size: 12px; padding: 5px 10px;">🧪 Test</button>
                 </div>
             </div>
         </div>
@@ -564,6 +569,7 @@
         // Global variables
         let currentUser = null;
         let submissions = [];
+        let users = [];
 
                         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -576,6 +582,9 @@
             restoreCurrentUser();
             
             checkLoginStatus();
+            
+            // Load users for transfer dropdowns
+            loadUsers();
             
             // Check session every 5 minutes to keep user logged in
             setInterval(checkSessionValidity, 5 * 60 * 1000);
@@ -908,6 +917,7 @@
                             <th>Submitted By</th>
                             <th>Date</th>
                             <th>Status</th>
+                            <th>Transfer To</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -929,6 +939,13 @@
                             <span class="transfer-status ${statusInfo.class}">
                                 ${statusInfo.display}
                             </span>
+                        </td>
+                        <td>
+                            <select onchange="transferSubmission('${submission.id}', this.value)" style="padding: 5px; font-size: 12px;">
+                                <option value="">Select User</option>
+                                ${getCloserUsersOptions()}
+                            </select>
+                            <div id="selected-${submission.id}" class="selected-transferee" style="font-size: 11px; color: #666; margin-top: 3px;"></div>
                         </td>
                     </tr>
                 `;
@@ -1197,6 +1214,83 @@
             }
             if (event.target === editUserModal) {
                 editUserModal.style.display = 'none';
+            }
+        }
+
+        // Get options for closer users
+        function getCloserUsersOptions() {
+            if (!users || users.length === 0) {
+                return '<option value="">No users available</option>';
+            }
+            
+            const closers = users.filter(user => user.role === 'closer' || user.role === 'admin');
+            if (closers.length === 0) {
+                return '<option value="">No closers available</option>';
+            }
+            
+            return closers.map(user => 
+                `<option value="${user.id}">${user.name} (${user.role})</option>`
+            ).join('');
+        }
+
+        // Transfer submission to selected user
+        async function transferSubmission(submissionId, userId) {
+            if (!userId) {
+                // Clear selection display
+                const selectedDiv = document.getElementById(`selected-${submissionId}`);
+                if (selectedDiv) {
+                    selectedDiv.textContent = '';
+                }
+                return;
+            }
+
+            try {
+                // Find the selected user
+                const selectedUser = users.find(u => u.id == userId);
+                if (!selectedUser) {
+                    showNotification('Selected user not found', 'error');
+                    return;
+                }
+
+                // Update the submission in Supabase
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/job_submissions?id=eq.${submissionId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        status: 'transferred',
+                        updated_by: currentUser.name,
+                        updated_by_role: currentUser.role,
+                        transferred_to: selectedUser.name,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification(`Transferred to ${selectedUser.name}`, 'success');
+                    
+                    // Show who was selected
+                    const selectedDiv = document.getElementById(`selected-${submissionId}`);
+                    if (selectedDiv) {
+                        selectedDiv.textContent = `→ ${selectedUser.name}`;
+                        selectedDiv.style.color = '#28a745';
+                        selectedDiv.style.fontWeight = 'bold';
+                    }
+                    
+                    // Refresh submissions to show updated status
+                    setTimeout(() => {
+                        loadRealSubmissions();
+                    }, 1000);
+                } else {
+                    showNotification('Transfer failed', 'error');
+                }
+            } catch (error) {
+                console.error('Transfer error:', error);
+                showNotification('Transfer failed', 'error');
             }
         }
 
