@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Moving Company Dashboard - User Management (v3.1-REBUILD)</title>
+            <title>Moving Company Dashboard - User Management (v3.2-FINAL)</title>
     <style>
         * {
             margin: 0;
@@ -557,13 +557,9 @@
 
 
     <script>
-        // SUPABASE CONFIGURATION - COMPLETE REBUILD FORCED
-        const SUPABASE_CONFIG = {
-            ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3IiwicmF0aCI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-            URL: 'https://xlnqqbbyivqlymmgchlw.supabase.co'
-        };
-        const SUPABASE_ANON_KEY = SUPABASE_CONFIG.ANON_KEY;
-        const SUPABASE_URL = SUPABASE_CONFIG.URL;
+        // SUPABASE API CREDENTIALS - FINAL FIX
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3IiwicmF0aCI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
+        const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
         
         // Global variables
         let currentUser = null;
@@ -571,8 +567,8 @@
 
                         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dashboard initialized - v3.1 FORCE REBUILD');
-            console.log('🔧 SUPABASE_CONFIG:', SUPABASE_CONFIG);
+            console.log('Dashboard initialized - v3.2 FINAL FIX');
+            console.log('🔑 API Key defined:', typeof SUPABASE_ANON_KEY);
             console.log('🔑 API Key length:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.length : 0);
             console.log('🔑 API Key ends with:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.slice(-10) : 'undefined');
             
