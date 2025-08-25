@@ -870,6 +870,10 @@
                         customerName: sub.customer_name || 'Unknown',
                         from: sub.moving_from || 'Unknown',
                         to: sub.moving_to || 'Unknown',
+                        cubes: sub.cubes || '-',
+                        distance: sub.distance || '-',
+                        pickupDate: sub.pickup_date || '-',
+                        pageUrl: sub.page_url || '',
                         submittedBy: sub.user_name || sub.chrome_profile_name || 'Unknown',
                         submittedAt: sub.submitted_at,
                         status: sub.status || 'pending'
@@ -914,6 +918,9 @@
                             <th>Customer</th>
                             <th>From</th>
                             <th>To</th>
+                            <th>Cubes</th>
+                            <th>Distance</th>
+                            <th>Pickup Date</th>
                             <th>Submitted By</th>
                             <th>Date</th>
                             <th>Status</th>
@@ -927,12 +934,19 @@
                 // Get status display info
                 const statusInfo = getStatusDisplayInfo(submission.status);
                 
+                const jobNumberLink = submission.pageUrl ? 
+                    `<a href="${submission.pageUrl}" target="_blank" style="color: #007bff; text-decoration: none;">${submission.jobNumber}</a>` : 
+                    submission.jobNumber;
+                
                 tableHTML += `
                     <tr>
-                        <td>${submission.jobNumber}</td>
-                        <td>${submission.customerName}</td>
-                        <td>${submission.from}</td>
-                        <td>${submission.to}</td>
+                        <td>${jobNumberLink}</td>
+                        <td>${submission.customerName || '-'}</td>
+                        <td>${submission.from || '-'}</td>
+                        <td>${submission.to || '-'}</td>
+                        <td>${submission.cubes || '-'}</td>
+                        <td>${submission.distance || '-'}</td>
+                        <td>${submission.pickupDate || '-'}</td>
                         <td>${submission.submittedBy}</td>
                         <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
                         <td>

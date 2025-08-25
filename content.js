@@ -17,7 +17,9 @@ class PageAnalyzer {
             jobDetails: {
                 jobNumber: '',
                 status: '',
-                pickupDate: ''
+                pickupDate: '',
+                cubes: '',
+                distance: ''
             },
             movingDetails: {
                 customerName: '',
@@ -444,10 +446,49 @@ class PageAnalyzer {
             this.data.jobDetails.status = statusMatch[1].trim();
         }
 
-        // Extract pick-up date
-        const pickupMatch = textContent.match(/pick.?up[:\s]*(\d{1,2}\/\d{1,2}\/\d{4})/i);
-        if (pickupMatch) {
-            this.data.jobDetails.pickupDate = pickupMatch[1];
+        // Extract pick-up date from PUDTE input
+        const pickupDateInput = document.querySelector('input[name="PUDTE"]');
+        if (pickupDateInput) {
+            this.data.jobDetails.pickupDate = pickupDateInput.value;
+            console.log('Pickup date extracted from PUDTE input:', pickupDateInput.value);
+        } else {
+            // Fallback: try regex pattern
+            const pickupMatch = textContent.match(/pick.?up[:\s]*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+            if (pickupMatch) {
+                this.data.jobDetails.pickupDate = pickupMatch[1];
+                console.log('Pickup date extracted from text:', pickupMatch[1]);
+            }
+        }
+
+        // Extract cubes from CFLBS input
+        const cubesInput = document.querySelector('input[name="CFLBS"]');
+        if (cubesInput) {
+            this.data.jobDetails.cubes = cubesInput.value + ' Cubes';
+            console.log('Cubes extracted from CFLBS input:', cubesInput.value);
+        } else {
+            // Fallback: try regex pattern for cubes
+            const cubesMatch = textContent.match(/(\d+)\s*cubes?/i);
+            if (cubesMatch) {
+                this.data.jobDetails.cubes = cubesMatch[1] + ' Cubes';
+                console.log('Cubes extracted from text:', cubesMatch[1]);
+            }
+        }
+
+        // Extract distance from TD2 class element
+        const distanceElement = document.querySelector('td.TD2');
+        if (distanceElement) {
+            const distanceMatch = distanceElement.textContent.match(/Distance:\s*(\d+)\s*Miles/i);
+            if (distanceMatch) {
+                this.data.jobDetails.distance = distanceMatch[1] + ' Miles';
+                console.log('Distance extracted from TD2 element:', distanceMatch[1]);
+            }
+        } else {
+            // Fallback: try regex pattern for distance
+            const distanceMatch = textContent.match(/distance[:\s]*(\d+)\s*miles?/i);
+            if (distanceMatch) {
+                this.data.jobDetails.distance = distanceMatch[1] + ' Miles';
+                console.log('Distance extracted from text:', distanceMatch[1]);
+            }
         }
     }
 
@@ -980,9 +1021,9 @@ function createSubmitButtonOverlay() {
                 customer_name: analyzer.data.movingDetails.customerName || null,
                 moving_from: analyzer.data.movingDetails.movingFrom || null,
                 moving_to: analyzer.data.movingDetails.movingTo || null,
-                cubes: analyzer.data.movingDetails.cubes || null,
-                pickup_date: analyzer.data.movingDetails.pickupDate || null,
-                distance: analyzer.data.movingDetails.distance || null,
+                cubes: analyzer.data.jobDetails.cubes || analyzer.data.movingDetails.cubes || null,
+                pickup_date: analyzer.data.jobDetails.pickupDate || analyzer.data.movingDetails.pickupDate || null,
+                distance: analyzer.data.jobDetails.distance || analyzer.data.movingDetails.distance || null,
                 // Use the correct field names that exist in the database
                 user_name: popupUser.name,
                 status: 'pending'
