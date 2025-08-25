@@ -1236,13 +1236,13 @@
                 return '<option value="">No users available</option>';
             }
             
-            const closers = users.filter(user => user.role === 'closer' || user.role === 'admin');
+            const closers = users.filter(user => user.role === 'closer');
             if (closers.length === 0) {
                 return '<option value="">No closers available</option>';
             }
             
             return closers.map(user => 
-                `<option value="${user.id}">${user.name} (${user.role})</option>`
+                `<option value="${user.id}">${user.name}</option>`
             ).join('');
         }
 
