@@ -28,52 +28,39 @@
             <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
 
-        <!-- Submit Job Number Button Section -->
-        <div class="top-button" id="submitJobButton">
-            <span class="star-icon">📋</span>
-            <span class="button-text">Submit Job Number</span>
-        </div>
-
         <!-- Insert Max Binder Button Section -->
         <div class="top-button">
             <span class="star-icon">⭐</span>
             <span class="button-text">Insert Max Binder</span>
         </div>
 
-        <!-- Location Boxes Section -->
-        <div class="location-boxes">
-            <div class="location-box">
-                <span class="checkmark">✓</span>
-                <div class="location-content">
-                    <span class="label">From:</span>
-                    <div class="location-details">
-                        <span class="zip-state" id="fromZipState">Analyzing...</span>
-                    </div>
+        <!-- Price Boxes Section -->
+        <div class="price-boxes-section">
+            <div class="price-box">
+                <div class="price-box-header">
+                    <span class="price-icon">💰</span>
+                    <span class="price-title">Deposit</span>
                 </div>
+                <div class="price-amount" id="depositAmount">$0.00</div>
+                <input type="number" class="price-input" id="depositInput" placeholder="Enter deposit amount" min="0" step="0.01">
             </div>
 
-            <div class="location-box">
-                <span class="checkmark">✓</span>
-                <div class="location-content">
-                    <span class="label">To:</span>
-                    <div class="location-details">
-                        <span class="zip-state" id="toZipState">Analyzing...</span>
-                    </div>
+            <div class="price-box">
+                <div class="price-box-header">
+                    <span class="price-icon">📦</span>
+                    <span class="price-title">Pickup</span>
                 </div>
-            </div>
-        </div>
-
-        <!-- Price Slider Section -->
-        <div class="slider-section">
-            <div class="price-display">
-                <span class="price-label">Calculated Price:</span>
-                <span class="price-amount" id="calculatedPrice">$0.00</span>
+                <div class="price-amount" id="pickupAmount">$0.00</div>
+                <input type="number" class="price-input" id="pickupInput" placeholder="Enter pickup amount" min="0" step="0.01">
             </div>
 
-            <div class="slider-container">
-                <label class="slider-label" for="priceSlider">Adjust Price:</label>
-                <input type="range" id="priceSlider" min="100" max="2000" value="859" step="1">
-                <div class="slider-value" id="sliderValue">$859</div>
+            <div class="price-box">
+                <div class="price-box-header">
+                    <span class="price-icon">🚚</span>
+                    <span class="price-title">Drop Off</span>
+                </div>
+                <div class="price-amount" id="dropoffAmount">$0.00</div>
+                <input type="number" class="price-input" id="dropoffInput" placeholder="Enter drop off amount" min="0" step="0.01">
             </div>
         </div>
         

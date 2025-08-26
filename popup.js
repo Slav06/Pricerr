@@ -273,4 +273,108 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('- testExtensionStatus() - Check extension state');
     console.log('- testLogin() - Test login with admin key');
     console.log('- testSupabaseConnection() - Test Supabase connection');
+    
+    // Initialize price box functionality
+    initializePriceBoxes();
 });
+
+// Function to initialize price box functionality
+function initializePriceBoxes() {
+    console.log('🔧 Initializing price boxes...');
+    
+    // Get all price input elements
+    const depositInput = document.getElementById('depositInput');
+    const pickupInput = document.getElementById('pickupInput');
+    const dropoffInput = document.getElementById('dropoffInput');
+    
+    // Get all price amount display elements
+    const depositAmount = document.getElementById('depositAmount');
+    const pickupAmount = document.getElementById('pickupAmount');
+    const dropoffAmount = document.getElementById('dropoffAmount');
+    
+    // Function to format currency
+    function formatCurrency(amount) {
+        if (!amount || isNaN(amount)) return '$0.00';
+        return '$' + parseFloat(amount).toFixed(2);
+    }
+    
+    // Function to update price display
+    function updatePriceDisplay(input, display) {
+        const value = input.value;
+        display.textContent = formatCurrency(value);
+        
+        // Save to storage
+        savePriceData();
+    }
+    
+    // Add event listeners for input changes
+    if (depositInput && depositAmount) {
+        depositInput.addEventListener('input', () => updatePriceDisplay(depositInput, depositAmount));
+        depositInput.addEventListener('blur', () => updatePriceDisplay(depositInput, depositAmount));
+    }
+    
+    if (pickupInput && pickupAmount) {
+        pickupInput.addEventListener('input', () => updatePriceDisplay(pickupInput, pickupAmount));
+        pickupInput.addEventListener('blur', () => updatePriceDisplay(pickupInput, pickupAmount));
+    }
+    
+    if (dropoffInput && dropoffAmount) {
+        dropoffInput.addEventListener('input', () => updatePriceDisplay(dropoffInput, dropoffAmount));
+        dropoffInput.addEventListener('blur', () => updatePriceDisplay(dropoffInput, dropoffAmount));
+    }
+    
+    // Load saved price data
+    loadPriceData();
+    
+    console.log('✅ Price boxes initialized');
+}
+
+// Function to save price data to Chrome storage
+function savePriceData() {
+    const priceData = {
+        deposit: document.getElementById('depositInput')?.value || '0',
+        pickup: document.getElementById('pickupInput')?.value || '0',
+        dropoff: document.getElementById('dropoffInput')?.value || '0',
+        lastUpdated: new Date().toISOString()
+    };
+    
+    chrome.storage.local.set({ priceData }, () => {
+        console.log('💾 Price data saved:', priceData);
+    });
+}
+
+// Function to load price data from Chrome storage
+function loadPriceData() {
+    chrome.storage.local.get(['priceData'], (result) => {
+        if (result.priceData) {
+            const data = result.priceData;
+            console.log('📥 Loading saved price data:', data);
+            
+            // Update input fields
+            const depositInput = document.getElementById('depositInput');
+            const pickupInput = document.getElementById('pickupInput');
+            const dropoffInput = document.getElementById('dropoffInput');
+            
+            if (depositInput && data.deposit) {
+                depositInput.value = data.deposit;
+                document.getElementById('depositAmount').textContent = formatCurrency(data.deposit);
+            }
+            
+            if (pickupInput && data.pickup) {
+                pickupInput.value = data.pickup;
+                document.getElementById('pickupAmount').textContent = formatCurrency(data.pickup);
+            }
+            
+            if (dropoffInput && data.dropoff) {
+                dropoffInput.value = data.dropoff;
+                document.getElementById('dropoffAmount').textContent = formatCurrency(data.dropoff);
+            }
+        }
+    });
+}
+
+// Helper function for currency formatting (make it globally available)
+function formatCurrency(amount) {
+    if (!amount || isNaN(amount)) return '$0.00';
+    return '$' + parseFloat(amount).toFixed(2);
+}

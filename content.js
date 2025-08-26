@@ -869,19 +869,54 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
 });
 
+// Function to check if current page is a HelloMoving.com pricing page
+function isHelloMovingPricingPage() {
+    const currentUrl = window.location.href.toLowerCase();
+    const hostname = window.location.hostname.toLowerCase();
+    
+    // Check if it's a HelloMoving.com domain
+    const isHelloMovingDomain = hostname.includes('hellomoving.com') || hostname.includes('ant.hellomoving.com');
+    
+    // Check if it's a pricing/charges page
+    const isPricingPage = currentUrl.includes('mpcharge') || 
+                         currentUrl.includes('charges') || 
+                         currentUrl.includes('estimate') ||
+                         currentUrl.includes('pricing');
+    
+    console.log('🔍 Page detection results:');
+    console.log('- Current URL:', currentUrl);
+    console.log('- Hostname:', hostname);
+    console.log('- Is HelloMoving domain:', isHelloMovingDomain);
+    console.log('- Is pricing page:', isPricingPage);
+    console.log('- Should load overlays:', isHelloMovingDomain && isPricingPage);
+    
+    return isHelloMovingDomain && isPricingPage;
+}
+
 // Also analyze the page when it loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Page Price Analyzer content script loaded');
+    console.log('Current page URL:', window.location.href);
+    
+    // Always run the analyzer (for data extraction)
     const analyzer = new PageAnalyzer();
     analyzer.analyzePage();
     analyzer.analyzeMovingCompanyPage();
     
-    // Create the persistent submit button overlay
-    createSubmitButtonOverlay();
-    
-    // Create the security monitoring overlay
-    console.log('About to create security overlay...');
-    createSecurityOverlay();
+    // Only create overlays on HelloMoving.com pricing pages
+    if (isHelloMovingPricingPage()) {
+        console.log('✅ HelloMoving pricing page detected - creating overlays');
+        
+        // Create the persistent submit button overlay
+        createSubmitButtonOverlay();
+        
+        // Create the security monitoring overlay
+        console.log('About to create security overlay...');
+        createSecurityOverlay();
+    } else {
+        console.log('❌ Not a HelloMoving pricing page - skipping overlay creation');
+        console.log('Overlays will not be shown on this page');
+    }
 });
 
 // Also run when window loads (for pages that load content dynamically)
@@ -891,15 +926,20 @@ window.addEventListener('load', () => {
     analyzer.analyzePage();
     analyzer.analyzeMovingCompanyPage();
     
-    // Ensure submit button overlay is created
-    if (!document.getElementById('submit-button-overlay')) {
-        createSubmitButtonOverlay();
-    }
-    
-    // Ensure security overlay is created
-    if (!document.getElementById('security-overlay')) {
-        console.log('Creating security overlay on window load...');
-        createSecurityOverlay();
+    // Only create overlays on HelloMoving.com pricing pages
+    if (isHelloMovingPricingPage()) {
+        // Ensure submit button overlay is created
+        if (!document.getElementById('submit-button-overlay')) {
+            createSubmitButtonOverlay();
+        }
+        
+        // Ensure security overlay is created
+        if (!document.getElementById('security-overlay')) {
+            console.log('Creating security overlay on window load...');
+            createSecurityOverlay();
+        }
+    } else {
+        console.log('Not a HelloMoving pricing page - skipping overlay creation on window load');
     }
 });
 

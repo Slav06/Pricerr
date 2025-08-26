@@ -1151,10 +1151,19 @@
                 // Closers only see submissions assigned to them
                 filteredSubmissions = submissions.filter(sub => sub.transferredTo === currentUser.name);
                 console.log('📊 Filtered submissions for closer:', filteredSubmissions);
+            } else if (currentUser.role === 'fronter') {
+                // Fronters only see their own submissions
+                filteredSubmissions = submissions.filter(sub => sub.submittedBy === currentUser.name);
+                console.log('📊 Filtered submissions for fronter:', filteredSubmissions);
             }
             
             if (filteredSubmissions.length === 0) {
-                const message = currentUser.role === 'closer' ? 'No submissions assigned to you' : 'No submissions found';
+                let message = 'No submissions found';
+                if (currentUser.role === 'closer') {
+                    message = 'No submissions assigned to you';
+                } else if (currentUser.role === 'fronter') {
+                    message = 'You have not submitted any jobs yet';
+                }
                 console.log('📊 No submissions, showing:', message);
                 submissionsTable.innerHTML = `<div class="loading">${message}</div>`;
                 return;
@@ -1181,8 +1190,27 @@
                         </tr>
                     </thead>
                 `;
+            } else if (currentUser.role === 'fronter') {
+                // Fronters see read-only view (can't assign to closers)
+                headerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Job #</th>
+                            <th>Customer</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Cubes</th>
+                            <th>Distance</th>
+                            <th>Pickup Date</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Admin Priced</th>
+                        </tr>
+                    </thead>
+                `;
             } else {
-                // Admin and Fronters see full control
+                // Admin sees full control
                 headerHTML = `
                     <thead>
                         <tr>
@@ -1244,15 +1272,43 @@
                                 ${needsUrgentAttention ? '<span style="color: #dc3545; font-weight: bold; margin-left: 5px;">⚠️</span>' : ''}
                             </td>
                             <td>${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}</td>
+                        </tr>
+                    `;
+                } else if (currentUser.role === 'fronter') {
+                    // Read-only view for fronters (can see who was assigned but can't change it)
+                    tableHTML += `
+                        <tr class="${urgentRowClass}" style="${urgentRowStyle}">
+                            <td>${jobNumberLink}</td>
+                            <td>${submission.customerName || '-'}</td>
+                            <td>${submission.from || '-'}</td>
+                            <td>${submission.to || '-'}</td>
+                            <td>${submission.cubes || '-'}</td>
+                            <td>${submission.distance || '-'}</td>
+                            <td>${submission.pickupDate || '-'}</td>
+                            <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
                             <td>
-                                <input type="checkbox" ${submission.pricedByAdmin ? 'checked' : ''} 
-                                       onchange="toggleAdminPricing('${submission.id}', this.checked)" 
-                                       style="transform: scale(1.2); margin: 0;">
+                                <span class="transfer-status ${statusInfo.class}">
+                                    ${statusInfo.display}
+                                </span>
+                                ${needsUrgentAttention ? '<span style="color: #dc3545; font-weight: bold; margin-left: 5px;">⚠️</span>' : ''}
+                            </td>
+                            <td>
+                                ${submission.transferredTo ? 
+                                    `<span style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px;">
+                                        ${submission.transferredTo}
+                                    </span>` : 
+                                    '<span style="color: #666; font-style: italic;">Not assigned yet</span>'
+                                }
+                            </td>
+                            <td>
+                                <span style="color: ${submission.pricedByAdmin ? '#28a745' : '#666'}; font-weight: bold;">
+                                    ${submission.pricedByAdmin ? '✅ Priced' : '⏳ Pending'}
+                                </span>
                             </td>
                         </tr>
                     `;
                 } else {
-                    // Full control view for admin and fronters
+                    // Full control view for admin only
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="${urgentRowStyle}">
                             <td>${jobNumberLink}</td>
@@ -1334,7 +1390,7 @@
                             </div>
                         </div>
                         
-                        ${currentUser.role !== 'closer' ? `
+                        ${currentUser.role === 'admin' ? `
                             <div class="mobile-actions">
                                 <div class="mobile-transfer">
                                     ${createTransferUI(submission)}
@@ -1345,6 +1401,22 @@
                                                onchange="toggleAdminPricing('${submission.id}', this.checked)">
                                         Admin Priced
                                     </label>
+                                </div>
+                            </div>
+                        ` : currentUser.role === 'fronter' ? `
+                            <div class="mobile-actions">
+                                <div class="mobile-transfer">
+                                    <strong>Assigned to:</strong> 
+                                    ${submission.transferredTo ? 
+                                        `<span style="color: #28a745; font-weight: bold;">${submission.transferredTo}</span>` : 
+                                        '<span style="color: #666; font-style: italic;">Not assigned yet</span>'
+                                    }
+                                </div>
+                                <div class="mobile-pricing">
+                                    <strong>Admin Priced:</strong>
+                                    <span style="color: ${submission.pricedByAdmin ? '#28a745' : '#666'}; font-weight: bold;">
+                                        ${submission.pricedByAdmin ? '✅ Yes' : '⏳ Pending'}
+                                    </span>
                                 </div>
                             </div>
                         ` : `
@@ -1364,10 +1436,15 @@
             // Update mobile urgent banner
             updateMobileUrgentBanner(filteredSubmissions);
             
-            const totalCount = currentUser.role === 'closer' ? filteredSubmissions.length : submissions.length;
-            const displayText = currentUser.role === 'closer' ? 
-                `Showing ${filteredSubmissions.length} assignments` : 
-                `Showing ${submissions.length} submissions`;
+            const totalCount = filteredSubmissions.length;
+            let displayText = '';
+            if (currentUser.role === 'closer') {
+                displayText = `Showing ${filteredSubmissions.length} assignments`;
+            } else if (currentUser.role === 'fronter') {
+                displayText = `Showing ${filteredSubmissions.length} of your submissions`;
+            } else {
+                displayText = `Showing ${submissions.length} total submissions`;
+            }
             document.getElementById('submissionsCount').textContent = displayText;
         }
         
@@ -1417,8 +1494,8 @@
             const banner = document.getElementById('mobile-urgent-banner');
             if (!banner) return;
 
-            // Only show for admin/fronter users
-            if (currentUser.role === 'closer') {
+            // Only show for admin users (not fronters or closers)
+            if (currentUser.role !== 'admin') {
                 banner.classList.add('hidden');
                 return;
             }

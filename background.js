@@ -164,14 +164,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Handle tab updates to potentially analyze new pages
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url) {
-        // Check if this is a page we might want to analyze
+        // Check if this is a HelloMoving.com pricing page
         const url = tab.url.toLowerCase();
+        const hostname = new URL(tab.url).hostname.toLowerCase();
         
-        // Look for moving company or pricing related URLs
-        const movingKeywords = ['moving', 'relocation', 'transport', 'charges', 'estimate', 'quote'];
-        const shouldAnalyze = movingKeywords.some(keyword => url.includes(keyword));
+        // Check if it's a HelloMoving.com domain with pricing content
+        const isHelloMovingDomain = hostname.includes('hellomoving.com');
+        const isPricingPage = url.includes('mpcharge') || 
+                             url.includes('charges') || 
+                             url.includes('estimate') ||
+                             url.includes('pricing');
         
-        if (shouldAnalyze) {
+        if (isHelloMovingDomain && isPricingPage) {
+            console.log('HelloMoving pricing page detected:', tab.url);
             // Notify content script that page might be relevant
             chrome.tabs.sendMessage(tabId, { 
                 action: 'pageRelevant',
@@ -187,12 +192,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, (tab) => {
         if (tab && tab.url) {
-            // Check if this tab should be analyzed
+            // Check if this is a HelloMoving.com pricing page
             const url = tab.url.toLowerCase();
-            const movingKeywords = ['moving', 'relocation', 'transport', 'charges', 'estimate', 'quote'];
-            const shouldAnalyze = movingKeywords.some(keyword => url.includes(keyword));
+            const hostname = new URL(tab.url).hostname.toLowerCase();
             
-            if (shouldAnalyze) {
+            // Check if it's a HelloMoving.com domain with pricing content
+            const isHelloMovingDomain = hostname.includes('hellomoving.com');
+            const isPricingPage = url.includes('mpcharge') || 
+                                 url.includes('charges') || 
+                                 url.includes('estimate') ||
+                                 url.includes('pricing');
+            
+            if (isHelloMovingDomain && isPricingPage) {
+                console.log('HelloMoving pricing page activated:', tab.url);
                 // Notify content script
                 chrome.tabs.sendMessage(tab.id, { 
                     action: 'tabActivated',

@@ -223,129 +223,73 @@ body {
     font-weight: 600;
 }
 
-.location-boxes {
+
+
+.price-boxes-section {
     display: flex;
     flex-direction: column;
     gap: 16px;
-}
-
-.location-box {
-    background: #f0e7ff;
-    border: 2px solid #d6bcff;
-    border-radius: 8px;
-    padding: 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.checkmark {
-    color: #6b46c1;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 2px;
-}
-
-.location-content {
-    flex: 1;
-}
-
-.label {
-    color: #6b46c1;
-    font-size: 14px;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 8px;
-}
-
-.location-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.zip-state {
-    color: #6b46c1;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.slider-section {
     margin-top: 20px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 2px solid #e9ecef;
 }
 
-.price-display {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 15px;
+.price-box {
     background: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
+    border: 2px solid #e6d9ff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.price-label {
+.price-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(107, 70, 193, 0.2);
+}
+
+.price-box-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.price-icon {
+    font-size: 20px;
+}
+
+.price-title {
     font-size: 16px;
     font-weight: 600;
-    color: #495057;
+    color: #6b46c1;
 }
 
 .price-amount {
     font-size: 24px;
     font-weight: 700;
     color: #28a745;
-}
-
-.slider-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.slider-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #6c757d;
-}
-
-#priceSlider {
-    width: 100%;
-    height: 8px;
-    border-radius: 4px;
-    background: #dee2e6;
-    outline: none;
-    -webkit-appearance: none;
-}
-
-#priceSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #007bff;
-    cursor: pointer;
-}
-
-#priceSlider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #007bff;
-    cursor: pointer;
-    border: none;
-}
-
-.slider-value {
-    font-size: 18px;
-    font-weight: 600;
-    color: #007bff;
+    margin-bottom: 12px;
     text-align: center;
+}
+
+.price-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e6d9ff;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+.price-input:focus {
+    outline: none;
+    border-color: #6b46c1;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+}
+
+.price-input::placeholder {
+    color: #999;
+    font-style: italic;
 }
 
 /* Message notifications */
