@@ -1092,6 +1092,31 @@ async function handleStatusUpdate(buttonConfig, buttonElement) {
         let endpoint = 'https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions';
         
         if (buttonConfig.id === 'submit') {
+            // Check for recent submissions within the last hour
+            console.log('🔍 Checking for recent submissions within 1 hour for job:', jobNumber);
+            
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            const checkResponse = await fetch(
+                `https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?job_number=eq.${jobNumber}&submitted_at=gte.${oneHourAgo}&select=id,submitted_at,user_name`, 
+                {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                    }
+                }
+            );
+            
+            if (checkResponse.ok) {
+                const recentSubmissions = await checkResponse.json();
+                if (recentSubmissions.length > 0) {
+                    const recentSubmission = recentSubmissions[0];
+                    const submittedTime = new Date(recentSubmission.submitted_at);
+                    const minutesAgo = Math.round((Date.now() - submittedTime.getTime()) / (1000 * 60));
+                    
+                    throw new Error(`Job ${jobNumber} was already submitted ${minutesAgo} minutes ago by ${recentSubmission.user_name || 'someone'}. Please wait at least 1 hour before resubmitting.`);
+                }
+            }
+            
             // For Submit Job - create new submission
             submissionData = {
                 job_number: jobNumber,
@@ -1114,9 +1139,35 @@ async function handleStatusUpdate(buttonConfig, buttonElement) {
                 updated_at: new Date().toISOString()
             };
         } else {
-            // For status updates - update existing submission
+            // For status updates - find and update only the most recent submission
+            console.log('🔍 Finding most recent submission for job:', jobNumber);
+            
+            // First, get the most recent submission ID for this job number
+            const findResponse = await fetch(
+                `https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?job_number=eq.${jobNumber}&select=id&order=submitted_at.desc&limit=1`, 
+                {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+                    }
+                }
+            );
+            
+            if (!findResponse.ok) {
+                throw new Error(`Failed to find submission for job ${jobNumber}`);
+            }
+            
+            const submissions = await findResponse.json();
+            if (submissions.length === 0) {
+                throw new Error(`No submission found for job ${jobNumber}`);
+            }
+            
+            const mostRecentId = submissions[0].id;
+            console.log('✅ Found most recent submission ID:', mostRecentId);
+            
+            // Update only the most recent submission by ID
             method = 'PATCH';
-            endpoint += `?job_number=eq.${jobNumber}`;
+            endpoint += `?id=eq.${mostRecentId}`;
             submissionData = {
                 status: buttonConfig.status,
                 updated_by: popupUser.name,
