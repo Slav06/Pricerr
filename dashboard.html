@@ -333,13 +333,31 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         th, td {
-            padding: 10px;
+            padding: 8px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        
+        /* Specific column widths to prevent wrapping */
+        th:nth-child(1), td:nth-child(1) { width: 8%; } /* Job # */
+        th:nth-child(2), td:nth-child(2) { width: 12%; white-space: normal; } /* Customer */
+        th:nth-child(3), td:nth-child(3) { width: 15%; white-space: normal; } /* From */
+        th:nth-child(4), td:nth-child(4) { width: 15%; white-space: normal; } /* To */
+        th:nth-child(5), td:nth-child(5) { width: 8%; } /* Cubes */
+        th:nth-child(6), td:nth-child(6) { width: 8%; } /* Distance */
+        th:nth-child(7), td:nth-child(7) { width: 10%; } /* Pickup Date */
+        th:nth-child(8), td:nth-child(8) { width: 8%; } /* Submitted By */
+        th:nth-child(9), td:nth-child(9) { width: 8%; } /* Date */
+        th:nth-child(10), td:nth-child(10) { width: 8%; } /* Status */
+        th:nth-child(11), td:nth-child(11) { width: 10%; text-align: center; } /* Pricing Status */
+        th:nth-child(12), td:nth-child(12) { width: 10%; } /* Assigned Date */
 
         th {
             background: #f8f9fa;
@@ -1256,8 +1274,8 @@
                 if (currentUser.role === 'closer') {
                     // Read-only view for closers with pricing status
                     const pricingStatusHTML = submission.pricedByAdmin ? 
-                        '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">✅ PRICED</span>' : 
-                        '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">⏳ PENDING</span>';
+                        '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 8px; font-size: 11px; font-weight: bold; white-space: nowrap; display: inline-block;">✅ PRICED</span>' : 
+                        '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 8px; font-size: 11px; font-weight: bold; white-space: nowrap; display: inline-block;">⏳ PENDING</span>';
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="background-color: #f8f9fa; ${urgentRowStyle}">
@@ -1434,8 +1452,8 @@
                                     <div>
                                         <strong>Pricing:</strong>
                                         ${submission.pricedByAdmin ? 
-                                            '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">✅ PRICED</span>' : 
-                                            '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">⏳ PENDING</span>'
+                                            '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; white-space: nowrap;">✅ PRICED</span>' : 
+                                            '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; white-space: nowrap;">⏳ PENDING</span>'
                                         }
                                     </div>
                                 </div>
