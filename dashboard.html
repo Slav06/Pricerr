@@ -437,7 +437,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.4.0 - Build df9b99b
+                        v1.4.1 - Build 43bbba7
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1273,12 +1273,17 @@
             }
 
             try {
+                console.log('🔄 Transfer requested:', { submissionId, userId, users });
+                
                 // Find the selected user
                 const selectedUser = users.find(u => u.id == userId);
                 if (!selectedUser) {
+                    console.error('❌ Selected user not found:', userId, 'Available users:', users);
                     showNotification('Selected user not found', 'error');
                     return;
                 }
+                
+                console.log('✅ Found selected user:', selectedUser);
 
                 // Update the submission in Supabase
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/job_submissions?id=eq.${submissionId}`, {
@@ -1314,7 +1319,9 @@
                         loadRealSubmissions();
                     }, 1000);
                 } else {
-                    showNotification('Transfer failed', 'error');
+                    const errorText = await response.text();
+                    console.error('❌ Transfer failed:', response.status, errorText);
+                    showNotification(`Transfer failed: ${response.status}`, 'error');
                 }
             } catch (error) {
                 console.error('Transfer error:', error);
