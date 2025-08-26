@@ -1123,33 +1123,43 @@
         // Save users to Supabase
         async function saveUsers() {
             try {
-                for (const user of users) {
-                    const userData = {
-                        id: user.id,
-                        name: user.name,
-                        role: user.role,
-                        secretkey: user.secretKey,
-                        createdat: user.createdAt,
-                        isactive: user.isActive
-                    };
-                    
-                    const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users', {
-                        method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'resolution=merge-duplicates'
-                        },
-                        body: JSON.stringify(userData)
-                    });
-                    
-                    if (!response.ok) {
-                        console.log(`Failed to save user ${user.name}:`, response.status);
-                    }
+                // Only save the last user that was added (the most recent one)
+                if (users.length === 0) return;
+                
+                const latestUser = users[users.length - 1];
+                const userData = {
+                    id: parseInt(latestUser.id),
+                    name: latestUser.name,
+                    role: latestUser.role,
+                    secretkey: latestUser.secretKey,
+                    createdat: latestUser.createdAt,
+                    isactive: latestUser.isActive
+                };
+                
+                console.log('💾 Saving user to Supabase:', userData);
+                
+                const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/dashboard_users', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (response.ok) {
+                    console.log('✅ User saved successfully to Supabase');
+                    showNotification(`User ${latestUser.name} saved to database`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Failed to save user:', response.status, errorText);
+                    showNotification(`Failed to save user: ${response.status}`, 'error');
                 }
             } catch (error) {
-                console.error('Error saving users:', error);
+                console.error('❌ Error saving user:', error);
+                showNotification('Error saving user to database', 'error');
             }
         }
 
