@@ -1051,10 +1051,23 @@ async function handleStatusUpdate(buttonConfig, buttonElement) {
     
     try {
         // Check if user is logged in via popup
-        const popupUser = await new Promise((resolve) => {
-            chrome.storage.local.get(['popupUser'], (result) => {
-                resolve(result.popupUser || null);
-            });
+        const popupUser = await new Promise((resolve, reject) => {
+            try {
+                if (!chrome || !chrome.storage || !chrome.storage.local) {
+                    reject(new Error('Extension context invalidated. Please refresh the page and try again.'));
+                    return;
+                }
+                
+                chrome.storage.local.get(['popupUser'], (result) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error('Extension context invalidated. Please refresh the page and try again.'));
+                        return;
+                    }
+                    resolve(result.popupUser || null);
+                });
+            } catch (error) {
+                reject(new Error('Extension context invalidated. Please refresh the page and try again.'));
+            }
         });
         
         if (!popupUser) {
@@ -1464,6 +1477,11 @@ async function getChromeProfileInfo() {
         if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
             const result = await new Promise((resolve) => {
                 chrome.storage.local.get(['profileInfo'], (result) => {
+                    if (chrome.runtime.lastError) {
+                        console.warn('Extension context invalidated, using fallback profile');
+                        resolve(null);
+                        return;
+                    }
                     resolve(result.profileInfo);
                 });
             });
