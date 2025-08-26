@@ -437,7 +437,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.5.0 - Multi-Status Workflow
+                        v1.5.1 - Enhanced Transfer UI + Admin Pricing
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -884,7 +884,8 @@
                         status: sub.status || 'pending',
                         transferredTo: sub.transferred_to || null,
                         transferredAt: sub.transferred_at || null,
-                        transferredBy: sub.transferred_by || null
+                        transferredBy: sub.transferred_by || null,
+                        pricedByAdmin: sub.priced_by_admin || false
                     }));
                     
                     console.log('📊 Processed submissions:', submissions);
@@ -964,7 +965,8 @@
                             <th>Submitted By</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th>Transfer To</th>
+                            <th>Assigned To</th>
+                            <th>Admin Priced</th>
                         </tr>
                     </thead>
                 `;
@@ -1002,6 +1004,11 @@
                                 </span>
                             </td>
                             <td>${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}</td>
+                            <td>
+                                <input type="checkbox" ${submission.pricedByAdmin ? 'checked' : ''} 
+                                       onchange="toggleAdminPricing('${submission.id}', this.checked)" 
+                                       style="transform: scale(1.2); margin: 0;">
+                            </td>
                         </tr>
                     `;
                 } else {
@@ -1023,11 +1030,12 @@
                                 </span>
                             </td>
                             <td>
-                                <select onchange="transferSubmission('${submission.id}', this.value)" style="padding: 5px; font-size: 12px;">
-                                    <option value="">Select User</option>
-                                    ${getCloserUsersOptions()}
-                                </select>
-                                <div id="selected-${submission.id}" class="selected-transferee" style="font-size: 11px; color: #28a745; margin-top: 3px; font-weight: bold;">${transferInfo}</div>
+                                ${createTransferUI(submission)}
+                            </td>
+                            <td>
+                                <input type="checkbox" ${submission.pricedByAdmin ? 'checked' : ''} 
+                                       onchange="toggleAdminPricing('${submission.id}', this.checked)" 
+                                       style="transform: scale(1.2); margin: 0;">
                             </td>
                         </tr>
                     `;
@@ -1044,6 +1052,94 @@
             document.getElementById('submissionsCount').textContent = displayText;
         }
         
+        // Create transfer UI based on assignment status
+        function createTransferUI(submission) {
+            if (submission.transferredTo) {
+                // Show assigned closer with small X to change
+                return `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px;">
+                            ${submission.transferredTo}
+                        </div>
+                        <button onclick="showTransferDropdown('${submission.id}')" 
+                                style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;"
+                                title="Change assignment">
+                            ×
+                        </button>
+                    </div>
+                    <select id="transfer-dropdown-${submission.id}" onchange="transferSubmission('${submission.id}', this.value)" 
+                            style="display: none; padding: 5px; font-size: 12px; margin-top: 5px;">
+                        <option value="">Select New Closer</option>
+                        ${getCloserUsersOptions()}
+                    </select>
+                `;
+            } else {
+                // Show dropdown to assign
+                return `
+                    <select onchange="transferSubmission('${submission.id}', this.value)" 
+                            style="padding: 5px; font-size: 12px; border: 2px dashed #ccc;">
+                        <option value="">Assign to Closer</option>
+                        ${getCloserUsersOptions()}
+                    </select>
+                `;
+            }
+        }
+
+        // Show transfer dropdown
+        function showTransferDropdown(submissionId) {
+            const dropdown = document.getElementById(`transfer-dropdown-${submissionId}`);
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Toggle admin pricing status
+        async function toggleAdminPricing(submissionId, isChecked) {
+            try {
+                console.log('🔄 Updating admin pricing:', { submissionId, isChecked });
+
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/job_submissions?id=eq.${submissionId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        priced_by_admin: isChecked,
+                        updated_by: currentUser.name,
+                        updated_by_role: currentUser.role,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    const status = isChecked ? 'marked as priced' : 'unmarked as priced';
+                    showNotification(`Submission ${status} by admin`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Admin pricing update failed:', response.status, errorText);
+                    showNotification(`Admin pricing update failed: ${response.status}`, 'error');
+                    
+                    // Revert checkbox state on error
+                    const checkbox = document.querySelector(`input[onchange*="${submissionId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = !isChecked;
+                    }
+                }
+            } catch (error) {
+                console.error('Admin pricing error:', error);
+                showNotification('Admin pricing update failed', 'error');
+                
+                // Revert checkbox state on error
+                const checkbox = document.querySelector(`input[onchange*="${submissionId}"]`);
+                if (checkbox) {
+                    checkbox.checked = !isChecked;
+                }
+            }
+        }
+
         // Get status display information
         function getStatusDisplayInfo(status) {
             const statusMap = {
