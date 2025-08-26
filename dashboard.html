@@ -1172,7 +1172,7 @@
             // Build table header based on user role
             let headerHTML = '';
             if (currentUser.role === 'closer') {
-                // Closers see read-only view
+                // Closers see read-only view with pricing indicator
                 headerHTML = `
                     <thead>
                         <tr>
@@ -1186,6 +1186,7 @@
                             <th>Submitted By</th>
                             <th>Date</th>
                             <th>Status</th>
+                            <th>Pricing Status</th>
                             <th>Assigned Date</th>
                         </tr>
                     </thead>
@@ -1253,7 +1254,11 @@
                     'animation: urgent-flash 2s infinite; background: linear-gradient(45deg, #fff3cd, #ffeeba);' : '';
                 
                 if (currentUser.role === 'closer') {
-                    // Read-only view for closers
+                    // Read-only view for closers with pricing status
+                    const pricingStatusHTML = submission.pricedByAdmin ? 
+                        '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">✅ PRICED</span>' : 
+                        '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">⏳ PENDING</span>';
+                    
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="background-color: #f8f9fa; ${urgentRowStyle}">
                             <td>${jobNumberLink}</td>
@@ -1271,6 +1276,7 @@
                                 </span>
                                 ${needsUrgentAttention ? '<span style="color: #dc3545; font-weight: bold; margin-left: 5px;">⚠️</span>' : ''}
                             </td>
+                            <td>${pricingStatusHTML}</td>
                             <td>${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}</td>
                         </tr>
                     `;
@@ -1421,8 +1427,17 @@
                             </div>
                         ` : `
                             <div class="mobile-actions">
-                                <div style="font-size: 12px; color: #666;">
-                                    Assigned: ${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                    <div style="font-size: 12px; color: #666;">
+                                        <strong>Assigned:</strong> ${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}
+                                    </div>
+                                    <div>
+                                        <strong>Pricing:</strong>
+                                        ${submission.pricedByAdmin ? 
+                                            '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">✅ PRICED</span>' : 
+                                            '<span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">⏳ PENDING</span>'
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         `}
@@ -1598,20 +1613,41 @@
             document.getElementById('totalSubmissions').textContent = submissions.length;
             
             const mySubmissionsCard = document.getElementById('mySubmissions').parentElement;
+            const pendingTransfersCard = document.getElementById('pendingTransfers').parentElement;
             
             if (currentUser.role === 'fronter') {
                 const mySubs = submissions.filter(s => s.submittedBy === currentUser.name);
                 document.getElementById('mySubmissions').textContent = mySubs.length;
                 mySubmissionsCard.style.display = 'block';
+                
+                // Show pending transfers as pending pricing for fronters
+                const pendingPricing = submissions.filter(s => s.submittedBy === currentUser.name && !s.pricedByAdmin).length;
+                document.getElementById('pendingTransfers').textContent = pendingPricing;
+                pendingTransfersCard.querySelector('.stat-label').textContent = 'Pending Pricing';
+            } else if (currentUser.role === 'closer') {
+                // For closers, show assigned jobs and pricing status
+                const assignedJobs = submissions.filter(s => s.transferredTo === currentUser.name);
+                document.getElementById('mySubmissions').textContent = assignedJobs.length;
+                mySubmissionsCard.querySelector('.stat-label').textContent = 'Assigned Jobs';
+                mySubmissionsCard.style.display = 'block';
+                
+                // Show jobs that are priced vs pending pricing
+                const pricedJobs = assignedJobs.filter(s => s.pricedByAdmin).length;
+                document.getElementById('pendingTransfers').textContent = pricedJobs;
+                pendingTransfersCard.querySelector('.stat-label').textContent = 'Priced Jobs';
             } else if (currentUser.role === 'admin') {
                 // Hide "My Submissions" for admin users since they don't submit jobs
                 mySubmissionsCard.style.display = 'none';
+                
+                // Show pending pricing for admin
+                const pendingPricing = submissions.filter(s => !s.pricedByAdmin).length;
+                document.getElementById('pendingTransfers').textContent = pendingPricing;
+                pendingTransfersCard.querySelector('.stat-label').textContent = 'Pending Pricing';
             } else {
                 document.getElementById('mySubmissions').textContent = '-';
                 mySubmissionsCard.style.display = 'block';
+                document.getElementById('pendingTransfers').textContent = '0';
             }
-            
-            document.getElementById('pendingTransfers').textContent = '0';
         }
 
         // Update profile
