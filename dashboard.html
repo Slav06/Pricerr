@@ -447,25 +447,8 @@
         }
 
         .urgent-attention {
-            position: relative;
             border: 2px solid #dc3545 !important;
             animation: urgent-flash 2s infinite;
-        }
-
-        .urgent-attention::before {
-            content: "⚠️ URGENT";
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: #dc3545;
-            color: white;
-            padding: 1px 4px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-            z-index: 1000;
-            animation: pulse 1s infinite;
-            pointer-events: none;
         }
 
         @keyframes pulse {
@@ -488,7 +471,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.5.2b - Fixed Alert Positioning
+                        v1.5.2c - Clean Alert Layout
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1061,6 +1044,7 @@
                                 <span class="transfer-status ${statusInfo.class}">
                                     ${statusInfo.display}
                                 </span>
+                                ${needsUrgentAttention ? '<span style="color: #dc3545; font-weight: bold; margin-left: 5px;">⚠️</span>' : ''}
                             </td>
                             <td>${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}</td>
                             <td>
@@ -1087,6 +1071,7 @@
                                 <span class="transfer-status ${statusInfo.class}">
                                     ${statusInfo.display}
                                 </span>
+                                ${needsUrgentAttention ? '<span style="color: #dc3545; font-weight: bold; margin-left: 5px;">⚠️</span>' : ''}
                             </td>
                             <td>
                                 ${createTransferUI(submission)}
