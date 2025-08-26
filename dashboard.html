@@ -458,6 +458,39 @@
 
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
+            .mobile-urgent-banner {
+                background: linear-gradient(135deg, #dc3545, #fd7e14);
+                color: white;
+                padding: 12px 15px;
+                margin: 10px 10px 15px 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+                font-weight: bold;
+                text-align: center;
+                animation: banner-pulse 2s infinite;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .mobile-urgent-banner.hidden {
+                display: none;
+            }
+
+            .banner-count {
+                font-size: 18px;
+                color: #fff3cd;
+                margin: 0 5px;
+            }
+
+            @keyframes banner-pulse {
+                0%, 100% { 
+                    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+                    transform: scale(1);
+                }
+                50% { 
+                    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.6);
+                    transform: scale(1.02);
+                }
+            }
             .container {
                 padding: 10px !important;
                 margin: 0 !important;
@@ -607,6 +640,10 @@
             .mobile-only {
                 display: none !important;
             }
+
+            .mobile-urgent-banner {
+                display: none !important;
+            }
         }
 
         @keyframes slideInRight {
@@ -624,7 +661,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.6.0 - Mobile Responsive
+                        v1.6.1 - Mobile Urgent Banner
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1241,8 +1278,34 @@
 
             tableHTML += '</tbody></table></div>';
             
-            // Create mobile cards
+            // Create mobile cards with urgent banner
             let mobileHTML = '<div class="mobile-submissions">';
+            
+            // Add urgent banner for mobile (CSS will hide on desktop)
+            if (currentUser.role !== 'closer') {
+                const urgentSubmissions = filteredSubmissions.filter(sub => 
+                    sub.status === 'inv_done' && (!sub.transferredTo || !sub.pricedByAdmin)
+                );
+                const needsTransfer = filteredSubmissions.filter(sub => 
+                    sub.status === 'inv_done' && !sub.transferredTo
+                ).length;
+                const needsPricing = filteredSubmissions.filter(sub => 
+                    sub.status === 'inv_done' && sub.transferredTo && !sub.pricedByAdmin
+                ).length;
+                
+                if (urgentSubmissions.length > 0) {
+                    let bannerText = '⚠️ URGENT: ';
+                    if (needsTransfer > 0 && needsPricing > 0) {
+                        bannerText += `<span class="banner-count">${needsTransfer}</span> need transfer, <span class="banner-count">${needsPricing}</span> need pricing`;
+                    } else if (needsTransfer > 0) {
+                        bannerText += `<span class="banner-count">${needsTransfer}</span> waiting for transfer`;
+                    } else if (needsPricing > 0) {
+                        bannerText += `<span class="banner-count">${needsPricing}</span> need pricing`;
+                    }
+                    
+                    mobileHTML += `<div class="mobile-urgent-banner">${bannerText}</div>`;
+                }
+            }
             filteredSubmissions.forEach(submission => {
                 const statusInfo = getStatusDisplayInfo(submission.status);
                 const needsUrgentAttention = submission.status === 'inv_done' && 
