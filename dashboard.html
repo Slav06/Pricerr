@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
             <title>Moving Company Dashboard - User Management (v4.0-FIXED)</title>
     <style>
         * {
@@ -456,6 +456,159 @@
             50% { transform: scale(1.1); }
         }
 
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px !important;
+                margin: 0 !important;
+            }
+
+            .header {
+                padding: 15px !important;
+                border-radius: 8px !important;
+            }
+
+            .header h1 {
+                font-size: 20px !important;
+                margin: 0 !important;
+            }
+
+            .header-text > div {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }
+
+            .tabs {
+                flex-direction: column !important;
+                gap: 5px !important;
+            }
+
+            .tab {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 12px !important;
+            }
+
+            .stats-container {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            .stats-box {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            /* Hide table on mobile, show cards instead */
+            .submissions-table {
+                display: none !important;
+            }
+
+            .mobile-submissions {
+                display: block !important;
+            }
+
+            .mobile-card {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                border-left: 4px solid #007bff;
+            }
+
+            .mobile-card.urgent-attention {
+                border-left: 4px solid #dc3545;
+                animation: urgent-flash 2s infinite;
+                border: 2px solid #dc3545;
+            }
+
+            .mobile-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 10px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .mobile-job-number {
+                font-weight: bold;
+                font-size: 16px;
+                color: #007bff;
+            }
+
+            .mobile-status {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+            .mobile-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 15px;
+                font-size: 14px;
+            }
+
+            .mobile-detail {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .mobile-detail-label {
+                font-weight: bold;
+                color: #666;
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+
+            .mobile-detail-value {
+                color: #333;
+            }
+
+            .mobile-actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+                padding-top: 10px;
+                border-top: 1px solid #eee;
+            }
+
+            .mobile-transfer {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .mobile-pricing {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 12px;
+            }
+
+            /* Hide desktop elements on mobile */
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Desktop: hide mobile elements */
+        @media (min-width: 769px) {
+            .mobile-submissions {
+                display: none !important;
+            }
+
+            .mobile-only {
+                display: none !important;
+            }
+        }
+
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -471,7 +624,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.5.2c - Clean Alert Layout
+                        v1.6.0 - Mobile Responsive
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1006,7 +1159,7 @@
                 `;
             }
 
-            let tableHTML = `<table>${headerHTML}<tbody>`;
+            let tableHTML = `<div class="submissions-table"><table>${headerHTML}<tbody>`;
 
             filteredSubmissions.forEach(submission => {
                 // Get status display info
@@ -1086,8 +1239,83 @@
                 }
             });
 
-            tableHTML += '</tbody></table>';
-            submissionsTable.innerHTML = tableHTML;
+            tableHTML += '</tbody></table></div>';
+            
+            // Create mobile cards
+            let mobileHTML = '<div class="mobile-submissions">';
+            filteredSubmissions.forEach(submission => {
+                const statusInfo = getStatusDisplayInfo(submission.status);
+                const needsUrgentAttention = submission.status === 'inv_done' && 
+                    (!submission.transferredTo || !submission.pricedByAdmin);
+                const urgentClass = needsUrgentAttention ? 'urgent-attention' : '';
+                
+                const jobNumberLink = submission.pageUrl ? 
+                    `<a href="${submission.pageUrl}" target="_blank">${submission.jobNumber}</a>` : 
+                    submission.jobNumber;
+                
+                mobileHTML += `
+                    <div class="mobile-card ${urgentClass}">
+                        <div class="mobile-card-header">
+                            <div class="mobile-job-number">${jobNumberLink}</div>
+                            <div class="mobile-status transfer-status ${statusInfo.class}">
+                                ${statusInfo.display}
+                                ${needsUrgentAttention ? ' ⚠️' : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-details">
+                            <div class="mobile-detail">
+                                <div class="mobile-detail-label">Customer</div>
+                                <div class="mobile-detail-value">${submission.customerName || '-'}</div>
+                            </div>
+                            <div class="mobile-detail">
+                                <div class="mobile-detail-label">From → To</div>
+                                <div class="mobile-detail-value">${submission.from || '-'} → ${submission.to || '-'}</div>
+                            </div>
+                            <div class="mobile-detail">
+                                <div class="mobile-detail-label">Cubes / Distance</div>
+                                <div class="mobile-detail-value">${submission.cubes || '-'} / ${submission.distance || '-'}</div>
+                            </div>
+                            <div class="mobile-detail">
+                                <div class="mobile-detail-label">Pickup Date</div>
+                                <div class="mobile-detail-value">${submission.pickupDate || '-'}</div>
+                            </div>
+                            <div class="mobile-detail">
+                                <div class="mobile-detail-label">Submitted By</div>
+                                <div class="mobile-detail-value">${submission.submittedBy}</div>
+                            </div>
+                            <div class="mobile-detail">
+                                <div class="mobile-detail-label">Date</div>
+                                <div class="mobile-detail-value">${new Date(submission.submittedAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        
+                        ${currentUser.role !== 'closer' ? `
+                            <div class="mobile-actions">
+                                <div class="mobile-transfer">
+                                    ${createTransferUI(submission)}
+                                </div>
+                                <div class="mobile-pricing">
+                                    <label>
+                                        <input type="checkbox" ${submission.pricedByAdmin ? 'checked' : ''} 
+                                               onchange="toggleAdminPricing('${submission.id}', this.checked)">
+                                        Admin Priced
+                                    </label>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="mobile-actions">
+                                <div style="font-size: 12px; color: #666;">
+                                    Assigned: ${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+            mobileHTML += '</div>';
+            
+            submissionsTable.innerHTML = tableHTML + mobileHTML;
             
             const totalCount = currentUser.role === 'closer' ? filteredSubmissions.length : submissions.length;
             const displayText = currentUser.role === 'closer' ? 
