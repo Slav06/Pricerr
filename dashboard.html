@@ -461,14 +461,18 @@
             .mobile-urgent-banner {
                 background: linear-gradient(135deg, #dc3545, #fd7e14);
                 color: white;
-                padding: 12px 15px;
-                margin: 10px 10px 15px 10px;
-                border-radius: 8px;
+                padding: 15px;
+                margin: 0;
+                border-radius: 0;
                 box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
                 font-weight: bold;
                 text-align: center;
                 animation: banner-pulse 2s infinite;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-bottom: 3px solid rgba(255, 255, 255, 0.4);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                width: 100%;
             }
 
             .mobile-urgent-banner.hidden {
@@ -656,12 +660,15 @@
 </head>
 <body>
     <div class="container">
+        <!-- Mobile urgent banner placeholder - will be populated by JavaScript -->
+        <div id="mobile-urgent-banner" class="mobile-urgent-banner hidden"></div>
+        
         <div class="header">
             <div class="header-text">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.6.1 - Mobile Urgent Banner
+                        v1.6.2 - Enhanced Mobile UX
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1278,34 +1285,8 @@
 
             tableHTML += '</tbody></table></div>';
             
-            // Create mobile cards with urgent banner
+            // Create mobile cards
             let mobileHTML = '<div class="mobile-submissions">';
-            
-            // Add urgent banner for mobile (CSS will hide on desktop)
-            if (currentUser.role !== 'closer') {
-                const urgentSubmissions = filteredSubmissions.filter(sub => 
-                    sub.status === 'inv_done' && (!sub.transferredTo || !sub.pricedByAdmin)
-                );
-                const needsTransfer = filteredSubmissions.filter(sub => 
-                    sub.status === 'inv_done' && !sub.transferredTo
-                ).length;
-                const needsPricing = filteredSubmissions.filter(sub => 
-                    sub.status === 'inv_done' && sub.transferredTo && !sub.pricedByAdmin
-                ).length;
-                
-                if (urgentSubmissions.length > 0) {
-                    let bannerText = '⚠️ URGENT: ';
-                    if (needsTransfer > 0 && needsPricing > 0) {
-                        bannerText += `<span class="banner-count">${needsTransfer}</span> need transfer, <span class="banner-count">${needsPricing}</span> need pricing`;
-                    } else if (needsTransfer > 0) {
-                        bannerText += `<span class="banner-count">${needsTransfer}</span> waiting for transfer`;
-                    } else if (needsPricing > 0) {
-                        bannerText += `<span class="banner-count">${needsPricing}</span> need pricing`;
-                    }
-                    
-                    mobileHTML += `<div class="mobile-urgent-banner">${bannerText}</div>`;
-                }
-            }
             filteredSubmissions.forEach(submission => {
                 const statusInfo = getStatusDisplayInfo(submission.status);
                 const needsUrgentAttention = submission.status === 'inv_done' && 
@@ -1380,6 +1361,9 @@
             
             submissionsTable.innerHTML = tableHTML + mobileHTML;
             
+            // Update mobile urgent banner
+            updateMobileUrgentBanner(filteredSubmissions);
+            
             const totalCount = currentUser.role === 'closer' ? filteredSubmissions.length : submissions.length;
             const displayText = currentUser.role === 'closer' ? 
                 `Showing ${filteredSubmissions.length} assignments` : 
@@ -1425,6 +1409,44 @@
             const dropdown = document.getElementById(`transfer-dropdown-${submissionId}`);
             if (dropdown) {
                 dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Update mobile urgent banner
+        function updateMobileUrgentBanner(submissions) {
+            const banner = document.getElementById('mobile-urgent-banner');
+            if (!banner) return;
+
+            // Only show for admin/fronter users
+            if (currentUser.role === 'closer') {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            const urgentSubmissions = submissions.filter(sub => 
+                sub.status === 'inv_done' && (!sub.transferredTo || !sub.pricedByAdmin)
+            );
+            const needsTransfer = submissions.filter(sub => 
+                sub.status === 'inv_done' && !sub.transferredTo
+            ).length;
+            const needsPricing = submissions.filter(sub => 
+                sub.status === 'inv_done' && sub.transferredTo && !sub.pricedByAdmin
+            ).length;
+            
+            if (urgentSubmissions.length > 0) {
+                let bannerText = '⚠️ URGENT: ';
+                if (needsTransfer > 0 && needsPricing > 0) {
+                    bannerText += `<span class="banner-count">${needsTransfer}</span> need transfer, <span class="banner-count">${needsPricing}</span> need pricing`;
+                } else if (needsTransfer > 0) {
+                    bannerText += `<span class="banner-count">${needsTransfer}</span> waiting for transfer`;
+                } else if (needsPricing > 0) {
+                    bannerText += `<span class="banner-count">${needsPricing}</span> need pricing`;
+                }
+                
+                banner.innerHTML = bannerText;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
             }
         }
 
@@ -1498,11 +1520,18 @@
         function updateStats() {
             document.getElementById('totalSubmissions').textContent = submissions.length;
             
+            const mySubmissionsCard = document.getElementById('mySubmissions').parentElement;
+            
             if (currentUser.role === 'fronter') {
                 const mySubs = submissions.filter(s => s.submittedBy === currentUser.name);
                 document.getElementById('mySubmissions').textContent = mySubs.length;
+                mySubmissionsCard.style.display = 'block';
+            } else if (currentUser.role === 'admin') {
+                // Hide "My Submissions" for admin users since they don't submit jobs
+                mySubmissionsCard.style.display = 'none';
             } else {
                 document.getElementById('mySubmissions').textContent = '-';
+                mySubmissionsCard.style.display = 'block';
             }
             
             document.getElementById('pendingTransfers').textContent = '0';
