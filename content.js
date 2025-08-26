@@ -916,101 +916,144 @@ observer.observe(document.body, {
     subtree: true
 });
 
-// Function to create and show the persistent submit button overlay
+// Function to create and show the multi-button status overlay
 function createSubmitButtonOverlay() {
-    console.log('🔧 Creating submit button overlay...');
+    console.log('🔧 Creating multi-button status overlay...');
     
-    // Remove any existing submit button overlay
+    // Remove any existing overlays
     const existingSubmitOverlay = document.getElementById('submit-button-overlay');
-    if (existingSubmitOverlay) {
-        existingSubmitOverlay.remove();
-        console.log('🗑️ Removed existing submit button overlay');
-    }
+    const existingInvDoneOverlay = document.getElementById('inv-done-button-overlay');
+    if (existingSubmitOverlay) existingSubmitOverlay.remove();
+    if (existingInvDoneOverlay) existingInvDoneOverlay.remove();
     
-    // Create the submit button overlay
-    const submitOverlay = document.createElement('div');
-    submitOverlay.id = 'submit-button-overlay';
-    submitOverlay.style.cssText = `
+    // Create the main overlay container
+    const statusOverlay = document.createElement('div');
+    statusOverlay.id = 'submit-button-overlay';
+    statusOverlay.style.cssText = `
         position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 50px;
-        box-shadow: 0 8px 32px rgba(107, 70, 193, 0.4);
+        bottom: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         z-index: 10000;
         font-family: Arial, sans-serif;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 3px solid rgba(255,255,255,0.3);
+        padding: 12px;
         display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 700;
-        font-size: 16px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        flex-direction: column;
+        gap: 8px;
+        min-width: 160px;
     `;
     
-    // Add hover effects
-    submitOverlay.addEventListener('mouseenter', () => {
-        submitOverlay.style.transform = 'translateY(-5px) scale(1.05)';
-        submitOverlay.style.boxShadow = '0 12px 40px rgba(107, 70, 193, 0.6)';
+    // Status buttons configuration
+    const statusButtons = [
+        { id: 'submit', text: 'Submit Job', emoji: '📋', color: '#6b46c1', status: 'pending' },
+        { id: 'inv-done', text: 'Inv Done', emoji: '✅', color: '#28a745', status: 'inv_done' },
+        { id: 'transferred', text: 'Transferred', emoji: '🔄', color: '#17a2b8', status: 'transferred' },
+        { id: 'dropped', text: 'Dropped', emoji: '❌', color: '#dc3545', status: 'dropped' },
+        { id: 'cb-scheduled', text: 'CB Scheduled', emoji: '📞', color: '#fd7e14', status: 'cb_scheduled' }
+    ];
+    
+    // Create buttons
+    statusButtons.forEach(buttonConfig => {
+        const button = document.createElement('div');
+        button.style.cssText = `
+            background: ${buttonConfig.color};
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border: 2px solid transparent;
+        `;
+        
+        button.innerHTML = `
+            <span style="font-size: 14px;">${buttonConfig.emoji}</span>
+            <span>${buttonConfig.text}</span>
+        `;
+        
+        // Add hover effects
+        button.addEventListener('mouseenter', () => {
+            button.style.transform = 'scale(1.05)';
+            button.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+        });
+        
+        button.addEventListener('mouseleave', () => {
+            button.style.transform = 'scale(1)';
+            button.style.borderColor = 'transparent';
+        });
+        
+        // Add click functionality
+        button.addEventListener('click', async () => {
+            await handleStatusUpdate(buttonConfig, button);
+        });
+        
+        statusOverlay.appendChild(button);
     });
     
-    submitOverlay.addEventListener('mouseleave', () => {
-        submitOverlay.style.transform = 'translateY(0) scale(1)';
-        submitOverlay.style.boxShadow = '0 8px 32px rgba(107, 70, 193, 0.4)';
-    });
+    // Add to page
+    document.body.appendChild(statusOverlay);
     
-    // Create submit button content
-    submitOverlay.innerHTML = `
-        <span style="font-size: 20px;">📋</span>
-        <span>Submit Job</span>
-    `;
+    console.log('✅ Multi-button status overlay created successfully');
+}
+
+// Function to handle status updates
+async function handleStatusUpdate(buttonConfig, buttonElement) {
+    console.log(`🔘 ${buttonConfig.text} button clicked!`);
     
-    // Add click functionality
-    submitOverlay.addEventListener('click', async () => {
-        console.log('🔘 Submit button clicked!');
-        try {
-            // Check if user is logged in via popup
-            const popupUser = await new Promise((resolve) => {
-                chrome.storage.local.get(['popupUser'], (result) => {
-                    resolve(result.popupUser || null);
-                });
+    try {
+        // Check if user is logged in via popup
+        const popupUser = await new Promise((resolve) => {
+            chrome.storage.local.get(['popupUser'], (result) => {
+                resolve(result.popupUser || null);
             });
-            
-            if (!popupUser) {
-                throw new Error('Please login to the extension popup first');
-            }
-            
-            console.log('👤 User logged in:', popupUser.name);
-            
-            // Show loading state
-            submitOverlay.innerHTML = `
-                <span style="font-size: 20px;">⏳</span>
-                <span>Submitting...</span>
-            `;
-            submitOverlay.style.cursor = 'not-allowed';
-            
-            // Analyze the current page
-            const analyzer = new PageAnalyzer();
-            analyzer.analyzePage();
-            analyzer.analyzeMovingCompanyPage();
-            
-            // Get job details
-            const jobNumber = analyzer.data.jobDetails.jobNumber;
-            if (!jobNumber) {
-                throw new Error('No job number found on this page');
-            }
-            
-            console.log('🔍 Job number found:', jobNumber);
-            
-            // Get Chrome profile info
-            const profileInfo = await getChromeProfileInfo();
-            
-            // Create submission data with user info and status
-            const submissionData = {
+        });
+        
+        if (!popupUser) {
+            throw new Error('Please login to the extension popup first');
+        }
+        
+        console.log('👤 User logged in:', popupUser.name);
+        
+        // Show loading state
+        const originalContent = buttonElement.innerHTML;
+        buttonElement.innerHTML = `
+            <span style="font-size: 14px;">⏳</span>
+            <span>Processing...</span>
+        `;
+        buttonElement.style.cursor = 'not-allowed';
+        
+        // Analyze the current page
+        const analyzer = new PageAnalyzer();
+        analyzer.analyzePage();
+        analyzer.analyzeMovingCompanyPage();
+        
+        // Get job details
+        const jobNumber = analyzer.data.jobDetails.jobNumber;
+        if (!jobNumber) {
+            throw new Error('No job number found on this page');
+        }
+        
+        console.log('🔍 Job number found:', jobNumber);
+        
+        // Get Chrome profile info
+        const profileInfo = await getChromeProfileInfo();
+        
+        let submissionData;
+        let method = 'POST';
+        let endpoint = 'https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions';
+        
+        if (buttonConfig.id === 'submit') {
+            // For Submit Job - create new submission
+            submissionData = {
                 job_number: jobNumber,
                 page_url: window.location.href,
                 source: 'Page Price Analyzer Extension',
@@ -1024,242 +1067,85 @@ function createSubmitButtonOverlay() {
                 cubes: analyzer.data.jobDetails.cubes || analyzer.data.movingDetails.cubes || null,
                 pickup_date: analyzer.data.jobDetails.pickupDate || analyzer.data.movingDetails.pickupDate || null,
                 distance: analyzer.data.jobDetails.distance || analyzer.data.movingDetails.distance || null,
-                // Use the correct field names that exist in the database
                 user_name: popupUser.name,
-                status: 'pending'
+                status: buttonConfig.status,
+                updated_by: popupUser.name,
+                updated_by_role: popupUser.role,
+                updated_at: new Date().toISOString()
             };
-            
-            console.log('📤 Submitting data:', submissionData);
-            
-            // Submit to Supabase
-            const response = await fetch('https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
-                },
-                body: JSON.stringify(submissionData)
-            });
-            
-            if (response.ok) {
-                console.log('✅ Job submitted successfully!');
-                // Show success state
-                submitOverlay.innerHTML = `
-                    <span style="font-size: 20px;">✅</span>
-                    <span>Job Submitted!</span>
-                `;
-                submitOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                
-                // Show success message
-                showSuccessMessage(`Job ${jobNumber} submitted successfully by ${popupUser.name} (${popupUser.role})!`);
-                
-                // Reset after 3 seconds
-                setTimeout(() => {
-                    submitOverlay.innerHTML = `
-                        <span style="font-size: 20px;">📋</span>
-                        <span>Submit Job</span>
-                    `;
-                    submitOverlay.style.background = 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)';
-                    submitOverlay.style.cursor = 'pointer';
-                }, 3000);
-            } else {
-                throw new Error(`Submission failed: ${response.status}`);
-            }
-            
-        } catch (error) {
-            console.error('❌ Error submitting job:', error);
-            
-            // Show error state
-            submitOverlay.innerHTML = `
-                <span style="font-size: 20px;">❌</span>
-                <span>Error: ${error.message}</span>
-            `;
-            submitOverlay.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
-            
-            // Reset after 5 seconds
-            setTimeout(() => {
-                submitOverlay.innerHTML = `
-                    <span style="font-size: 20px;">📋</span>
-                    <span>Submit Job</span>
-                `;
-                submitOverlay.style.background = 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)';
-                submitOverlay.style.cursor = 'pointer';
-            }, 5000);
+        } else {
+            // For status updates - update existing submission
+            method = 'PATCH';
+            endpoint += `?job_number=eq.${jobNumber}`;
+            submissionData = {
+                status: buttonConfig.status,
+                updated_by: popupUser.name,
+                updated_by_role: popupUser.role,
+                updated_at: new Date().toISOString()
+            };
         }
-    });
-    
-    // Add to page
-    document.body.appendChild(submitOverlay);
-    
-    // Create the Inv Done button overlay
-    createInvDoneButtonOverlay();
-    
-    console.log('✅ Submit button overlay created successfully');
+        
+        console.log('📤 Submitting data:', submissionData);
+        
+        // Submit to Supabase
+        const response = await fetch(endpoint, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
+            },
+            body: JSON.stringify(submissionData)
+        });
+        
+        if (response.ok) {
+            console.log(`✅ ${buttonConfig.text} successful!`);
+            
+            // Show success state
+            buttonElement.innerHTML = `
+                <span style="font-size: 14px;">✅</span>
+                <span>Success!</span>
+            `;
+            buttonElement.style.background = '#28a745';
+            
+            // Show success message
+            const action = buttonConfig.id === 'submit' ? 'submitted' : `status updated to ${buttonConfig.status}`;
+            showSuccessMessage(`Job ${jobNumber} ${action} by ${popupUser.name} (${popupUser.role})!`);
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                buttonElement.innerHTML = originalContent;
+                buttonElement.style.background = buttonConfig.color;
+                buttonElement.style.cursor = 'pointer';
+            }, 3000);
+        } else {
+            const errorText = await response.text();
+            throw new Error(`${buttonConfig.text} failed: ${response.status} - ${errorText}`);
+        }
+        
+    } catch (error) {
+        console.error(`❌ Error with ${buttonConfig.text}:`, error);
+        
+        // Show error state
+        buttonElement.innerHTML = `
+            <span style="font-size: 14px;">❌</span>
+            <span>Error</span>
+        `;
+        buttonElement.style.background = '#dc3545';
+        
+        // Show error message
+        showErrorMessage(`${buttonConfig.text} failed: ${error.message}`);
+        
+        // Reset after 5 seconds
+        setTimeout(() => {
+            buttonElement.innerHTML = originalContent;
+            buttonElement.style.background = buttonConfig.color;
+            buttonElement.style.cursor = 'pointer';
+        }, 5000);
+    }
 }
 
-// Function to create and show the Inv Done button overlay
-function createInvDoneButtonOverlay() {
-    console.log('🔧 Creating Inv Done button overlay...');
-    
-    // Remove any existing Inv Done button overlay
-    const existingInvDoneOverlay = document.getElementById('inv-done-button-overlay');
-    if (existingInvDoneOverlay) {
-        existingInvDoneOverlay.remove();
-        console.log('🗑️ Removed existing Inv Done button overlay');
-    }
-    
-    // Create the Inv Done button overlay
-    const invDoneOverlay = document.createElement('div');
-    invDoneOverlay.id = 'inv-done-button-overlay';
-    invDoneOverlay.style.cssText = `
-        position: fixed;
-        bottom: 100px;
-        right: 30px;
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 50px;
-        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.4);
-        z-index: 10000;
-        font-family: Arial, sans-serif;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 3px solid rgba(255,255,255,0.3);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 700;
-        font-size: 16px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-    `;
-    
-    // Add hover effects
-    invDoneOverlay.addEventListener('mouseenter', () => {
-        invDoneOverlay.style.transform = 'translateY(-5px) scale(1.05)';
-        invDoneOverlay.style.boxShadow = '0 12px 40px rgba(40, 167, 69, 0.6)';
-    });
-    
-    invDoneOverlay.addEventListener('mouseleave', () => {
-        invDoneOverlay.style.transform = 'translateY(0) scale(1)';
-        invDoneOverlay.style.boxShadow = '0 8px 32px rgba(40, 167, 69, 0.4)';
-    });
-    
-    // Create Inv Done button content
-    invDoneOverlay.innerHTML = `
-        <span style="font-size: 20px;">✅</span>
-        <span>Inv Done</span>
-    `;
-    
-    // Add click functionality
-    invDoneOverlay.addEventListener('click', async () => {
-        console.log('🔘 Inv Done button clicked!');
-        try {
-            // Check if user is logged in via popup
-            const popupUser = await new Promise((resolve) => {
-                chrome.storage.local.get(['popupUser'], (result) => {
-                    resolve(result.popupUser || null);
-                });
-            });
-            
-            if (!popupUser) {
-                throw new Error('Please login to the extension popup first');
-            }
-            
-            console.log('👤 User logged in:', popupUser.name);
-            
-            // Show loading state
-            invDoneOverlay.innerHTML = `
-                <span style="font-size: 20px;">⏳</span>
-                <span>Updating...</span>
-            `;
-            invDoneOverlay.style.cursor = 'not-allowed';
-            
-            // Analyze the current page
-            const analyzer = new PageAnalyzer();
-            analyzer.analyzePage();
-            analyzer.analyzeMovingCompanyPage();
-            
-            // Get job details
-            const jobNumber = analyzer.data.jobDetails.jobNumber;
-            if (!jobNumber) {
-                throw new Error('No job number found on this page');
-            }
-            
-            console.log('🔍 Job number found:', jobNumber);
-            
-            // Update the submission status to 'inv_done'
-            const updateData = {
-                status: 'inv_done',
-                updated_at: new Date().toISOString(),
-                updated_by: popupUser.name
-            };
-            
-            console.log('📤 Updating status data:', updateData);
-            
-            // Update in Supabase using PATCH method
-            const response = await fetch(`https://xlnqqbbyivqlymmgchlw.supabase.co/rest/v1/job_submissions?job_number=eq.${jobNumber}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM'
-                },
-                body: JSON.stringify(updateData)
-            });
-            
-            if (response.ok) {
-                console.log('✅ Status updated successfully!');
-                // Show success state
-                invDoneOverlay.innerHTML = `
-                    <span style="font-size: 20px;">✅</span>
-                    <span>Status Updated!</span>
-                `;
-                invDoneOverlay.style.background = 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)';
-                
-                // Show success message
-                showSuccessMessage(`Job ${jobNumber} status updated to "Inv Done" by ${popupUser.name}!`);
-                
-                // Reset after 3 seconds
-                setTimeout(() => {
-                    invDoneOverlay.innerHTML = `
-                        <span style="font-size: 20px;">✅</span>
-                        <span>Inv Done</span>
-                    `;
-                    invDoneOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                    invDoneOverlay.style.cursor = 'pointer';
-                }, 3000);
-            } else {
-                throw new Error(`Status update failed: ${response.status}`);
-            }
-            
-        } catch (error) {
-            console.error('❌ Error updating job status:', error);
-            
-            // Show error state
-            invDoneOverlay.innerHTML = `
-                <span style="font-size: 20px;">❌</span>
-                <span>Error: ${error.message}</span>
-            `;
-            invDoneOverlay.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
-            
-            // Reset after 5 seconds
-            setTimeout(() => {
-                invDoneOverlay.innerHTML = `
-                    <span style="font-size: 20px;">✅</span>
-                    <span>Inv Done</span>
-                `;
-                invDoneOverlay.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                invDoneOverlay.style.cursor = 'pointer';
-            }, 5000);
-        }
-    });
-    
-    // Add to page
-    document.body.appendChild(invDoneOverlay);
-    
-    console.log('✅ Inv Done button overlay created successfully');
-}
+
 
 // Function to create and show the security monitoring overlay
 function createSecurityOverlay() {
@@ -1412,15 +1298,18 @@ function showSuccessMessage(message) {
     
     successMsg.textContent = message;
     
-    // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
+    // Add CSS animation if not already added
+    if (!document.querySelector('#message-animations')) {
+        const style = document.createElement('style');
+        style.id = 'message-animations';
+        style.textContent = `
+            @keyframes slideInDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
     document.body.appendChild(successMsg);
     
@@ -1428,6 +1317,52 @@ function showSuccessMessage(message) {
     setTimeout(() => {
         successMsg.style.animation = 'slideInDown 0.5s ease-out reverse';
         setTimeout(() => successMsg.remove(), 500);
+    }, 5000);
+}
+
+function showErrorMessage(message) {
+    const errorMsg = document.createElement('div');
+    errorMsg.style.cssText = `
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(220, 53, 69, 0.4);
+        z-index: 10001;
+        font-family: Arial, sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        text-align: center;
+        animation: slideInDown 0.5s ease-out;
+        border: 2px solid rgba(255,255,255,0.3);
+    `;
+    
+    errorMsg.textContent = message;
+    
+    // Add CSS animation if not already added
+    if (!document.querySelector('#message-animations')) {
+        const style = document.createElement('style');
+        style.id = 'message-animations';
+        style.textContent = `
+            @keyframes slideInDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(errorMsg);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (errorMsg.parentNode) {
+            errorMsg.remove();
+        }
     }, 5000);
 }
 

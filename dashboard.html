@@ -437,7 +437,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.4.1 - Build 43bbba7
+                        v1.5.0 - Multi-Status Workflow
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -881,7 +881,10 @@
                         pageUrl: sub.page_url || '',
                         submittedBy: sub.user_name || sub.chrome_profile_name || 'Unknown',
                         submittedAt: sub.submitted_at,
-                        status: sub.status || 'pending'
+                        status: sub.status || 'pending',
+                        transferredTo: sub.transferred_to || null,
+                        transferredAt: sub.transferred_at || null,
+                        transferredBy: sub.transferred_by || null
                     }));
                     
                     console.log('📊 Processed submissions:', submissions);
@@ -905,18 +908,50 @@
         function displaySubmissions() {
             console.log('📊 displaySubmissions called with submissions:', submissions);
             console.log('📊 submissions length:', submissions.length);
+            console.log('📊 Current user role:', currentUser.role);
             
             const submissionsTable = document.getElementById('submissionsTable');
             console.log('📊 submissionsTable element:', submissionsTable);
             
-            if (submissions.length === 0) {
-                console.log('📊 No submissions, showing "No submissions found"');
-                submissionsTable.innerHTML = '<div class="loading">No submissions found</div>';
+            // Filter submissions based on user role
+            let filteredSubmissions = submissions;
+            if (currentUser.role === 'closer') {
+                // Closers only see submissions assigned to them
+                filteredSubmissions = submissions.filter(sub => sub.transferredTo === currentUser.name);
+                console.log('📊 Filtered submissions for closer:', filteredSubmissions);
+            }
+            
+            if (filteredSubmissions.length === 0) {
+                const message = currentUser.role === 'closer' ? 'No submissions assigned to you' : 'No submissions found';
+                console.log('📊 No submissions, showing:', message);
+                submissionsTable.innerHTML = `<div class="loading">${message}</div>`;
                 return;
             }
 
-            let tableHTML = `
-                <table>
+            // Build table header based on user role
+            let headerHTML = '';
+            if (currentUser.role === 'closer') {
+                // Closers see read-only view
+                headerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Job #</th>
+                            <th>Customer</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Cubes</th>
+                            <th>Distance</th>
+                            <th>Pickup Date</th>
+                            <th>Submitted By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Assigned Date</th>
+                        </tr>
+                    </thead>
+                `;
+            } else {
+                // Admin and Fronters see full control
+                headerHTML = `
                     <thead>
                         <tr>
                             <th>Job #</th>
@@ -932,10 +967,12 @@
                             <th>Transfer To</th>
                         </tr>
                     </thead>
-                    <tbody>
-            `;
+                `;
+            }
 
-            submissions.forEach(submission => {
+            let tableHTML = `<table>${headerHTML}<tbody>`;
+
+            filteredSubmissions.forEach(submission => {
                 // Get status display info
                 const statusInfo = getStatusDisplayInfo(submission.status);
                 
@@ -943,37 +980,68 @@
                     `<a href="${submission.pageUrl}" target="_blank" style="color: #007bff; text-decoration: none;">${submission.jobNumber}</a>` : 
                     submission.jobNumber;
                 
-                tableHTML += `
-                    <tr>
-                        <td>${jobNumberLink}</td>
-                        <td>${submission.customerName || '-'}</td>
-                        <td>${submission.from || '-'}</td>
-                        <td>${submission.to || '-'}</td>
-                        <td>${submission.cubes || '-'}</td>
-                        <td>${submission.distance || '-'}</td>
-                        <td>${submission.pickupDate || '-'}</td>
-                        <td>${submission.submittedBy}</td>
-                        <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
-                        <td>
-                            <span class="transfer-status ${statusInfo.class}">
-                                ${statusInfo.display}
-                            </span>
-                        </td>
-                        <td>
-                            <select onchange="transferSubmission('${submission.id}', this.value)" style="padding: 5px; font-size: 12px;">
-                                <option value="">Select User</option>
-                                ${getCloserUsersOptions()}
-                            </select>
-                            <div id="selected-${submission.id}" class="selected-transferee" style="font-size: 11px; color: #666; margin-top: 3px;"></div>
-                        </td>
-                    </tr>
-                `;
+                // Show transferred info if available
+                const transferInfo = submission.transferredTo ? `→ ${submission.transferredTo}` : '';
+                
+                if (currentUser.role === 'closer') {
+                    // Read-only view for closers
+                    tableHTML += `
+                        <tr style="background-color: #f8f9fa;">
+                            <td>${jobNumberLink}</td>
+                            <td>${submission.customerName || '-'}</td>
+                            <td>${submission.from || '-'}</td>
+                            <td>${submission.to || '-'}</td>
+                            <td>${submission.cubes || '-'}</td>
+                            <td>${submission.distance || '-'}</td>
+                            <td>${submission.pickupDate || '-'}</td>
+                            <td>${submission.submittedBy}</td>
+                            <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
+                            <td>
+                                <span class="transfer-status ${statusInfo.class}">
+                                    ${statusInfo.display}
+                                </span>
+                            </td>
+                            <td>${submission.transferredAt ? new Date(submission.transferredAt).toLocaleDateString() : '-'}</td>
+                        </tr>
+                    `;
+                } else {
+                    // Full control view for admin and fronters
+                    tableHTML += `
+                        <tr>
+                            <td>${jobNumberLink}</td>
+                            <td>${submission.customerName || '-'}</td>
+                            <td>${submission.from || '-'}</td>
+                            <td>${submission.to || '-'}</td>
+                            <td>${submission.cubes || '-'}</td>
+                            <td>${submission.distance || '-'}</td>
+                            <td>${submission.pickupDate || '-'}</td>
+                            <td>${submission.submittedBy}</td>
+                            <td>${new Date(submission.submittedAt).toLocaleDateString()}</td>
+                            <td>
+                                <span class="transfer-status ${statusInfo.class}">
+                                    ${statusInfo.display}
+                                </span>
+                            </td>
+                            <td>
+                                <select onchange="transferSubmission('${submission.id}', this.value)" style="padding: 5px; font-size: 12px;">
+                                    <option value="">Select User</option>
+                                    ${getCloserUsersOptions()}
+                                </select>
+                                <div id="selected-${submission.id}" class="selected-transferee" style="font-size: 11px; color: #28a745; margin-top: 3px; font-weight: bold;">${transferInfo}</div>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
 
             tableHTML += '</tbody></table>';
             submissionsTable.innerHTML = tableHTML;
             
-            document.getElementById('submissionsCount').textContent = `Showing ${submissions.length} submissions`;
+            const totalCount = currentUser.role === 'closer' ? filteredSubmissions.length : submissions.length;
+            const displayText = currentUser.role === 'closer' ? 
+                `Showing ${filteredSubmissions.length} assignments` : 
+                `Showing ${submissions.length} submissions`;
+            document.getElementById('submissionsCount').textContent = displayText;
         }
         
         // Get status display information
@@ -982,6 +1050,8 @@
                 'pending': { display: 'Pending', class: 'pending' },
                 'inv_done': { display: 'Inv Done', class: 'completed' },
                 'transferred': { display: 'Transferred', class: 'initiated' },
+                'dropped': { display: 'Dropped', class: 'error' },
+                'cb_scheduled': { display: 'CB Scheduled', class: 'initiated' },
                 'completed': { display: 'Completed', class: 'completed' },
                 'cancelled': { display: 'Cancelled', class: 'error' }
             };
@@ -1295,10 +1365,12 @@
                         'Prefer': 'return=minimal'
                     },
                     body: JSON.stringify({
-                        status: 'transferred',
+                        // Don't change status - only track assignment
                         updated_by: currentUser.name,
                         updated_by_role: currentUser.role,
                         transferred_to: selectedUser.name,
+                        transferred_at: new Date().toISOString(),
+                        transferred_by: currentUser.name,
                         updated_at: new Date().toISOString()
                     })
                 });
