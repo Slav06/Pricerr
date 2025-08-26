@@ -422,6 +422,57 @@
             margin-top: 3px;
         }
 
+        /* Urgent attention animation for inv_done submissions */
+        @keyframes urgent-flash {
+            0% { 
+                background: linear-gradient(45deg, #fff3cd, #ffeeba);
+                box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+            }
+            25% { 
+                background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+                box-shadow: 0 0 15px rgba(220, 53, 69, 0.7);
+            }
+            50% { 
+                background: linear-gradient(45deg, #fff3cd, #ffeeba);
+                box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
+            }
+            75% { 
+                background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+                box-shadow: 0 0 15px rgba(220, 53, 69, 0.7);
+            }
+            100% { 
+                background: linear-gradient(45deg, #fff3cd, #ffeeba);
+                box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+            }
+        }
+
+        .urgent-attention {
+            position: relative;
+            border: 2px solid #dc3545 !important;
+            animation: urgent-flash 2s infinite;
+        }
+
+        .urgent-attention::before {
+            content: "⚠️ NEEDS ATTENTION";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -437,7 +488,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.5.1 - Enhanced Transfer UI + Admin Pricing
+                        v1.5.2 - Urgent Attention Alerts
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -985,10 +1036,18 @@
                 // Show transferred info if available
                 const transferInfo = submission.transferredTo ? `→ ${submission.transferredTo}` : '';
                 
+                // Check if this submission needs urgent attention
+                const needsUrgentAttention = submission.status === 'inv_done' && 
+                    (!submission.transferredTo || !submission.pricedByAdmin);
+                
+                const urgentRowClass = needsUrgentAttention ? 'urgent-attention' : '';
+                const urgentRowStyle = needsUrgentAttention ? 
+                    'animation: urgent-flash 2s infinite; background: linear-gradient(45deg, #fff3cd, #ffeeba);' : '';
+                
                 if (currentUser.role === 'closer') {
                     // Read-only view for closers
                     tableHTML += `
-                        <tr style="background-color: #f8f9fa;">
+                        <tr class="${urgentRowClass}" style="background-color: #f8f9fa; ${urgentRowStyle}">
                             <td>${jobNumberLink}</td>
                             <td>${submission.customerName || '-'}</td>
                             <td>${submission.from || '-'}</td>
@@ -1014,7 +1073,7 @@
                 } else {
                     // Full control view for admin and fronters
                     tableHTML += `
-                        <tr>
+                        <tr class="${urgentRowClass}" style="${urgentRowStyle}">
                             <td>${jobNumberLink}</td>
                             <td>${submission.customerName || '-'}</td>
                             <td>${submission.from || '-'}</td>
