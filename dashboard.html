@@ -1055,7 +1055,7 @@
                 const secretKey = customKey || generateSecretKey();
                 
                 const newUser = {
-                    id: Date.now().toString(),
+                    id: Math.floor(Math.random() * 1000000), // Generate smaller random ID
                     name: name,
                     role: role,
                     secretKey: secretKey,
@@ -1128,7 +1128,7 @@
                 
                 const latestUser = users[users.length - 1];
                 const userData = {
-                    id: parseInt(latestUser.id),
+                    id: latestUser.id,
                     name: latestUser.name,
                     role: latestUser.role,
                     secretkey: latestUser.secretKey,
