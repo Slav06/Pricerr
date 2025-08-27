@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Admin Only</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1e40af;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .admin-notice {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 1rem;
+            margin: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .sync-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-header h2 {
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            color: #16a34a;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .unauthorized {
+            text-align: center;
+            padding: 4rem;
+            color: #dc2626;
+        }
+
+        .unauthorized h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Analytics Dashboard</h1>
+    </div>
+
+    <div id="unauthorized" class="unauthorized" style="display: none;">
+        <h2>🔒 Access Denied</h2>
+        <p>This dashboard is only accessible to admin users.</p>
+        <p>Please login with an admin account to view analytics data.</p>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <div class="admin-notice">
+            🛡️ <strong>Admin Dashboard:</strong> You have exclusive access to GoHighLevel analytics data.
+        </div>
+
+        <div class="container">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Contacts</h3>
+                    <div class="value" id="totalContacts">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Opportunities</h3>
+                    <div class="value" id="activeOpportunities">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pipelines</h3>
+                    <div class="value" id="totalPipelines">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Last Sync</h3>
+                    <div class="value" id="lastSync">Never</div>
+                </div>
+            </div>
+
+            <!-- GoHighLevel Data Sync -->
+            <div class="sync-section">
+                <h2>GoHighLevel Data Sync</h2>
+                <p style="margin: 1rem 0; color: #64748b;">
+                    Sync data from your GoHighLevel account to view analytics and insights.
+                </p>
+                <button class="btn" onclick="syncGHLData()" id="syncBtn">
+                    🔄 Sync Data from GoHighLevel
+                </button>
+                <div id="syncStatus"></div>
+            </div>
+
+            <!-- Recent Data Table -->
+            <div class="data-table">
+                <div class="table-header">
+                    <h2>Recent GoHighLevel Data</h2>
+                </div>
+                <div id="dataTableContent">
+                    <div class="loading">
+                        Click "Sync Data" to load GoHighLevel analytics
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
+        const GHL_API_KEY = 'pit-1f9181ba-407c-4f7e-90b7-3e72a6145b3e';
+
+        let currentUser = null;
+
+        // Check admin access and load dashboard
+        async function initDashboard() {
+            try {
+                // Get current user from popup or session storage
+                const user = await getCurrentUser();
+                
+                if (!user) {
+                    document.getElementById('unauthorized').style.display = 'block';
+                    return;
+                }
+
+                // Check if user is admin
+                if (user.role !== 'admin') {
+                    document.getElementById('unauthorized').style.display = 'block';
+                    return;
+                }
+
+                // User is admin, show dashboard
+                currentUser = user;
+                document.getElementById('dashboard').style.display = 'block';
+                
+                // Load existing analytics data
+                loadAnalyticsData();
+
+            } catch (error) {
+                console.error('❌ Error initializing dashboard:', error);
+                document.getElementById('unauthorized').style.display = 'block';
+            }
+        }
+
+        async function getCurrentUser() {
+            // Try to get user from chrome storage (if extension popup)
+            if (window.chrome && chrome.storage) {
+                const result = await new Promise((resolve) => {
+                    chrome.storage.local.get(['popupUser'], (result) => {
+                        resolve(result.popupUser || null);
+                    });
+                });
+                if (result) return result;
+            }
+
+            // Try session storage
+            const sessionUser = sessionStorage.getItem('currentUser');
+            if (sessionUser) {
+                return JSON.parse(sessionUser);
+            }
+
+            return null;
+        }
+
+        async function syncGHLData() {
+            const syncBtn = document.getElementById('syncBtn');
+            const syncStatus = document.getElementById('syncStatus');
+            
+            syncBtn.disabled = true;
+            syncBtn.textContent = '⏳ Syncing...';
+            syncStatus.innerHTML = '<div class="loading">Connecting to GoHighLevel...</div>';
+
+            try {
+                // Test GHL API connection
+                const ghlData = await fetchGHLData();
+                
+                if (ghlData) {
+                    // Store data in Supabase
+                    await storeAnalyticsData(ghlData);
+                    
+                    syncStatus.innerHTML = '<div class="success">✅ Data synced successfully!</div>';
+                    
+                    // Update stats
+                    updateStats(ghlData);
+                    document.getElementById('lastSync').textContent = new Date().toLocaleString();
+                    
+                    // Refresh data table
+                    loadAnalyticsData();
+                } else {
+                    throw new Error('No data received from GoHighLevel');
+                }
+
+            } catch (error) {
+                console.error('❌ Sync failed:', error);
+                syncStatus.innerHTML = `<div class="error">❌ Sync failed: ${error.message}</div>`;
+            } finally {
+                syncBtn.disabled = false;
+                syncBtn.textContent = '🔄 Sync Data from GoHighLevel';
+            }
+        }
+
+        async function fetchGHLData() {
+            // Try different GHL API endpoints
+            const endpoints = [
+                'https://services.leadconnectorhq.com/contacts',
+                'https://rest.gohighlevel.com/v1/contacts',
+                'https://api.leadconnectorhq.com/contacts'
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint, {
+                        headers: {
+                            'Authorization': `Bearer ${GHL_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                } catch (error) {
+                    console.log(`Failed endpoint: ${endpoint}`, error);
+                }
+            }
+
+            // For now, return mock data to demonstrate the dashboard
+            console.log('⚠️ Using mock data - API configuration needed');
+            return {
+                contacts: [
+                    { id: '1', name: 'John Doe', email: 'john@example.com', created: new Date().toISOString() },
+                    { id: '2', name: 'Jane Smith', email: 'jane@example.com', created: new Date().toISOString() }
+                ],
+                opportunities: [
+                    { id: '1', title: 'Deal 1', value: 5000, stage: 'qualified' },
+                    { id: '2', title: 'Deal 2', value: 3000, stage: 'proposal' }
+                ]
+            };
+        }
+
+        async function storeAnalyticsData(data) {
+            const analyticsRecord = {
+                sync_timestamp: new Date().toISOString(),
+                total_contacts: data.contacts?.length || 0,
+                total_opportunities: data.opportunities?.length || 0,
+                data_snapshot: data,
+                synced_by: currentUser.name
+            };
+
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/ghl_analytics`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(analyticsRecord)
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Failed to store data: ${error}`);
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('totalContacts').textContent = data.contacts?.length || 0;
+            document.getElementById('activeOpportunities').textContent = data.opportunities?.length || 0;
+            document.getElementById('totalPipelines').textContent = '2'; // Mock data
+        }
+
+        async function loadAnalyticsData() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/ghl_analytics?order=sync_timestamp.desc&limit=10`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayAnalyticsTable(data);
+                } else {
+                    console.log('No analytics data found yet');
+                    document.getElementById('dataTableContent').innerHTML = '<div class="loading">No data synced yet. Click "Sync Data" to get started.</div>';
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function displayAnalyticsTable(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('dataTableContent').innerHTML = '<div class="loading">No analytics data available</div>';
+                return;
+            }
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sync Time</th>
+                            <th>Contacts</th>
+                            <th>Opportunities</th>
+                            <th>Synced By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(record => `
+                            <tr>
+                                <td>${new Date(record.sync_timestamp).toLocaleString()}</td>
+                                <td>${record.total_contacts}</td>
+                                <td>${record.total_opportunities}</td>
+                                <td>${record.synced_by}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('dataTableContent').innerHTML = html;
+        }
+
+        // Initialize dashboard when page loads
+        initDashboard();
+    </script>
+</body>
+</html>

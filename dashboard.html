@@ -714,6 +714,7 @@
             <div class="tabs">
                 <div class="tab active" onclick="showTab('submissions')">📋 Job Submissions</div>
                 <div class="tab" onclick="showTab('users')">👥 Users</div>
+                <div class="tab" onclick="showTab('analytics')" id="analyticsTab" style="display: none;">📊 Analytics</div>
                 <div class="tab" onclick="showTab('profile')">👤 Profile</div>
             </div>
 
@@ -789,6 +790,27 @@
             </div>
 
 
+
+            <!-- Analytics Tab (Admin Only) -->
+            <div id="analyticsTab" class="tab-content">
+                <div class="admin-analytics-container">
+                    <h2>📊 GoHighLevel Analytics</h2>
+                    <p style="margin-bottom: 20px; color: #64748b;">Access detailed analytics from your GoHighLevel integration.</p>
+                    
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 40px; max-width: 600px; margin: 0 auto;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📈</div>
+                            <h3 style="margin-bottom: 15px; color: #1e293b;">Analytics Dashboard</h3>
+                            <p style="color: #64748b; margin-bottom: 25px; line-height: 1.6;">
+                                View comprehensive analytics and insights from your GoHighLevel data including contacts, opportunities, campaigns, and more.
+                            </p>
+                            <button onclick="openAnalyticsDashboard()" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 16px;">
+                                🚀 Open Analytics Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Profile Tab -->
             <div id="profileTab" class="tab-content">
@@ -1026,6 +1048,11 @@
             showNotification('Logged out successfully', 'success');
         }
 
+        // Open analytics dashboard in new tab
+        function openAnalyticsDashboard() {
+            window.open('analytics.html', '_blank');
+        }
+
         // Show dashboard after login
         function showDashboard() {
             document.getElementById('loginSection').style.display = 'none';
@@ -1036,6 +1063,16 @@
             document.getElementById('currentUserRole').textContent = currentUser.role;
             document.getElementById('currentUserRole').className = `role-badge role-${currentUser.role}`;
             document.getElementById('currentUserRole').style.display = 'inline-block';
+            
+            // Show analytics tab only for admin users
+            const analyticsTab = document.querySelector('[onclick="showTab(\'analytics\')"]');
+            if (currentUser.role === 'admin') {
+                analyticsTab.style.display = 'block';
+                console.log('✅ Analytics tab enabled for admin user');
+            } else {
+                analyticsTab.style.display = 'none';
+                console.log('ℹ️ Analytics tab hidden for non-admin user');
+            }
             
             // Load data based on user role
             loadSubmissions();
