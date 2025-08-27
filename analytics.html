@@ -335,14 +335,68 @@
 
         async function fetchGHLData() {
             console.log('🔍 Fetching data from GoHighLevel v2 API...');
+            console.log('🔑 Using API Key:', GHL_API_KEY);
+            
+            // Try both authentication formats
+            const authFormats = [
+                { name: 'Direct Token', auth: GHL_API_KEY },
+                { name: 'Bearer Token', auth: `Bearer ${GHL_API_KEY}` }
+            ];
+            
+            let successfulAuth = null;
+            let lastError = null;
+            
+            // Test authentication formats
+            for (const authFormat of authFormats) {
+                try {
+                    console.log(`🔐 Testing ${authFormat.name} format...`);
+                    
+                    const testResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': authFormat.auth,
+                            'Version': '2021-07-28'
+                        }
+                    });
+
+                    console.log(`📡 ${authFormat.name} Response:`, testResponse.status, testResponse.statusText);
+                    
+                    if (testResponse.ok) {
+                        successfulAuth = authFormat;
+                        console.log(`✅ ${authFormat.name} works!`);
+                        break;
+                    } else {
+                        const errorText = await testResponse.text();
+                        console.log(`❌ ${authFormat.name} Error:`, errorText);
+                        lastError = { format: authFormat.name, status: testResponse.status, error: errorText };
+                        
+                        // If we get 403 (permission error), this auth format works but lacks permissions
+                        if (testResponse.status === 403) {
+                            successfulAuth = authFormat;
+                            console.log(`⚠️ ${authFormat.name} works but lacks permissions`);
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    console.log(`❌ ${authFormat.name} Network Error:`, error);
+                    lastError = { format: authFormat.name, error: error.message };
+                }
+            }
+            
+            if (!successfulAuth) {
+                throw new Error(`Authentication failed with all formats. Last error: ${JSON.stringify(lastError)}`);
+            }
+            
+            console.log(`🎯 Using ${successfulAuth.name} for API calls`);
             
             try {
-                // GoHighLevel v2 API - get contacts first
+                // Now fetch data using the successful auth format
                 const contactsResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
-                        'Authorization': GHL_API_KEY, // v2 API uses direct token (not Bearer)
+                        'Authorization': successfulAuth.auth,
                         'Version': '2021-07-28'
                     }
                 });
@@ -366,7 +420,7 @@
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': GHL_API_KEY,
+                            'Authorization': successfulAuth.auth,
                             'Version': '2021-07-28'
                         }
                     });
@@ -389,7 +443,7 @@
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': GHL_API_KEY,
+                            'Authorization': successfulAuth.auth,
                             'Version': '2021-07-28'
                         }
                     });
