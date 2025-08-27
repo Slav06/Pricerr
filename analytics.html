@@ -243,6 +243,9 @@
         const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
         const GHL_API_KEY = 'pit-1f9181ba-407c-4f7e-90b7-3e72a6145b3e';
+        
+        // GoHighLevel might require location ID - leave empty to auto-detect
+        let GHL_LOCATION_ID = ''; // Will be auto-detected if needed
 
         let currentUser = null;
 
@@ -390,9 +393,20 @@
             
             console.log(`🎯 Using ${successfulAuth.name} for API calls`);
             
+            // First, try to detect location ID if we don't have one
+            if (!GHL_LOCATION_ID) {
+                GHL_LOCATION_ID = await detectLocationId(successfulAuth.auth);
+            }
+            
             try {
                 // Now fetch data using the successful auth format
-                const contactsResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
+                const contactsUrl = GHL_LOCATION_ID 
+                    ? `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}`
+                    : 'https://services.leadconnectorhq.com/contacts/';
+                    
+                console.log('🔗 Contacts URL:', contactsUrl);
+                
+                const contactsResponse = await fetch(contactsUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -477,6 +491,75 @@
                 console.error('❌ GHL API Error:', error);
                 throw new Error(`GoHighLevel API Error: ${error.message}`);
             }
+        }
+
+        // Function to detect location ID from token context
+        async function detectLocationId(authToken) {
+            console.log('🔍 Attempting to detect location ID...');
+            
+            // Try different approaches to get location info
+            const locationEndpoints = [
+                'https://services.leadconnectorhq.com/locations/',
+                'https://services.leadconnectorhq.com/users/search',
+                'https://services.leadconnectorhq.com/users/',
+                'https://services.leadconnectorhq.com/oauth/me'
+            ];
+            
+            for (const endpoint of locationEndpoints) {
+                try {
+                    console.log(`🔍 Trying endpoint: ${endpoint}`);
+                    
+                    const response = await fetch(endpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': authToken,
+                            'Version': '2021-07-28'
+                        }
+                    });
+                    
+                    console.log(`📡 Location detection - ${endpoint}: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Location detection success:', data);
+                        
+                        // Extract location ID from various response formats
+                        const locationId = extractLocationId(data);
+                        if (locationId) {
+                            console.log(`🎯 Detected location ID: ${locationId}`);
+                            return locationId;
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.log(`❌ Location detection error: ${errorText}`);
+                    }
+                } catch (error) {
+                    console.log(`❌ Location detection failed for ${endpoint}:`, error.message);
+                }
+            }
+            
+            console.log('⚠️ Could not detect location ID - will try without it');
+            return null;
+        }
+
+        // Extract location ID from API response
+        function extractLocationId(data) {
+            // Common patterns for location ID in GoHighLevel responses
+            if (data.locationId) return data.locationId;
+            if (data.location && data.location.id) return data.location.id;
+            if (data.user && data.user.locationId) return data.user.locationId;
+            if (data.locations && data.locations.length > 0) return data.locations[0].id;
+            if (Array.isArray(data) && data.length > 0 && data[0].locationId) return data[0].locationId;
+            
+            // Check for nested location info
+            for (const key in data) {
+                if (typeof data[key] === 'object' && data[key] && data[key].locationId) {
+                    return data[key].locationId;
+                }
+            }
+            
+            return null;
         }
 
         async function storeAnalyticsData(data) {
