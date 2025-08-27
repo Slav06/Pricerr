@@ -334,42 +334,95 @@
         }
 
         async function fetchGHLData() {
-            // Try different GHL API endpoints
-            const endpoints = [
-                'https://services.leadconnectorhq.com/contacts',
-                'https://rest.gohighlevel.com/v1/contacts',
-                'https://api.leadconnectorhq.com/contacts'
-            ];
+            console.log('🔍 Fetching data from GoHighLevel v2 API...');
+            
+            try {
+                // GoHighLevel v2 API - get contacts first
+                const contactsResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': GHL_API_KEY, // v2 API uses direct token (not Bearer)
+                        'Version': '2021-07-28'
+                    }
+                });
 
-            for (const endpoint of endpoints) {
+                console.log('📡 Contacts API Response:', contactsResponse.status, contactsResponse.statusText);
+
+                let contactsData = [];
+                if (contactsResponse.ok) {
+                    const contactsResult = await contactsResponse.json();
+                    contactsData = contactsResult.contacts || contactsResult || [];
+                    console.log('✅ Contacts data:', contactsData);
+                } else {
+                    const errorText = await contactsResponse.text();
+                    console.log('❌ Contacts API Error:', errorText);
+                }
+
+                // Try to get opportunities
+                let opportunitiesData = [];
                 try {
-                    const response = await fetch(endpoint, {
+                    const opportunitiesResponse = await fetch('https://services.leadconnectorhq.com/opportunities/', {
+                        method: 'GET',
                         headers: {
-                            'Authorization': `Bearer ${GHL_API_KEY}`,
-                            'Content-Type': 'application/json'
+                            'Accept': 'application/json',
+                            'Authorization': GHL_API_KEY,
+                            'Version': '2021-07-28'
                         }
                     });
 
-                    if (response.ok) {
-                        return await response.json();
+                    console.log('📡 Opportunities API Response:', opportunitiesResponse.status);
+
+                    if (opportunitiesResponse.ok) {
+                        const opportunitiesResult = await opportunitiesResponse.json();
+                        opportunitiesData = opportunitiesResult.opportunities || opportunitiesResult || [];
+                        console.log('✅ Opportunities data:', opportunitiesData);
                     }
                 } catch (error) {
-                    console.log(`Failed endpoint: ${endpoint}`, error);
+                    console.log('⚠️ Opportunities endpoint not available:', error.message);
                 }
-            }
 
-            // For now, return mock data to demonstrate the dashboard
-            console.log('⚠️ Using mock data - API configuration needed');
-            return {
-                contacts: [
-                    { id: '1', name: 'John Doe', email: 'john@example.com', created: new Date().toISOString() },
-                    { id: '2', name: 'Jane Smith', email: 'jane@example.com', created: new Date().toISOString() }
-                ],
-                opportunities: [
-                    { id: '1', title: 'Deal 1', value: 5000, stage: 'qualified' },
-                    { id: '2', title: 'Deal 2', value: 3000, stage: 'proposal' }
-                ]
-            };
+                // Try to get pipelines
+                let pipelinesData = [];
+                try {
+                    const pipelinesResponse = await fetch('https://services.leadconnectorhq.com/opportunities/pipelines', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': GHL_API_KEY,
+                            'Version': '2021-07-28'
+                        }
+                    });
+
+                    console.log('📡 Pipelines API Response:', pipelinesResponse.status);
+
+                    if (pipelinesResponse.ok) {
+                        const pipelinesResult = await pipelinesResponse.json();
+                        pipelinesData = pipelinesResult.pipelines || pipelinesResult || [];
+                        console.log('✅ Pipelines data:', pipelinesData);
+                    }
+                } catch (error) {
+                    console.log('⚠️ Pipelines endpoint not available:', error.message);
+                }
+
+                // Return combined data
+                const combinedData = {
+                    contacts: contactsData,
+                    opportunities: opportunitiesData,
+                    pipelines: pipelinesData,
+                    fetchedAt: new Date().toISOString(),
+                    totalContacts: Array.isArray(contactsData) ? contactsData.length : 0,
+                    totalOpportunities: Array.isArray(opportunitiesData) ? opportunitiesData.length : 0,
+                    totalPipelines: Array.isArray(pipelinesData) ? pipelinesData.length : 0
+                };
+
+                console.log('📊 Combined GHL data:', combinedData);
+                return combinedData;
+
+            } catch (error) {
+                console.error('❌ GHL API Error:', error);
+                throw new Error(`GoHighLevel API Error: ${error.message}`);
+            }
         }
 
         async function storeAnalyticsData(data) {
@@ -398,9 +451,9 @@
         }
 
         function updateStats(data) {
-            document.getElementById('totalContacts').textContent = data.contacts?.length || 0;
-            document.getElementById('activeOpportunities').textContent = data.opportunities?.length || 0;
-            document.getElementById('totalPipelines').textContent = '2'; // Mock data
+            document.getElementById('totalContacts').textContent = data.totalContacts || data.contacts?.length || 0;
+            document.getElementById('activeOpportunities').textContent = data.totalOpportunities || data.opportunities?.length || 0;
+            document.getElementById('totalPipelines').textContent = data.totalPipelines || data.pipelines?.length || 0;
         }
 
         async function loadAnalyticsData() {
