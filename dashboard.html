@@ -685,9 +685,9 @@
             <div class="header-text">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
-                    <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.6.3 - GoHighLevel Analytics Integration
-                    </div>
+                                    <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                v1.6.4 - Fixed Analytics Tab Visibility
+            </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
                     <span id="currentUserName">Not logged in</span>
@@ -1131,7 +1131,7 @@
             document.getElementById('currentUserRole').style.display = 'inline-block';
             
             // Show analytics tab only for admin users
-            const analyticsTab = document.querySelector('[onclick="showTab(\'analytics\')"]');
+            const analyticsTab = document.getElementById('analyticsTab');
             if (currentUser.role === 'admin') {
                 analyticsTab.style.display = 'block';
                 console.log('✅ Analytics tab enabled for admin user');
