@@ -714,7 +714,7 @@
             <div class="tabs">
                 <div class="tab active" onclick="showTab('submissions', event)">📋 Job Submissions</div>
                 <div class="tab" onclick="showTab('users', event)">👥 Users</div>
-                <div class="tab" onclick="showTab('analytics', event)" id="analyticsTab" style="display: none;">📊 Analytics</div>
+                <div class="tab" onclick="showTab('analytics', event)" id="analyticsTabButton" style="display: none;">📊 Analytics</div>
                 <div class="tab" onclick="showTab('profile', event)">👤 Profile</div>
             </div>
 
@@ -792,7 +792,7 @@
 
 
             <!-- Analytics Tab (Admin Only) -->
-            <div id="analyticsTab" class="tab-content" style="border: 2px solid red; background: white;">
+            <div id="analyticsTab" class="tab-content">
                 <div class="admin-analytics-container">
                     <h2>📊 GoHighLevel Analytics Dashboard</h2>
                     <p style="margin-bottom: 20px; color: #64748b;">Real-time analytics and insights from your GoHighLevel integration.</p>
@@ -1131,7 +1131,7 @@
             document.getElementById('currentUserRole').style.display = 'inline-block';
             
             // Show analytics tab only for admin users
-            const analyticsTab = document.getElementById('analyticsTab');
+            const analyticsTab = document.getElementById('analyticsTabButton');
             if (currentUser.role === 'admin') {
                 analyticsTab.style.display = 'block';
                 console.log('✅ Analytics tab enabled for admin user');
