@@ -256,45 +256,6 @@
             font-size: 2rem;
             margin-bottom: 1rem;
         }
-
-        .login-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: 4rem auto;
-        }
-
-        .login-section h3 {
-            color: #1e40af;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-
-        .login-btn {
-            width: 100%;
-            background: #1e40af;
-            color: white;
-            border: none;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .login-btn:hover {
-            background: #1e3a8a;
-        }
     </style>
 </head>
 <body>
@@ -307,16 +268,10 @@
         </div>
     </div>
 
-    <div id="loginSection" class="login-section" style="display: none;">
-        <h3>🔐 Admin Login Required</h3>
-        <input type="password" id="secretKeyInput" class="login-input" placeholder="Enter your secret key">
-        <button class="login-btn" onclick="handleLogin()">Login</button>
-    </div>
-
     <div id="unauthorized" class="unauthorized" style="display: none;">
         <h2>🔒 Access Denied</h2>
         <p>This dashboard is only accessible to admin users.</p>
-        <p>Please login with an admin account to view analytics data.</p>
+        <p>Please login with an admin account in the popup to view analytics data.</p>
     </div>
 
     <div id="dashboard" style="display: none;">
@@ -442,92 +397,52 @@
         // Check admin access and load dashboard
         async function initDashboard() {
             try {
+                // Get current user from popup or session storage
                 const user = await getCurrentUser();
                 
                 if (!user) {
-                    document.getElementById('loginSection').style.display = 'block';
+                    document.getElementById('unauthorized').style.display = 'block';
                     return;
                 }
 
+                // Check if user is admin
                 if (user.role !== 'admin') {
                     document.getElementById('unauthorized').style.display = 'block';
                     return;
                 }
 
+                // User is admin, show dashboard
                 currentUser = user;
                 document.getElementById('dashboard').style.display = 'block';
+                
+                // Load existing analytics data
                 loadAnalyticsData();
                 loadContactStatistics();
+
             } catch (error) {
                 console.error('❌ Error initializing dashboard:', error);
-                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('unauthorized').style.display = 'block';
             }
         }
 
         async function getCurrentUser() {
-            // Try session storage first
-            const sessionUser = sessionStorage.getItem('analyticsUser');
-            if (sessionUser) {
-                return JSON.parse(sessionUser);
-            }
-
-            // Try chrome storage if available
+            // Try to get user from chrome storage (if extension popup)
             if (window.chrome && chrome.storage) {
                 const result = await new Promise((resolve) => {
                     chrome.storage.local.get(['popupUser'], (result) => {
                         resolve(result.popupUser || null);
                     });
                 });
-                if (result) {
-                    sessionStorage.setItem('analyticsUser', JSON.stringify(result));
-                    return result;
-                }
+                if (result) return result;
+            }
+
+            // Try session storage
+            const sessionUser = sessionStorage.getItem('currentUser');
+            if (sessionUser) {
+                return JSON.parse(sessionUser);
             }
 
             return null;
-        }
-
-        async function handleLogin() {
-            const secretKey = document.getElementById('secretKeyInput').value.trim();
-            if (!secretKey) {
-                alert('Please enter your secret key');
-                return;
-            }
-
-            try {
-                // Validate against Supabase users table
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/dashboard_users?select=*`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-
-                if (response.ok) {
-                    const users = await response.json();
-                    const user = users.find(u => 
-                        u.secretKey === secretKey || 
-                        u.secret_key === secretKey || 
-                        u.secretkey === secretKey
-                    );
-
-                    if (user && user.isActive !== false && user.is_active !== false && user.isactive !== false) {
-                        currentUser = user;
-                        sessionStorage.setItem('analyticsUser', JSON.stringify(user));
-                        document.getElementById('loginSection').style.display = 'none';
-                        document.getElementById('dashboard').style.display = 'block';
-                        loadAnalyticsData();
-                        loadContactStatistics();
-                    } else {
-                        alert('Invalid secret key or inactive user');
-                    }
-                } else {
-                    alert('Login failed. Please try again.');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                alert('Network error. Please check your connection.');
-            }
         }
 
         function refreshPage() {
