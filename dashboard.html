@@ -686,7 +686,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                        v1.6.2 - Enhanced Mobile UX
+                        v1.6.3 - GoHighLevel Analytics Integration
                     </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -712,10 +712,10 @@
         <!-- Main Dashboard Tabs -->
         <div id="dashboardTabs" style="display: none;">
             <div class="tabs">
-                <div class="tab active" onclick="showTab('submissions')">📋 Job Submissions</div>
-                <div class="tab" onclick="showTab('users')">👥 Users</div>
-                <div class="tab" onclick="showTab('analytics')" id="analyticsTab" style="display: none;">📊 Analytics</div>
-                <div class="tab" onclick="showTab('profile')">👤 Profile</div>
+                <div class="tab active" onclick="showTab('submissions', event)">📋 Job Submissions</div>
+                <div class="tab" onclick="showTab('users', event)">👥 Users</div>
+                <div class="tab" onclick="showTab('analytics', event)" id="analyticsTab" style="display: none;">📊 Analytics</div>
+                <div class="tab" onclick="showTab('profile', event)">👤 Profile</div>
             </div>
 
 
@@ -1154,7 +1154,7 @@
         }
 
         // Tab switching
-        function showTab(tabName) {
+        function showTab(tabName, event) {
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -1169,7 +1169,9 @@
             document.getElementById(tabName + 'Tab').classList.add('active');
             
             // Add active class to selected tab
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
             
             // Load analytics data if analytics tab is selected
             if (tabName === 'analytics') {
