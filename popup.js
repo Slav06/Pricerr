@@ -378,3 +378,112 @@ function formatCurrency(amount) {
     if (!amount || isNaN(amount)) return '$0.00';
     return '$' + parseFloat(amount).toFixed(2);
 }
+
+// ---- GoHighLevel contact query helper (console-usable in popup context) ----
+// Usage in popup DevTools console:
+//   await queryGhlContactByFirstName('first name', { exact: true })
+(() => {
+	const GHL_API_KEY = 'pit-1f9181ba-407c-4f7e-90b7-3e72a6145b3e';
+	let GHL_LOCATION_ID = 'smihYndzGBgpiI04p14R';
+
+	async function getWorkingGhlAuth() {
+		const formats = [GHL_API_KEY, `Bearer ${GHL_API_KEY}`];
+		for (const fmt of formats) {
+			try {
+				const res = await fetch('https://services.leadconnectorhq.com/contacts/', {
+					method: 'GET',
+					headers: { 'Accept': 'application/json', 'Authorization': fmt, 'Version': '2021-07-28' }
+				});
+				if (res.ok || res.status === 403) return fmt;
+			} catch (_) {}
+		}
+		throw new Error('No working GHL auth format');
+	}
+
+	async function fetchAllContacts(authHeader) {
+		const base = 'https://services.leadconnectorhq.com/contacts/';
+		const url = GHL_LOCATION_ID ? `${base}?locationId=${encodeURIComponent(GHL_LOCATION_ID)}` : base;
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: { 'Accept': 'application/json', 'Authorization': authHeader, 'Version': '2021-07-28' }
+		});
+		if (!res.ok) throw new Error(`Contacts fetch failed: ${res.status} ${await res.text()}`);
+		const json = await res.json();
+		const list = json.contacts || json || [];
+		return Array.isArray(list) ? list : [];
+	}
+
+	function flattenObject(record, { prefix = '', out = {} } = {}) {
+		const isPlainObject = (val) => val && typeof val === 'object' && !Array.isArray(val);
+		Object.keys(record || {}).forEach((key) => {
+			const value = record[key];
+			const fullKey = prefix ? `${prefix}_${key}` : key;
+			if (isPlainObject(value)) {
+				flattenObject(value, { prefix: fullKey, out });
+			} else {
+				out[fullKey] = value;
+			}
+		});
+		return out;
+	}
+
+	function suggestPgType(value) {
+		if (value === null || value === undefined) return 'TEXT';
+		if (typeof value === 'boolean') return 'BOOLEAN';
+		if (typeof value === 'number') return Number.isInteger(value) ? 'BIGINT' : 'DECIMAL';
+		if (typeof value === 'string') {
+			if (/^\d{4}-\d{2}-\d{2}/.test(value)) return 'TIMESTAMP';
+			if (value.length > 255) return 'TEXT';
+			return 'VARCHAR(255)';
+		}
+		if (Array.isArray(value)) return 'JSONB';
+		if (typeof value === 'object') return 'JSONB';
+		return 'TEXT';
+	}
+
+	function generateSupabaseCreateTableSQL(records, tableName = 'ghl_contacts_all_fields') {
+		const columns = new Map();
+		const consider = (obj) => {
+			Object.entries(obj).forEach(([k, v]) => {
+				if (!columns.has(k)) columns.set(k, suggestPgType(v));
+			});
+		};
+		records.forEach((rec) => {
+			const base = { ...rec };
+			if (Array.isArray(base.customFields)) {
+				const mapped = {};
+				base.customFields.forEach((f) => {
+					mapped[f.id] = f.value;
+				});
+				base.customFieldsMapped = mapped;
+			}
+			const flat = flattenObject(base);
+			consider(flat);
+		});
+		const colsSql = Array.from(columns.entries())
+			.sort(([a], [b]) => a.localeCompare(b))
+			.map(([name, type]) => `    "${name}" ${type}`)
+			.join(',\n');
+		return `CREATE TABLE IF NOT EXISTS ${tableName} (\n    id BIGSERIAL PRIMARY KEY,\n${colsSql}\n);`;
+	}
+
+	async function queryGhlContactByFirstName(firstName, { exact = true, limit = 50 } = {}) {
+		if (!firstName) throw new Error('firstName is required');
+		const auth = await getWorkingGhlAuth();
+		const contacts = await fetchAllContacts(auth);
+		const matches = contacts.filter(c => {
+			const fn = (c.firstName || '').toString();
+			if (!fn) return false;
+			return exact ? fn.toLowerCase() === firstName.toLowerCase() : fn.toLowerCase().includes(firstName.toLowerCase());
+		}).slice(0, limit);
+		console.log('GHL contact search result:', { firstName, exact, limit, totalFetched: contacts.length, matches });
+		if (matches[0]) console.log('First match (full JSON):', matches[0]);
+		const ddl = generateSupabaseCreateTableSQL(matches);
+		console.log('Suggested Supabase DDL:\n' + ddl);
+		return matches;
+	}
+
+	// Expose to window for console usage
+	window.queryGhlContactByFirstName = queryGhlContactByFirstName;
+	window.generateSupabaseCreateTableSQL = generateSupabaseCreateTableSQL;
+})();

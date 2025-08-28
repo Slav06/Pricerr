@@ -76,6 +76,88 @@
             color: #1e293b;
         }
 
+        .trend {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .trend.positive {
+            color: #16a34a;
+        }
+
+        .trend.negative {
+            color: #dc2626;
+        }
+
+        .stats-dashboard {
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid-large {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card-large {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #10b981;
+        }
+
+        .stat-card-large h3 {
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-bar {
+            background: #3b82f6;
+            margin: 2px;
+            border-radius: 2px;
+            transition: height 0.3s ease;
+        }
+
+        .chart-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
         .sync-section {
             background: white;
             padding: 2rem;
@@ -198,18 +280,31 @@
                 <div class="stat-card">
                     <h3>Total Contacts</h3>
                     <div class="value" id="totalContacts">-</div>
+                    <div class="trend" id="contactsTrend"></div>
                 </div>
                 <div class="stat-card">
                     <h3>Active Opportunities</h3>
                     <div class="value" id="activeOpportunities">-</div>
+                    <div class="trend" id="opportunitiesTrend"></div>
                 </div>
                 <div class="stat-card">
                     <h3>Pipelines</h3>
                     <div class="value" id="totalPipelines">-</div>
                 </div>
                 <div class="stat-card">
+                    <h3>Lead Status Distribution</h3>
+                    <div class="value" id="leadStatusCount">-</div>
+                    <div class="trend" id="leadStatusBreakdown"></div>
+                </div>
+                <div class="stat-card">
                     <h3>Last Sync</h3>
                     <div class="value" id="lastSync">Never</div>
+                    <div class="trend" id="syncStatus"></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Data Quality</h3>
+                    <div class="value" id="dataQuality">-</div>
+                    <div class="trend" id="qualityDetails"></div>
                 </div>
             </div>
 
@@ -219,10 +314,57 @@
                 <p style="margin: 1rem 0; color: #64748b;">
                     Sync data from your GoHighLevel account to view analytics and insights.
                 </p>
-                <button class="btn" onclick="syncGHLData()" id="syncBtn">
-                    🔄 Sync Data from GoHighLevel
-                </button>
-                <div id="syncStatus"></div>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="syncGHLData()" id="syncBtn">
+                        🔄 Sync Data from GoHighLevel
+                    </button>
+                    <button class="btn" onclick="pullAllContacts()" id="pullContactsBtn" style="background: #dc2626;">
+                        📥 Pull All Contacts to Database
+                    </button>
+                    <button class="btn" onclick="exportData('csv')" id="exportCsvBtn" style="background: #059669;">
+                        📊 Export CSV
+                    </button>
+                    <button class="btn" onclick="exportData('json')" id="exportJsonBtn" style="background: #7c3aed;">
+                        📄 Export JSON
+                    </button>
+                    <button class="btn" onclick="testGHLConnection()" id="testBtn" style="background: #ea580c;">
+                        🔍 Test API Connection
+                    </button>
+                </div>
+                <div id="syncStatusSection"></div>
+            </div>
+
+            <!-- Contact Statistics Dashboard -->
+            <div class="stats-dashboard">
+                <div class="table-header">
+                    <h2>📊 Contact Statistics Dashboard</h2>
+                </div>
+                <div class="stats-grid-large">
+                    <div class="stat-card-large">
+                        <h3>📈 Contact Source Distribution</h3>
+                        <div id="sourceChart" class="chart-container">
+                            <div class="loading">Loading source data...</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-large">
+                        <h3>👥 Representative Assignment</h3>
+                        <div id="repChart" class="chart-container">
+                            <div class="loading">Loading rep data...</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-large">
+                        <h3>🏷️ Lead Status Breakdown</h3>
+                        <div id="statusChart" class="chart-container">
+                            <div class="loading">Loading status data...</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-large">
+                        <h3>📅 Monthly Contact Growth</h3>
+                        <div id="growthChart" class="chart-container">
+                            <div class="loading">Loading growth data...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Recent Data Table -->
@@ -244,8 +386,17 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
         const GHL_API_KEY = 'pit-1f9181ba-407c-4f7e-90b7-3e72a6145b3e';
         
-        // GoHighLevel might require location ID - leave empty to auto-detect
-        let GHL_LOCATION_ID = ''; // Will be auto-detected if needed
+        // GoHighLevel location ID for API access
+        let GHL_LOCATION_ID = 'smihYndzGBgpiI04p14R'; // Your specific location ID
+        
+        // Custom field mappings (discovered through API testing)
+        const CUSTOM_FIELD_MAPPINGS = {
+            'QSG9Rn9qEceAQ3jGLo7r': 'lead_status',
+            'Xs06oL2GnemvPxfrkJo6': 'field_2', // Unknown field - update name when identified
+            'xXKs2xmaZHTSEs7rgjuA': 'field_3', // Unknown field - update name when identified
+            '6q7SkZeD90CGVd2rRJZY': 'field_4', // Unknown field - update name when identified
+            'UZIm1Ck8jZVoepZEGpPK': 'field_5'  // Unknown field - update name when identified
+        };
 
         let currentUser = null;
 
@@ -420,8 +571,38 @@
                 let contactsData = [];
                 if (contactsResponse.ok) {
                     const contactsResult = await contactsResponse.json();
-                    contactsData = contactsResult.contacts || contactsResult || [];
-                    console.log('✅ Contacts data:', contactsData);
+                    const rawContacts = contactsResult.contacts || contactsResult || [];
+                    
+                    // Process contacts to extract custom fields with proper names
+                    contactsData = rawContacts.map(contact => {
+                        const processedContact = { ...contact };
+                        
+                        // Extract and map custom fields
+                        if (contact.customFields && Array.isArray(contact.customFields)) {
+                            processedContact.customFieldsMapped = {};
+                            contact.customFields.forEach(field => {
+                                const fieldName = CUSTOM_FIELD_MAPPINGS[field.id] || field.id;
+                                processedContact.customFieldsMapped[fieldName] = field.value;
+                            });
+                            
+                            // Add lead_status as a top-level property for easy access
+                            if (processedContact.customFieldsMapped.lead_status) {
+                                processedContact.lead_status = processedContact.customFieldsMapped.lead_status;
+                            }
+                        }
+                        
+                        return processedContact;
+                    });
+                    
+                    console.log('✅ Processed contacts data with custom fields:', contactsData);
+                    
+                    // Log lead status distribution
+                    const leadStatusCounts = {};
+                    contactsData.forEach(contact => {
+                        const status = contact.lead_status || 'No Status';
+                        leadStatusCounts[status] = (leadStatusCounts[status] || 0) + 1;
+                    });
+                    console.log('📊 Lead Status Distribution:', leadStatusCounts);
                 } else {
                     const errorText = await contactsResponse.text();
                     console.log('❌ Contacts API Error:', errorText);
@@ -644,6 +825,429 @@
             `;
 
             document.getElementById('dataTableContent').innerHTML = html;
+        }
+
+        // Query contacts by first name (no UI). Call from console: queryContactByFirstName('John')
+        async function getWorkingGhlAuth() {
+            const formats = [GHL_API_KEY, `Bearer ${GHL_API_KEY}`];
+            for (const fmt of formats) {
+                try {
+                    const res = await fetch('https://services.leadconnectorhq.com/contacts/', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': fmt,
+                            'Version': '2021-07-28'
+                        }
+                    });
+                    if (res.ok || res.status === 403) return fmt;
+                } catch (e) {
+                    // continue
+                }
+            }
+            throw new Error('No working GHL auth format');
+        }
+
+        async function fetchAllContactsForSearch(authHeader) {
+            const base = 'https://services.leadconnectorhq.com/contacts/';
+            const url = GHL_LOCATION_ID ? `${base}?locationId=${encodeURIComponent(GHL_LOCATION_ID)}` : base;
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': authHeader,
+                    'Version': '2021-07-28'
+                }
+            });
+            if (!res.ok) {
+                throw new Error(`Contacts fetch failed: ${res.status} ${await res.text()}`);
+            }
+            const json = await res.json();
+            const list = json.contacts || json || [];
+            return Array.isArray(list) ? list : [];
+        }
+
+        function flattenObject(record, { prefix = '', out = {} } = {}) {
+            const isPlainObject = (val) => val && typeof val === 'object' && !Array.isArray(val);
+            Object.keys(record || {}).forEach((key) => {
+                const value = record[key];
+                const fullKey = prefix ? `${prefix}_${key}` : key;
+                if (isPlainObject(value)) {
+                    flattenObject(value, { prefix: fullKey, out });
+                } else {
+                    out[fullKey] = value;
+                }
+            });
+            return out;
+        }
+
+        function suggestPgType(value) {
+            if (value === null || value === undefined) return 'TEXT';
+            if (typeof value === 'boolean') return 'BOOLEAN';
+            if (typeof value === 'number') return Number.isInteger(value) ? 'BIGINT' : 'DECIMAL';
+            if (typeof value === 'string') {
+                if (/^\d{4}-\d{2}-\d{2}/.test(value)) return 'TIMESTAMP';
+                if (value.length > 255) return 'TEXT';
+                return 'VARCHAR(255)';
+            }
+            if (Array.isArray(value)) return 'JSONB';
+            if (typeof value === 'object') return 'JSONB';
+            return 'TEXT';
+        }
+
+        function generateSupabaseCreateTableSQL(records, tableName = 'ghl_contacts_full') {
+            const columns = new Map();
+            const consider = (obj) => {
+                Object.entries(obj).forEach(([k, v]) => {
+                    if (!columns.has(k)) columns.set(k, suggestPgType(v));
+                });
+            };
+
+            records.forEach((rec) => {
+                const base = { ...rec };
+                // Also expand customFields array to mapped object if present
+                if (Array.isArray(base.customFields)) {
+                    const mapped = {};
+                    base.customFields.forEach((f) => {
+                        const name = (CUSTOM_FIELD_MAPPINGS[f.id] || f.id);
+                        mapped[name] = f.value;
+                    });
+                    base.customFieldsMapped = mapped;
+                }
+                // Flatten for column suggestions
+                const flat = flattenObject(base);
+                consider(flat);
+            });
+
+            const colsSql = Array.from(columns.entries())
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([name, type]) => `    "${name}" ${type}`)
+                .join(',\n');
+
+            const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (\n    id BIGSERIAL PRIMARY KEY,\n${colsSql}\n);`;
+            return sql;
+        }
+
+        async function queryContactByFirstName(firstName, { exact = true, limit = 50 } = {}) {
+            if (!firstName) throw new Error('firstName is required');
+            const auth = await getWorkingGhlAuth();
+            const contacts = await fetchAllContactsForSearch(auth);
+            const matches = contacts.filter(c => {
+                const fn = (c.firstName || '').toString();
+                if (!fn) return false;
+                return exact ? fn.toLowerCase() === firstName.toLowerCase() : fn.toLowerCase().includes(firstName.toLowerCase());
+            }).slice(0, limit);
+
+            console.log('GHL contact search by first name:', { firstName, exact, limit, totalFetched: contacts.length, matches });
+            if (matches.length === 0) {
+                console.warn('No contacts matched provided first name');
+                return [];
+            }
+
+            // Print full JSON of first few
+            console.log('Sample matched contact (full JSON):', matches[0]);
+
+            // Generate DDL suggestion
+            const ddl = generateSupabaseCreateTableSQL(matches, 'ghl_contacts_all_fields');
+            console.log('Suggested Supabase table DDL for matched contacts:\n' + ddl);
+            return matches;
+        }
+
+        // Expose helpers for console usage
+        window.queryContactByFirstName = queryContactByFirstName;
+        window.generateSupabaseCreateTableSQL = generateSupabaseCreateTableSQL;
+
+        // Pull all contacts from GHL to database
+        async function pullAllContacts() {
+            const pullBtn = document.getElementById('pullContactsBtn');
+            const syncStatus = document.getElementById('syncStatusSection');
+            
+            pullBtn.disabled = true;
+            pullBtn.textContent = '⏳ Pulling All Contacts...';
+            syncStatus.innerHTML = '<div class="loading">Connecting to GoHighLevel and pulling all contacts...</div>';
+
+            try {
+                // Get working auth
+                const auth = await getWorkingGhlAuth();
+                let allContacts = [];
+                let page = 1;
+                let hasMore = true;
+
+                // Pull contacts page by page
+                while (hasMore) {
+                    syncStatus.innerHTML = `<div class="loading">Pulling page ${page} of contacts...</div>`;
+                    
+                    const contactsUrl = `https://services.leadconnectorhq.com/contacts/?locationId=${GHL_LOCATION_ID}&page=${page}`;
+                    const response = await fetch(contactsUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': auth,
+                            'Version': '2021-07-28'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const contacts = data.contacts || [];
+                        
+                        if (contacts.length === 0) {
+                            hasMore = false;
+                        } else {
+                            allContacts = allContacts.concat(contacts);
+                            page++;
+                            
+                            // Add delay to avoid rate limiting
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                    } else {
+                        throw new Error(`Failed to fetch page ${page}: ${response.status}`);
+                    }
+                }
+
+                // Store all contacts in database
+                syncStatus.innerHTML = `<div class="loading">Storing ${allContacts.length} contacts in database...</div>`;
+                
+                for (let i = 0; i < allContacts.length; i++) {
+                    const contact = allContacts[i];
+                    await storeContactInDatabase(contact);
+                    
+                    if (i % 10 === 0) {
+                        syncStatus.innerHTML = `<div class="loading">Stored ${i + 1}/${allContacts.length} contacts...</div>`;
+                    }
+                }
+
+                syncStatus.innerHTML = `<div class="success">✅ Successfully pulled and stored ${allContacts.length} contacts!</div>`;
+                
+                // Refresh dashboard
+                loadContactStatistics();
+                
+            } catch (error) {
+                console.error('❌ Pull contacts failed:', error);
+                syncStatus.innerHTML = `<div class="error">❌ Failed to pull contacts: ${error.message}</div>`;
+            } finally {
+                pullBtn.disabled = false;
+                pullBtn.textContent = '📥 Pull All Contacts to Database';
+            }
+        }
+
+        // Store individual contact in database
+        async function storeContactInDatabase(contact) {
+            try {
+                // Map GHL contact to our database schema
+                const contactData = {
+                    ghl_contact_id: contact.id,
+                    location_id: contact.locationId,
+                    contact_name: contact.contactName,
+                    first_name: contact.firstName,
+                    last_name: contact.lastName,
+                    first_name_raw: contact.firstNameRaw,
+                    last_name_raw: contact.lastNameRaw,
+                    company_name: contact.companyName,
+                    email: contact.email,
+                    phone: contact.phone,
+                    dnd: contact.dnd,
+                    dnd_settings: contact.dndSettings,
+                    contact_type: contact.type,
+                    source: contact.source,
+                    assigned_to: contact.assignedTo,
+                    city: contact.city,
+                    state: contact.state,
+                    postal_code: contact.postalCode,
+                    address1: contact.address1,
+                    date_added: contact.dateAdded,
+                    date_updated: contact.dateUpdated,
+                    date_of_birth: contact.dateOfBirth,
+                    business_id: contact.businessId,
+                    tags: contact.tags,
+                    followers: contact.followers,
+                    country: contact.country,
+                    website: contact.website,
+                    timezone: contact.timezone,
+                    additional_emails: contact.additionalEmails,
+                    attributions: contact.attributions,
+                    custom_fields: contact.customFields,
+                    synced_at: new Date().toISOString()
+                };
+
+                // Map custom fields
+                if (contact.customFields && Array.isArray(contact.customFields)) {
+                    contact.customFields.forEach(field => {
+                        const fieldName = `custom_${field.id.toLowerCase()}`;
+                        if (contactData.hasOwnProperty(fieldName)) {
+                            contactData[fieldName] = field.value;
+                        }
+                    });
+                }
+
+                // Insert or update contact
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/contacts`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(contactData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    console.error(`Failed to store contact ${contact.id}:`, error);
+                }
+            } catch (error) {
+                console.error(`Error storing contact ${contact.id}:`, error);
+            }
+        }
+
+        // Load contact statistics for dashboard
+        async function loadContactStatistics() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/contacts?select=*`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    const contacts = await response.json();
+                    updateDashboardCharts(contacts);
+                }
+            } catch (error) {
+                console.error('Error loading contact statistics:', error);
+            }
+        }
+
+        // Update dashboard charts
+        function updateDashboardCharts(contacts) {
+            // Source distribution chart
+            const sourceStats = {};
+            contacts.forEach(contact => {
+                const source = contact.source || 'Unknown';
+                sourceStats[source] = (sourceStats[source] || 0) + 1;
+            });
+            updateSourceChart(sourceStats);
+
+            // Representative assignment chart
+            const repStats = {};
+            contacts.forEach(contact => {
+                const rep = contact.assigned_to || 'Unassigned';
+                repStats[rep] = (repStats[rep] || 0) + 1;
+            });
+            updateRepChart(repStats);
+
+            // Lead status chart
+            const statusStats = {};
+            contacts.forEach(contact => {
+                const status = contact.custom_qsg9rn9qeceaq3jglo7r || 'No Status';
+                statusStats[status] = (statusStats[status] || 0) + 1;
+            });
+            updateStatusChart(statusStats);
+
+            // Monthly growth chart
+            const growthStats = {};
+            contacts.forEach(contact => {
+                if (contact.date_added) {
+                    const month = new Date(contact.date_added).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                    growthStats[month] = (growthStats[month] || 0) + 1;
+                }
+            });
+            updateGrowthChart(growthStats);
+        }
+
+        // Update individual charts
+        function updateSourceChart(sourceStats) {
+            const container = document.getElementById('sourceChart');
+            const sortedSources = Object.entries(sourceStats).sort((a, b) => b[1] - a[1]);
+            
+            const html = `
+                <div style="width: 100%; height: 200px; display: flex; align-items: end; justify-content: space-around; padding: 1rem;">
+                    ${sortedSources.map(([source, count]) => `
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="chart-bar" style="width: 30px; height: ${(count / Math.max(...Object.values(sourceStats))) * 150}px;"></div>
+                            <div class="chart-label">${source}</div>
+                            <div style="font-weight: bold; color: #1e293b;">${count}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function updateRepChart(repStats) {
+            const container = document.getElementById('repChart');
+            const sortedReps = Object.entries(repStats).sort((a, b) => b[1] - a[1]);
+            
+            const html = `
+                <div style="width: 100%; height: 200px; display: flex; align-items: end; justify-content: space-around; padding: 1rem;">
+                    ${sortedReps.map(([rep, count]) => `
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="chart-bar" style="width: 30px; height: ${(count / Math.max(...Object.values(repStats))) * 150}px;"></div>
+                            <div class="chart-label">${rep}</div>
+                            <div style="font-weight: bold; color: #1e293b;">${count}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function updateStatusChart(statusStats) {
+            const container = document.getElementById('statusChart');
+            const sortedStatuses = Object.entries(statusStats).sort((a, b) => b[1] - a[1]);
+            
+            const html = `
+                <div style="width: 100%; height: 200px; display: flex; align-items: end; justify-content: space-around; padding: 1rem;">
+                    ${sortedStatuses.map(([status, count]) => `
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="chart-bar" style="width: 30px; height: ${(count / Math.max(...Object.values(statusStats))) * 150}px;"></div>
+                            <div class="chart-label">${status}</div>
+                            <div style="font-weight: bold; color: #1e293b;">${count}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function updateGrowthChart(growthStats) {
+            const container = document.getElementById('growthChart');
+            const sortedMonths = Object.entries(growthStats).sort((a, b) => new Date(a[0]) - new Date(b[0]));
+            
+            const html = `
+                <div style="width: 100%; height: 200px; display: flex; align-items: end; justify-content: space-around; padding: 1rem;">
+                    ${sortedMonths.map(([month, count]) => `
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="chart-bar" style="width: 30px; height: ${(count / Math.max(...Object.values(growthStats))) * 150}px;"></div>
+                            <div class="chart-label">${month}</div>
+                            <div style="font-weight: bold; color: #1e293b;">${count}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // Helper function to get working GHL auth
+        async function getWorkingGhlAuth() {
+            const formats = [GHL_API_KEY, `Bearer ${GHL_API_KEY}`];
+            for (const fmt of formats) {
+                try {
+                    const res = await fetch('https://services.leadconnectorhq.com/contacts/', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': fmt,
+                            'Version': '2021-07-28'
+                        }
+                    });
+                    if (res.ok || res.status === 403) return fmt;
+                } catch (e) {
+                    // continue
+                }
+            }
+            throw new Error('No working GHL auth format');
         }
 
         // Initialize dashboard when page loads
