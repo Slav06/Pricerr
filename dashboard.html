@@ -694,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.11 - Fixed Analytics updateStats Function and Data Structure Issues
+                v1.6.12 - Fixed Function Naming Conflict Between Submissions and Analytics
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1342,8 +1342,8 @@
             
             console.log('🔄 Calling displaySubmissions...');
             displaySubmissions();
-            console.log('🔄 Calling updateStats...');
-            updateStats();
+            console.log('🔄 Calling updateSubmissionsStats...');
+            updateSubmissionsStats();
         }
 
         // Display submissions
@@ -1958,8 +1958,8 @@
 
 
 
-        // Update stats
-        function updateStats() {
+        // Update submissions stats display
+        function updateSubmissionsStats() {
             document.getElementById('totalSubmissions').textContent = submissions.length;
             
             const mySubmissionsCard = document.getElementById('mySubmissions').parentElement;
