@@ -104,6 +104,14 @@
         .tab:hover:not(.active) {
             background: rgba(102, 126, 234, 0.1);
         }
+        
+        /* Active filter button styles */
+        .filter-btn.active-filter {
+            background: #059669 !important;
+            color: white !important;
+            border-color: #059669 !important;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+        }
 
         .tab-content {
             display: none;
@@ -686,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.7 - Added Auto-Filtering for Date Range Selection
+                v1.6.8 - Added Default Today Filter and Visual Indication for Submissions
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -777,10 +785,10 @@
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                         <div id="submissionsQuickRange" style="display:flex; align-items:center; gap:6px;">
                             <span style="color:#64748b; font-size:12px;">Filter:</span>
-                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('today')">Today</button>
-                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('yesterday')">Yesterday</button>
-                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('week')">This Week</button>
-                            <button class="btn btn-secondary" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('month')">This Month</button>
+                            <button id="filter-today" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('today')">Today</button>
+                            <button id="filter-yesterday" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('yesterday')">Yesterday</button>
+                            <button id="filter-week" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('week')">This Week</button>
+                            <button id="filter-month" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('month')">This Month</button>
                             <span id="submissionsRangeLabel" style="margin-left:6px; color:#1e293b; font-weight:500; font-size:12px;"></span>
                         </div>
                     </div>
@@ -1183,8 +1191,8 @@
                 console.log('ℹ️ Analytics tab hidden for non-admin user');
             }
             
-            // Load data based on user role
-            loadSubmissions();
+            // Set default filter to today and load data based on user role
+            setSubmissionsRange('today');
             updateProfile();
         }
 
@@ -1688,6 +1696,9 @@
         let submissionsRange = null; // { from: isoString, to: isoString }
 
         function setSubmissionsRange(range) {
+            // Update visual indication
+            updateFilterButtonStates(range);
+            
             const now = new Date();
             let start, end;
             if (range === 'today') {
@@ -1723,6 +1734,23 @@
             updateSubmissionsRangeLabel(start, end);
             // Auto-apply
             loadRealSubmissions();
+        }
+
+        function updateFilterButtonStates(activeRange) {
+            // Remove active class from all filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active-filter');
+                btn.style.background = '#6b7280';
+                btn.style.color = 'white';
+            });
+            
+            // Add active class to the selected button
+            const activeBtn = document.getElementById(`filter-${activeRange}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active-filter');
+                activeBtn.style.background = '#059669';
+                activeBtn.style.color = 'white';
+            }
         }
 
         function updateSubmissionsRangeLabel(start, end) {
