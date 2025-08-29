@@ -686,7 +686,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.6 - Fixed Date Filtering to Query GHL API by Lead Creation Date
+                v1.6.7 - Added Auto-Filtering for Date Range Selection
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -803,11 +803,11 @@
                         <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <label style="font-weight: 500; color: #374151; font-size: 0.875rem;">From Date:</label>
-                                <input type="date" id="dateFrom" style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem;">
+                                <input type="date" id="dateFrom" onchange="autoApplyFilter()" style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <label style="font-weight: 500; color: #374151; font-size: 0.875rem;">To Date:</label>
-                                <input type="date" id="dateTo" style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem;">
+                                <input type="date" id="dateTo" onchange="autoApplyFilter()" style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <label style="font-weight: 500; color: #374151; font-size: 0.875rem;">Quick Filters:</label>
@@ -2740,8 +2740,8 @@
                     break;
             }
             
-            // Auto-apply filter after setting date range
-            setTimeout(() => applyDateFilter(), 100);
+            // Auto-apply filter immediately
+            applyDateFilter();
         }
 
         async function applyDateFilter() {
@@ -2861,6 +2861,21 @@
             } catch (error) {
                 console.error('❌ Error filtering contact statistics:', error);
                 throw error;
+            }
+        }
+
+        // Auto-apply filter when dates change
+        function autoApplyFilter() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            
+            // Only apply filter if both dates are selected
+            if (dateFrom && dateTo) {
+                // Add a small delay to avoid too many API calls while typing
+                clearTimeout(window.filterTimeout);
+                window.filterTimeout = setTimeout(() => {
+                    applyDateFilter();
+                }, 500);
             }
         }
 
