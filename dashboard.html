@@ -694,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.8 - Added Default Today Filter and Visual Indication for Submissions
+                v1.6.9 - Added Custom Date Range Dropdown Option for Submissions
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -789,7 +789,21 @@
                             <button id="filter-yesterday" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('yesterday')">Yesterday</button>
                             <button id="filter-week" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('week')">This Week</button>
                             <button id="filter-month" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="setSubmissionsRange('month')">This Month</button>
+                            <button id="filter-custom" class="btn btn-secondary filter-btn" style="padding:4px 8px; font-size:12px;" onclick="toggleCustomDateRange()">Custom Range</button>
                             <span id="submissionsRangeLabel" style="margin-left:6px; color:#1e293b; font-weight:500; font-size:12px;"></span>
+                        </div>
+                        <div id="customDateRange" style="display:none; margin-top:8px; padding:8px; background:#f8f9fa; border-radius:4px; border:1px solid #e0e0e0;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <div style="display:flex; align-items:center; gap:4px;">
+                                    <label style="font-size:11px; color:#64748b;">From:</label>
+                                    <input type="date" id="customDateFrom" style="padding:2px 4px; border:1px solid #d1d5db; border-radius:3px; font-size:11px;" onchange="applyCustomDateRange()">
+                                </div>
+                                <div style="display:flex; align-items:center; gap:4px;">
+                                    <label style="font-size:11px; color:#64748b;">To:</label>
+                                    <input type="date" id="customDateTo" style="padding:2px 4px; border:1px solid #d1d5db; border-radius:3px; font-size:11px;" onchange="applyCustomDateRange()">
+                                </div>
+                                <button onclick="clearCustomDateRange()" style="padding:2px 6px; background:#ef4444; color:white; border:none; border-radius:3px; font-size:11px; cursor:pointer;">Clear</button>
+                            </div>
                         </div>
                     </div>
                     <div class="refresh-controls">
@@ -1721,6 +1735,9 @@
             } else if (range === 'month') {
                 start = new Date(now.getFullYear(), now.getMonth(), 1);
                 end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+            } else if (range === 'custom') {
+                // Custom range is handled separately, don't set submissionsRange here
+                return;
             } else {
                 submissionsRange = null;
                 updateSubmissionsRangeLabel();
@@ -1751,6 +1768,67 @@
                 activeBtn.style.background = '#059669';
                 activeBtn.style.color = 'white';
             }
+            
+            // Hide custom date range if not custom is selected
+            const customRange = document.getElementById('customDateRange');
+            if (activeRange !== 'custom') {
+                customRange.style.display = 'none';
+            }
+        }
+
+        function toggleCustomDateRange() {
+            const customRange = document.getElementById('customDateRange');
+            const isVisible = customRange.style.display !== 'none';
+            
+            if (!isVisible) {
+                // Show custom date range and set it as active
+                customRange.style.display = 'block';
+                setSubmissionsRange('custom');
+                
+                // Set default dates (last 7 days)
+                const today = new Date();
+                const weekAgo = new Date();
+                weekAgo.setDate(today.getDate() - 7);
+                
+                document.getElementById('customDateFrom').value = weekAgo.toISOString().split('T')[0];
+                document.getElementById('customDateTo').value = today.toISOString().split('T')[0];
+                
+                // Apply the custom range immediately
+                applyCustomDateRange();
+            } else {
+                // Hide custom date range and reset to today
+                customRange.style.display = 'none';
+                setSubmissionsRange('today');
+            }
+        }
+
+        function applyCustomDateRange() {
+            const dateFrom = document.getElementById('customDateFrom').value;
+            const dateTo = document.getElementById('customDateTo').value;
+            
+            if (dateFrom && dateTo) {
+                if (new Date(dateFrom) > new Date(dateTo)) {
+                    alert('Start date cannot be after end date');
+                    return;
+                }
+                
+                // Set custom range
+                submissionsRange = {
+                    from: new Date(dateFrom + 'T00:00:00Z').toISOString(),
+                    to: new Date(dateTo + 'T23:59:59Z').toISOString()
+                };
+                
+                // Update label and load data
+                updateSubmissionsRangeLabel(new Date(dateFrom), new Date(dateTo));
+                loadRealSubmissions();
+            }
+        }
+
+        function clearCustomDateRange() {
+            document.getElementById('customDateFrom').value = '';
+            document.getElementById('customDateTo').value = '';
+            document.getElementById('customDateRange').style.display = 'none';
+            setSubmissionsRange('today');
         }
 
         function updateSubmissionsRangeLabel(start, end) {
