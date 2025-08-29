@@ -694,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.12 - Fixed Function Naming Conflict Between Submissions and Analytics
+                v1.6.13 - Added Admin-Specific Stats: Transferred, Dropped, Callback Scheduled, and Rep Performance
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -768,13 +768,34 @@
                         <div class="stat-number" id="totalSubmissions">-</div>
                         <div class="stat-label">Total Submissions</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="mySubmissionsCard">
                         <div class="stat-number" id="mySubmissions">-</div>
                         <div class="stat-label">My Submissions</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="pendingTransfersCard">
                         <div class="stat-number" id="pendingTransfers">-</div>
                         <div class="stat-label">Pending Transfers</div>
+                    </div>
+                    <!-- Admin-specific stats -->
+                    <div class="stat-card admin-only" id="transferredCard" style="display: none;">
+                        <div class="stat-number" id="transferredCount">-</div>
+                        <div class="stat-label">Transferred</div>
+                    </div>
+                    <div class="stat-card admin-only" id="droppedCard" style="display: none;">
+                        <div class="stat-number" id="droppedCount">-</div>
+                        <div class="stat-label">Dropped</div>
+                    </div>
+                    <div class="stat-card admin-only" id="callbackScheduledCard" style="display: none;">
+                        <div class="stat-number" id="callbackScheduledCount">-</div>
+                        <div class="stat-label">Callback Scheduled</div>
+                    </div>
+                </div>
+                
+                <!-- Admin Rep Stats Section -->
+                <div id="adminRepStats" class="admin-only" style="display: none; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0;">
+                    <h3 style="margin: 0 0 15px 0; color: #1e293b; font-size: 1.1rem;">👥 Rep Performance Summary</h3>
+                    <div id="repStatsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <!-- Rep stats will be populated here -->
                     </div>
                 </div>
 
@@ -1958,12 +1979,68 @@
 
 
 
+        // Update rep performance statistics for admin
+        function updateRepPerformanceStats() {
+            if (currentUser.role !== 'admin') return;
+            
+            // Get all unique reps (submitters and assignees)
+            const allReps = new Set();
+            submissions.forEach(s => {
+                if (s.submittedBy) allReps.add(s.submittedBy);
+                if (s.transferredTo) allReps.add(s.transferredTo);
+            });
+            
+            const repStats = [];
+            allReps.forEach(repName => {
+                const repSubmissions = submissions.filter(s => s.submittedBy === repName);
+                const repAssigned = submissions.filter(s => s.transferredTo === repName);
+                const repTransferred = submissions.filter(s => s.status === 'transferred' && s.submittedBy === repName);
+                const repDropped = submissions.filter(s => s.status === 'dropped' && s.submittedBy === repName);
+                const repCallbackScheduled = submissions.filter(s => s.status === 'callback scheduled' && s.submittedBy === repName);
+                
+                repStats.push({
+                    name: repName,
+                    totalSubmitted: repSubmissions.length,
+                    totalAssigned: repAssigned.length,
+                    transferred: repTransferred.length,
+                    dropped: repDropped.length,
+                    callbackScheduled: repCallbackScheduled.length,
+                    conversionRate: repSubmissions.length > 0 ? ((repTransferred.length / repSubmissions.length) * 100).toFixed(1) : '0.0'
+                });
+            });
+            
+            // Sort by total submissions (descending)
+            repStats.sort((a, b) => b.totalSubmitted - a.totalSubmitted);
+            
+            // Display rep stats
+            const repStatsGrid = document.getElementById('repStatsGrid');
+            repStatsGrid.innerHTML = repStats.map(rep => `
+                <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                    <div style="font-weight: 600; color: #1e293b; margin-bottom: 10px; font-size: 14px;">${rep.name}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                        <div style="color: #64748b;">Submitted: <span style="color: #1e293b; font-weight: 500;">${rep.totalSubmitted}</span></div>
+                        <div style="color: #64748b;">Assigned: <span style="color: #1e293b; font-weight: 500;">${rep.totalAssigned}</span></div>
+                        <div style="color: #64748b;">Transferred: <span style="color: #1e293b; font-weight: 500;">${rep.transferred}</span></div>
+                        <div style="color: #64748b;">Dropped: <span style="color: #1e293b; font-weight: 500;">${rep.dropped}</span></div>
+                        <div style="color: #64748b;">Callback: <span style="color: #1e293b; font-weight: 500;">${rep.callbackScheduled}</span></div>
+                        <div style="color: #64748b;">Conv. Rate: <span style="color: #1e293b; font-weight: 500;">${rep.conversionRate}%</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // Update submissions stats display
         function updateSubmissionsStats() {
             document.getElementById('totalSubmissions').textContent = submissions.length;
             
-            const mySubmissionsCard = document.getElementById('mySubmissions').parentElement;
-            const pendingTransfersCard = document.getElementById('pendingTransfers').parentElement;
+            const mySubmissionsCard = document.getElementById('mySubmissionsCard');
+            const pendingTransfersCard = document.getElementById('pendingTransfersCard');
+            
+            // Show/hide admin-specific elements
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+            });
             
             if (currentUser.role === 'fronter') {
                 const mySubs = submissions.filter(s => s.submittedBy === currentUser.name);
@@ -1993,6 +2070,18 @@
                 const pendingPricing = submissions.filter(s => !s.pricedByAdmin).length;
                 document.getElementById('pendingTransfers').textContent = pendingPricing;
                 pendingTransfersCard.querySelector('.stat-label').textContent = 'Pending Pricing';
+                
+                // Calculate admin-specific stats
+                const transferred = submissions.filter(s => s.status === 'transferred').length;
+                const dropped = submissions.filter(s => s.status === 'dropped').length;
+                const callbackScheduled = submissions.filter(s => s.status === 'callback scheduled').length;
+                
+                document.getElementById('transferredCount').textContent = transferred;
+                document.getElementById('droppedCount').textContent = dropped;
+                document.getElementById('callbackScheduledCount').textContent = callbackScheduled;
+                
+                // Update rep performance stats
+                updateRepPerformanceStats();
             } else {
                 document.getElementById('mySubmissions').textContent = '-';
                 mySubmissionsCard.style.display = 'block';
