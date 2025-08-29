@@ -354,18 +354,18 @@
         }
         
         /* Specific column widths to prevent wrapping */
-        th:nth-child(1), td:nth-child(1) { width: 8%; } /* Job # */
-        th:nth-child(2), td:nth-child(2) { width: 12%; white-space: normal; } /* Customer */
-        th:nth-child(3), td:nth-child(3) { width: 15%; white-space: normal; } /* From */
-        th:nth-child(4), td:nth-child(4) { width: 15%; white-space: normal; } /* To */
-        th:nth-child(5), td:nth-child(5) { width: 8%; } /* Cubes */
-        th:nth-child(6), td:nth-child(6) { width: 8%; } /* Distance */
-        th:nth-child(7), td:nth-child(7) { width: 10%; } /* Pickup Date */
-        th:nth-child(8), td:nth-child(8) { width: 8%; } /* Submitted By */
-        th:nth-child(9), td:nth-child(9) { width: 8%; } /* Date */
-        th:nth-child(10), td:nth-child(10) { width: 8%; } /* Status */
-        th:nth-child(11), td:nth-child(11) { width: 10%; text-align: center; } /* Pricing Status */
-        th:nth-child(12), td:nth-child(12) { width: 10%; } /* Assigned Date */
+        th:nth-child(1), td:nth-child(1) { width: 12%; white-space: nowrap; overflow: visible; } /* Job # - increased width */
+        th:nth-child(2), td:nth-child(2) { width: 11%; white-space: normal; } /* Customer */
+        th:nth-child(3), td:nth-child(3) { width: 14%; white-space: normal; } /* From */
+        th:nth-child(4), td:nth-child(4) { width: 14%; white-space: normal; } /* To */
+        th:nth-child(5), td:nth-child(5) { width: 7%; } /* Cubes */
+        th:nth-child(6), td:nth-child(6) { width: 7%; } /* Distance */
+        th:nth-child(7), td:nth-child(7) { width: 9%; } /* Pickup Date */
+        th:nth-child(8), td:nth-child(8) { width: 7%; } /* Submitted By */
+        th:nth-child(9), td:nth-child(9) { width: 7%; } /* Date */
+        th:nth-child(10), td:nth-child(10) { width: 7%; } /* Status */
+        th:nth-child(11), td:nth-child(11) { width: 9%; text-align: center; } /* Pricing Status */
+        th:nth-child(12), td:nth-child(12) { width: 9%; } /* Assigned Date */
 
         th {
             background: #f8f9fa;
@@ -694,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.9 - Added Custom Date Range Dropdown Option for Submissions
+                v1.6.10 - Fixed Job Number Column Width to Prevent Truncation
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
