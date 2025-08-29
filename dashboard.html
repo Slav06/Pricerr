@@ -694,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.10 - Fixed Job Number Column Width to Prevent Truncation
+                v1.6.11 - Fixed Analytics updateStats Function and Data Structure Issues
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -2994,7 +2994,13 @@
                 // Store filtered data and update UI
                 if (data.contacts) {
                     await storeAnalyticsData(data.contacts);
-                    await updateStats();
+                    
+                    // Transform data for updateStats function
+                    const statsData = {
+                        totalContacts: data.contacts.length,
+                        totalOpportunities: data.contacts.filter(c => c.type === 'opportunity').length
+                    };
+                    await updateStats(statsData);
                     await displayAnalyticsTable(data.contacts);
                 }
                 
