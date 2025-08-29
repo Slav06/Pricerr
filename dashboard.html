@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-            <title>Moving Company Dashboard - User Management (v4.0-FIXED)</title>
+            <title>Moving Company Dashboard - User Management (v1.6.14)</title>
     <style>
         * {
             margin: 0;
@@ -364,8 +364,8 @@
         th:nth-child(8), td:nth-child(8) { width: 7%; } /* Submitted By */
         th:nth-child(9), td:nth-child(9) { width: 7%; } /* Date */
         th:nth-child(10), td:nth-child(10) { width: 7%; } /* Status */
-        th:nth-child(11), td:nth-child(11) { width: 9%; text-align: center; } /* Pricing Status */
-        th:nth-child(12), td:nth-child(12) { width: 9%; } /* Assigned Date */
+        th:nth-child(11), td:nth-child(11) { width: 12%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* Assigned To - ensure X button visible */
+        th:nth-child(12), td:nth-child(12) { width: 9%; } /* Admin Priced */
 
         th {
             background: #f8f9fa;
@@ -694,7 +694,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                     <h1 style="margin: 0;">Moving Company Dashboard</h1>
                                     <div style="font-size: 12px; color: #666; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
-                v1.6.13 - Added Admin-Specific Stats: Transferred, Dropped, Callback Scheduled, and Rep Performance
+                v1.6.14 - Fixed Long Names in Assigned To Column: Added Name Truncation and Ensured X Button Visibility
             </div>
                 </div>
                 <div id="currentUserInfo" style="margin-top: 10px;">
@@ -1697,14 +1697,19 @@
         // Create transfer UI based on assignment status
         function createTransferUI(submission) {
             if (submission.transferredTo) {
+                // Abbreviate long names to ensure X button is always visible
+                const displayName = submission.transferredTo.length > 12 ? 
+                    submission.transferredTo.substring(0, 10) + '...' : 
+                    submission.transferredTo;
+                
                 // Show assigned closer with small X to change
                 return `
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px;">
-                            ${submission.transferredTo}
+                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                        <div style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="${submission.transferredTo}">
+                            ${displayName}
                         </div>
                         <button onclick="showTransferDropdown('${submission.id}')" 
-                                style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;"
+                                style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
                                 title="Change assignment">
                             ×
                         </button>
