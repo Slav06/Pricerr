@@ -701,6 +701,7 @@
                     <span id="currentUserName">Not logged in</span>
                     <span id="currentUserRole" class="role-badge" style="display: none;"></span>
                     <button onclick="testSupabaseConnection()" class="btn btn-secondary" style="margin-left: 10px; font-size: 12px; padding: 5px 10px;">🧪 Test</button>
+                    <button onclick="testPaymentTable()" class="btn btn-secondary" style="margin-left: 10px; font-size: 12px; padding: 5px 10px;">💳 Test Payment Table</button>
                 </div>
             </div>
         </div>
@@ -2849,6 +2850,57 @@
             } catch (error) {
                 console.error('Transfer error:', error);
                 showNotification('Transfer failed', 'error');
+            }
+        }
+
+        // Test Payment Table specifically
+        async function testPaymentTable() {
+            try {
+                console.log('🧪 Testing Payment Table Connection...');
+                
+                const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
+                
+                // Test 1: Check if table exists
+                console.log('🔍 Test 1: Checking if payment_captures table exists...');
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/payment_captures?select=count`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                console.log('📡 Table check response:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Table exists! Row count:', data[0]?.count || 0);
+                    showNotification('✅ Payment table exists!', 'success');
+                    
+                    // Test 2: Get all records
+                    console.log('🔍 Test 2: Fetching all payment records...');
+                    const allResponse = await fetch(`${SUPABASE_URL}/rest/v1/payment_captures?select=*`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (allResponse.ok) {
+                        const allData = await allResponse.json();
+                        console.log('📊 All payment records:', allData);
+                        showNotification(`Found ${allData.length} payment records in database`, 'info');
+                    }
+                    
+                } else {
+                    const errorText = await response.text();
+                    console.log('❌ Table check failed:', response.status, errorText);
+                    showNotification(`❌ Payment table error: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Payment table test error:', error);
+                showNotification('❌ Payment table test failed: ' + error.message, 'error');
             }
         }
 
