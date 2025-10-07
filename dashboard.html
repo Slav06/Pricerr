@@ -1801,53 +1801,6 @@
                             </button>
                         </div>
                     `;
-                }
-                
-                // Also check for encrypted data from Supabase
-                return `
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button onclick="checkSupabasePaymentData('${jobNumber}')" 
-                                style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); 
-                                       color: white; 
-                                       border: none; 
-                                       padding: 8px 12px; 
-                                       border-radius: 8px; 
-                                       font-size: 12px; 
-                                       font-weight: 600; 
-                                       cursor: pointer; 
-                                       display: flex; 
-                                       align-items: center; 
-                                       gap: 6px; 
-                                       transition: all 0.3s ease;
-                                       box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);"
-                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 123, 255, 0.4)'"
-                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 123, 255, 0.3)'"
-                                title="Check for encrypted payment data in Supabase">
-                            <span>🔍</span>
-                            <span>Check DB</span>
-                        </button>
-                        <button onclick="processPaymentFromSupabase('${jobNumber}')" 
-                                style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
-                                       color: white; 
-                                       border: none; 
-                                       padding: 8px 12px; 
-                                       border-radius: 8px; 
-                                       font-size: 12px; 
-                                       font-weight: 600; 
-                                       cursor: pointer; 
-                                       display: flex; 
-                                       align-items: center; 
-                                       gap: 6px; 
-                                       transition: all 0.3s ease;
-                                       box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);"
-                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(40, 167, 69, 0.4)'"
-                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(40, 167, 69, 0.3)'"
-                                title="Process payment via Elavon (encrypted data)">
-                            <span>⚡</span>
-                            <span>Process</span>
-                        </button>
-                    </div>
-                `;
                 } else {
                     // No payment data - show add payment button
                     return `
