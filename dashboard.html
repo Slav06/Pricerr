@@ -1757,58 +1757,70 @@
                     const amount = payment.payment.amount;
                     
                     // Create payment button with processing capability
+                    const paymentAmount = payment.payment.paymentAmount || payment.payment.amount || '0.00';
+                    const paymentStatus = payment.payment.status || 'captured';
+                    
                     return `
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 140px;">
                             <button onclick="openPaymentModal('${jobNumber}')" 
                                     style="background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%); 
                                            color: white; 
                                            border: none; 
-                                           padding: 8px 12px; 
+                                           padding: 6px 12px; 
                                            border-radius: 8px; 
-                                           font-size: 12px; 
+                                           font-size: 11px; 
                                            font-weight: 600; 
                                            cursor: pointer; 
                                            display: flex; 
                                            align-items: center; 
-                                           gap: 6px; 
+                                           justify-content: center; 
+                                           gap: 4px; 
                                            transition: all 0.3s ease;
-                                           box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);"
+                                           box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);
+                                           white-space: nowrap;"
                                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(107, 70, 193, 0.4)'"
                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(107, 70, 193, 0.3)'"
                                     title="View payment details">
                                 <span>💳</span>
                                 <span>****${cardLastFour}</span>
                             </button>
-                            <button onclick="processPaymentFromSupabase('${jobNumber}')" 
-                                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); 
-                                           color: white; 
-                                           border: none; 
-                                           padding: 8px 12px; 
-                                           border-radius: 8px; 
-                                           font-size: 12px; 
-                                           font-weight: 600; 
-                                           cursor: pointer; 
-                                           display: flex; 
-                                           align-items: center; 
-                                           gap: 6px; 
-                                           transition: all 0.3s ease;
-                                           box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);"
-                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(220, 53, 69, 0.4)'"
-                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(220, 53, 69, 0.3)'"
-                                    title="Process payment via Elavon">
-                                <span>⚡</span>
-                                <span>Process</span>
-                            </button>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span style="font-size: 10px; color: #666; font-weight: 600;">$${paymentAmount}</span>
+                                <button onclick="processPaymentFromSupabase('${jobNumber}')" 
+                                        style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); 
+                                               color: white; 
+                                               border: none; 
+                                               padding: 4px 8px; 
+                                               border-radius: 6px; 
+                                               font-size: 10px; 
+                                               font-weight: 600; 
+                                               cursor: pointer; 
+                                               display: flex; 
+                                               align-items: center; 
+                                               gap: 3px; 
+                                               transition: all 0.3s ease;
+                                               box-shadow: 0 1px 4px rgba(220, 53, 69, 0.3);
+                                               white-space: nowrap;"
+                                        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 6px rgba(220, 53, 69, 0.4)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 4px rgba(220, 53, 69, 0.3)'"
+                                        title="Process payment via Elavon">
+                                    <span>⚡</span>
+                                    <span>Process</span>
+                                </button>
+                            </div>
+                            <div style="font-size: 9px; color: #28a745; font-weight: 600; text-align: center;">
+                                ${paymentStatus.toUpperCase()}
+                            </div>
                         </div>
                     `;
                 } else {
-                    // No payment data - show add payment button
+                    // No payment data - show add payment button with proper width
                     return `
                         <button onclick="openAddPaymentModal('${jobNumber}')" 
                                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
                                        color: white; 
                                        border: none; 
-                                       padding: 8px 12px; 
+                                       padding: 8px 16px; 
                                        border-radius: 8px; 
                                        font-size: 12px; 
                                        font-weight: 600; 
@@ -1817,7 +1829,9 @@
                                        align-items: center; 
                                        gap: 6px; 
                                        transition: all 0.3s ease;
-                                       box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);"
+                                       box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+                                       min-width: 120px;
+                                       white-space: nowrap;"
                                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(40, 167, 69, 0.4)'"
                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(40, 167, 69, 0.3)'"
                                 title="Add payment processing for this job">
