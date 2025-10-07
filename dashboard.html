@@ -1362,13 +1362,13 @@
             }
             
             console.log('🔄 Calling displaySubmissions...');
-            displaySubmissions();
+            await displaySubmissions();
             console.log('🔄 Calling updateSubmissionsStats...');
             updateSubmissionsStats();
         }
 
         // Display submissions
-        function displaySubmissions() {
+        async function displaySubmissions() {
             console.log('📊 displaySubmissions called with submissions:', submissions);
             console.log('📊 submissions length:', submissions.length);
             console.log('📊 Current user role:', currentUser.role);
@@ -1468,7 +1468,7 @@
 
             let tableHTML = `<div class="submissions-table"><table>${headerHTML}<tbody>`;
 
-            filteredSubmissions.forEach(submission => {
+            for (const submission of filteredSubmissions) {
                 // Get status display info
                 const statusInfo = getStatusDisplayInfo(submission.status);
                 
@@ -1494,7 +1494,7 @@
                         '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 8px; font-size: 11px; font-weight: bold; white-space: nowrap; display: inline-block;">⏳ PENDING</span>';
                     
                     // Get payment info for this submission
-                    const paymentHTML = getPaymentButtonHTML(submission.jobNumber);
+                    const paymentHTML = await getPaymentButtonHTML(submission.jobNumber);
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="background-color: #f8f9fa; ${urgentRowStyle}">
@@ -1520,7 +1520,7 @@
                     `;
                 } else if (currentUser.role === 'fronter') {
                     // Read-only view for fronters (can see who was assigned but can't change it)
-                    const paymentHTML = getPaymentButtonHTML(submission.jobNumber);
+                    const paymentHTML = await getPaymentButtonHTML(submission.jobNumber);
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="${urgentRowStyle}">
@@ -1556,7 +1556,7 @@
                     `;
                 } else {
                     // Full control view for admin only
-                    const paymentHTML = getPaymentButtonHTML(submission.jobNumber);
+                    const paymentHTML = await getPaymentButtonHTML(submission.jobNumber);
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="${urgentRowStyle}">
@@ -1587,7 +1587,7 @@
                         </tr>
                     `;
                 }
-            });
+            }
 
             tableHTML += '</tbody></table></div>';
             
@@ -1746,19 +1746,53 @@
         }
 
         // Get payment button HTML for job
-        function getPaymentButtonHTML(jobNumber) {
+        async function getPaymentButtonHTML(jobNumber) {
             try {
                 // Check if there's payment data for this job (localStorage fallback)
                 const paymentData = localStorage.getItem(`job_${jobNumber}_payment`);
-                if (paymentData) {
-                    const payment = JSON.parse(paymentData);
-                    const cardLastFour = payment.payment.cardLastFour;
-                    const cardType = payment.payment.cardType;
-                    const amount = payment.payment.amount;
+                
+                // Also check Supabase for encrypted payment data
+                let supabasePaymentData = null;
+                try {
+                    const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
                     
-                    // Create payment button with processing capability
-                    const paymentAmount = payment.payment.paymentAmount || payment.payment.amount || '0.00';
-                    const paymentStatus = payment.payment.status || 'captured';
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/payment_captures?job_number=eq.${jobNumber}&select=*`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.length > 0) {
+                            supabasePaymentData = data[0];
+                        }
+                    }
+                } catch (error) {
+                    console.log('Could not fetch from Supabase:', error);
+                }
+                
+                if (paymentData || supabasePaymentData) {
+                    let cardLastFour, cardType, amount, paymentAmount, paymentStatus;
+                    
+                    if (paymentData) {
+                        // Use localStorage data
+                        const payment = JSON.parse(paymentData);
+                        cardLastFour = payment.payment.cardLastFour;
+                        cardType = payment.payment.cardType;
+                        amount = payment.payment.amount;
+                        paymentAmount = payment.payment.paymentAmount || payment.payment.amount || '0.00';
+                        paymentStatus = payment.payment.status || 'captured';
+                    } else if (supabasePaymentData) {
+                        // Use Supabase data
+                        cardLastFour = supabasePaymentData.card_last_four;
+                        cardType = supabasePaymentData.card_type;
+                        amount = supabasePaymentData.payment_amount;
+                        paymentAmount = supabasePaymentData.payment_amount || '0.00';
+                        paymentStatus = supabasePaymentData.status || 'captured';
+                    }
                     
                     return `
                         <div style="display: flex; flex-direction: column; gap: 4px; min-width: 140px;">
