@@ -276,6 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize price box functionality
     initializePriceBoxes();
+    
+    // Initialize payment processing functionality
+    initializePaymentProcessing();
 });
 
 // Function to initialize price box functionality
@@ -487,3 +490,357 @@ function formatCurrency(amount) {
 	window.queryGhlContactByFirstName = queryGhlContactByFirstName;
 	window.generateSupabaseCreateTableSQL = generateSupabaseCreateTableSQL;
 })();
+
+// Payment Processing Functions
+function initializePaymentProcessing() {
+    console.log('💳 Initializing payment processing...');
+    
+    // Initialize payment service
+    window.paymentService = new PaymentService();
+    
+    // Get DOM elements
+    const paymentSection = document.getElementById('paymentSection');
+    const processPaymentBtn = document.getElementById('processPaymentBtn');
+    const testPaymentBtn = document.getElementById('testPaymentBtn');
+    const cardNumberInput = document.getElementById('cardNumber');
+    const expDateInput = document.getElementById('expDate');
+    const cvvInput = document.getElementById('cvv');
+    const cardTypeIndicator = document.getElementById('cardTypeIndicator');
+    
+    // Show payment section if user is logged in
+    checkLoginStatus().then(user => {
+        if (user && user.role === 'admin') {
+            paymentSection.style.display = 'block';
+            loadRecentTransactions();
+        }
+    });
+    
+    // Event listeners
+    if (processPaymentBtn) {
+        processPaymentBtn.addEventListener('click', handleProcessPayment);
+    }
+    
+    if (testPaymentBtn) {
+        testPaymentBtn.addEventListener('click', handleTestPayment);
+    }
+    
+    // Card number formatting and validation
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', handleCardNumberInput);
+        cardNumberInput.addEventListener('blur', validateCardNumber);
+    }
+    
+    // Expiration date formatting
+    if (expDateInput) {
+        expDateInput.addEventListener('input', handleExpDateInput);
+    }
+    
+    // CVV validation
+    if (cvvInput) {
+        cvvInput.addEventListener('input', handleCvvInput);
+    }
+    
+    console.log('✅ Payment processing initialized');
+}
+
+// Handle card number input with formatting
+function handleCardNumberInput(event) {
+    let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    // Format with spaces every 4 digits
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    
+    // Limit to 19 characters (16 digits + 3 spaces)
+    value = value.substring(0, 19);
+    
+    event.target.value = value;
+    
+    // Update card type indicator
+    updateCardTypeIndicator(value.replace(/\s/g, ''));
+}
+
+// Update card type indicator
+function updateCardTypeIndicator(cardNumber) {
+    const cardTypeIndicator = document.getElementById('cardTypeIndicator');
+    const cardType = detectCardType(cardNumber);
+    
+    if (cardTypeIndicator) {
+        const cardIcons = {
+            visa: '💳',
+            mastercard: '💳',
+            amex: '💳',
+            discover: '💳',
+            unknown: ''
+        };
+        
+        cardTypeIndicator.textContent = cardIcons[cardType] || '';
+        cardTypeIndicator.className = `card-type-indicator ${cardNumber.length >= 13 ? 'show' : ''}`;
+    }
+}
+
+// Handle expiration date input with formatting
+function handleExpDateInput(event) {
+    let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    // Format as MM/YY
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    
+    // Limit to 5 characters (MM/YY)
+    value = value.substring(0, 5);
+    
+    event.target.value = value;
+}
+
+// Handle CVV input
+function handleCvvInput(event) {
+    let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    // Limit to 4 digits (Amex uses 4 digits)
+    value = value.substring(0, 4);
+    
+    event.target.value = value;
+}
+
+// Validate card number
+function validateCardNumber(event) {
+    const cardNumber = event.target.value.replace(/\s/g, '');
+    const isValid = validateCardNumber(cardNumber);
+    
+    if (cardNumber.length > 0 && !isValid) {
+        event.target.style.borderColor = '#dc3545';
+        showPaymentNotification('Invalid card number', 'error');
+    } else {
+        event.target.style.borderColor = '#e6d9ff';
+    }
+}
+
+// Handle process payment button click
+async function handleProcessPayment() {
+    console.log('💳 Processing payment...');
+    
+    // Get form data
+    const paymentData = getPaymentFormData();
+    
+    if (!paymentData) {
+        return; // Validation failed
+    }
+    
+    // Show processing state
+    showPaymentStatus('processing', 'Processing Payment...', 'Please wait while we process your payment...');
+    
+    try {
+        // Process payment
+        const result = await window.paymentService.processPayment(paymentData);
+        
+        if (result.success) {
+            showPaymentStatus('success', 'Payment Successful!', 
+                `Transaction ID: ${result.transactionId}<br>Amount: $${result.amount}<br>Auth Code: ${result.authCode}`);
+            
+            // Clear form
+            clearPaymentForm();
+            
+            // Load recent transactions
+            loadRecentTransactions();
+            
+            showPaymentNotification('Payment processed successfully!', 'success');
+        } else {
+            showPaymentStatus('error', 'Payment Failed', 
+                `${result.responseMessage || 'Payment could not be processed'}<br>Response Code: ${result.responseCode}`);
+            
+            showPaymentNotification('Payment failed. Please check your card information.', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Payment processing error:', error);
+        showPaymentStatus('error', 'Payment Error', error.message);
+        showPaymentNotification('Payment processing failed. Please try again.', 'error');
+    }
+}
+
+// Handle test payment button click
+async function handleTestPayment() {
+    console.log('🧪 Processing test payment...');
+    
+    // Fill form with test data
+    fillTestData();
+    
+    // Process payment
+    await handleProcessPayment();
+}
+
+// Fill form with test data
+function fillTestData() {
+    document.getElementById('paymentAmount').value = '1.00';
+    document.getElementById('cardNumber').value = PAYMENT_CONFIG.TEST_CARDS.VISA;
+    document.getElementById('expDate').value = '12/25';
+    document.getElementById('cvv').value = '123';
+    document.getElementById('cardFirstName').value = 'Test';
+    document.getElementById('cardLastName').value = 'User';
+    document.getElementById('transactionType').value = 'ccsale';
+    
+    // Update card type indicator
+    updateCardTypeIndicator(PAYMENT_CONFIG.TEST_CARDS.VISA);
+}
+
+// Get payment form data
+function getPaymentFormData() {
+    const amount = parseFloat(document.getElementById('paymentAmount').value);
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const expDate = document.getElementById('expDate').value;
+    const cvv = document.getElementById('cvv').value;
+    const firstName = document.getElementById('cardFirstName').value.trim();
+    const lastName = document.getElementById('cardLastName').value.trim();
+    const transactionType = document.getElementById('transactionType').value;
+    
+    // Validation
+    if (!amount || amount <= 0) {
+        showPaymentNotification('Please enter a valid amount', 'error');
+        return null;
+    }
+    
+    if (!cardNumber || !validateCardNumber(cardNumber)) {
+        showPaymentNotification('Please enter a valid card number', 'error');
+        return null;
+    }
+    
+    if (!expDate || !/^\d{2}\/\d{2}$/.test(expDate)) {
+        showPaymentNotification('Please enter a valid expiration date (MM/YY)', 'error');
+        return null;
+    }
+    
+    if (!cvv || cvv.length < 3) {
+        showPaymentNotification('Please enter a valid CVV', 'error');
+        return null;
+    }
+    
+    if (!firstName || firstName.length < 2) {
+        showPaymentNotification('Please enter a valid first name', 'error');
+        return null;
+    }
+    
+    if (!lastName || lastName.length < 2) {
+        showPaymentNotification('Please enter a valid last name', 'error');
+        return null;
+    }
+    
+    return {
+        amount: amount,
+        cardNumber: cardNumber,
+        expDate: expDate,
+        cvv: cvv,
+        firstName: firstName,
+        lastName: lastName,
+        transactionType: transactionType
+    };
+}
+
+// Show payment status
+function showPaymentStatus(type, title, message) {
+    const statusDiv = document.getElementById('paymentStatus');
+    const statusIcon = document.getElementById('statusIcon');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusMessage = document.getElementById('statusMessage');
+    
+    if (statusDiv) {
+        statusDiv.className = `payment-status ${type}`;
+        statusDiv.style.display = 'block';
+        
+        if (statusIcon) {
+            const icons = {
+                success: '✅',
+                error: '❌',
+                processing: '⏳'
+            };
+            statusIcon.textContent = icons[type] || '';
+        }
+        
+        if (statusTitle) {
+            statusTitle.textContent = title;
+        }
+        
+        if (statusMessage) {
+            statusMessage.innerHTML = message;
+        }
+        
+        // Auto-hide success messages after 5 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+    }
+}
+
+// Show payment notification
+function showPaymentNotification(message, type) {
+    showNotification(message, type);
+}
+
+// Clear payment form
+function clearPaymentForm() {
+    document.getElementById('paymentAmount').value = '';
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('expDate').value = '';
+    document.getElementById('cvv').value = '';
+    document.getElementById('cardFirstName').value = '';
+    document.getElementById('cardLastName').value = '';
+    document.getElementById('transactionType').value = 'ccsale';
+    
+    // Clear card type indicator
+    const cardTypeIndicator = document.getElementById('cardTypeIndicator');
+    if (cardTypeIndicator) {
+        cardTypeIndicator.textContent = '';
+        cardTypeIndicator.className = 'card-type-indicator';
+    }
+}
+
+// Load recent transactions
+async function loadRecentTransactions() {
+    try {
+        const response = await fetch(`${CONFIG.SUPABASE.URL}/rest/v1/transactions?order=processed_at.desc&limit=5`, {
+            headers: {
+                'apikey': CONFIG.SUPABASE.ANON_KEY,
+                'Authorization': `Bearer ${CONFIG.SUPABASE.ANON_KEY}`
+            }
+        });
+        
+        if (response.ok) {
+            const transactions = await response.json();
+            displayRecentTransactions(transactions);
+        }
+    } catch (error) {
+        console.error('Error loading recent transactions:', error);
+    }
+}
+
+// Display recent transactions
+function displayRecentTransactions(transactions) {
+    const recentTransactionsDiv = document.getElementById('recentTransactions');
+    const transactionListDiv = document.getElementById('transactionList');
+    
+    if (recentTransactionsDiv && transactionListDiv) {
+        if (transactions.length > 0) {
+            recentTransactionsDiv.style.display = 'block';
+            
+            transactionListDiv.innerHTML = transactions.map(txn => `
+                <div class="transaction-item ${txn.success ? 'success' : 'error'}">
+                    <div class="transaction-amount">$${txn.amount} - ${txn.transaction_type}</div>
+                    <div class="transaction-time">${new Date(txn.processed_at).toLocaleString()}</div>
+                </div>
+            `).join('');
+        } else {
+            recentTransactionsDiv.style.display = 'none';
+        }
+    }
+}
+
+// Helper function to check login status
+async function checkLoginStatus() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(['popupUser'], (result) => {
+            resolve(result.popupUser || null);
+        });
+    });
+}

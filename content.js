@@ -893,6 +893,1533 @@ function isHelloMovingPricingPage() {
     return isHelloMovingDomain && isPricingPage;
 }
 
+// Function to check if current page is a HelloMoving.com payment page
+function isHelloMovingPaymentPage() {
+    const currentUrl = window.location.href.toLowerCase();
+    const hostname = window.location.hostname.toLowerCase();
+    
+    // Check if it's a HelloMoving.com domain
+    const isHelloMovingDomain = hostname.includes('hellomoving.com') || hostname.includes('ant.hellomoving.com');
+    
+    // Check if it's a payment page
+    const isPaymentPage = currentUrl.includes('mpopr') && currentUrl.includes('paymentswc');
+    
+    console.log('🔍 Payment page detection results:');
+    console.log('- Current URL:', currentUrl);
+    console.log('- Hostname:', hostname);
+    console.log('- Is HelloMoving domain:', isHelloMovingDomain);
+    console.log('- Is payment page:', isPaymentPage);
+    console.log('- Should load payment overlay:', isHelloMovingDomain && isPaymentPage);
+    
+    return isHelloMovingDomain && isPaymentPage;
+}
+
+// Function to create HelloMoving payment overlay directly
+function createHelloMovingPaymentOverlay() {
+    console.log('🔧 Creating HelloMoving payment overlay...');
+    
+    // Extract job data from the page
+    const jobData = extractJobDataFromPage();
+    const customerData = extractCustomerDataFromPage();
+    
+    // Create the payment overlay button
+    createPaymentOverlayButton(jobData, customerData);
+    
+    console.log('✅ HelloMoving payment overlay created');
+}
+
+// Test encryption functionality
+async function testEncryption() {
+    try {
+        console.log('🧪 Testing encryption system...');
+        
+        // Initialize encryption
+        await initializeEncryption();
+        
+        // Test data
+        const testData = {
+            cardNumber: '4111111111111111',
+            securityCode: '123',
+            fullName: 'Test Customer'
+        };
+        
+        console.log('📝 Original data:', testData);
+        
+        // Encrypt
+        const encrypted = await paymentEncryption.encryptPaymentData(testData, encryptionKey);
+        console.log('🔐 Encrypted data:', encrypted);
+        
+        // Decrypt
+        const decrypted = await paymentEncryption.decryptPaymentData(encrypted, encryptionKey);
+        console.log('🔓 Decrypted data:', decrypted);
+        
+        console.log('✅ Encryption test completed successfully!');
+        return { original: testData, encrypted, decrypted };
+        
+    } catch (error) {
+        console.error('❌ Encryption test failed:', error);
+        throw error;
+    }
+}
+
+// Make functions globally available for testing
+window.createHelloMovingPaymentOverlay = createHelloMovingPaymentOverlay;
+window.isHelloMovingPaymentPage = isHelloMovingPaymentPage;
+window.testEncryption = testEncryption;
+window.retrievePaymentData = retrievePaymentData;
+window.processPaymentWithDecryptedData = processPaymentWithDecryptedData;
+
+// Manual function to store captured data for testing
+window.storeCapturedData = function() {
+    const form = document.forms['theForm'];
+    if (!form) {
+        console.error('❌ HelloMoving form not found');
+        return;
+    }
+
+    const jobData = extractJobDataFromPage();
+    const customerData = extractCustomerDataFromPage();
+    const paymentFields = extractAllPaymentFields(form, jobData, customerData);
+    
+    localStorage.setItem('capturedPaymentData', JSON.stringify(paymentFields));
+    console.log('✅ Manual data storage complete:', paymentFields);
+    
+    return paymentFields;
+};
+
+// Capture payment fields and submit to dashboard
+function captureAndSubmitToDashboard(jobData, customerData) {
+    console.log('📋 Capturing payment fields from HelloMoving form...');
+    
+    // Get the current form data
+    const form = document.forms['theForm'];
+    if (!form) {
+        console.error('❌ HelloMoving form not found');
+        alert('HelloMoving payment form not found on this page');
+        return;
+    }
+
+    // Extract all payment fields
+    const paymentFields = extractAllPaymentFields(form, jobData, customerData);
+    
+    // Store the data for dashboard access
+    storeCapturedPaymentForDashboard(jobData, paymentFields);
+    
+    console.log('✅ Payment fields captured and submitted to dashboard:', paymentFields);
+    console.log('📋 Captured field details:');
+    console.log('- Full Name:', paymentFields.fullName);
+    console.log('- First Name:', paymentFields.firstName);
+    console.log('- Last Name:', paymentFields.lastName);
+    console.log('- Billing Address:', paymentFields.billingAddress);
+    console.log('- City:', paymentFields.city);
+    console.log('- State:', paymentFields.state);
+    console.log('- Zip Code:', paymentFields.zipCode);
+    console.log('- Card Number:', paymentFields.cardNumber);
+    console.log('- Masked Card:', paymentFields.maskedCard);
+    console.log('- Card Last Four:', paymentFields.cardLastFour);
+    console.log('- Security Code:', paymentFields.securityCode);
+    console.log('- Exp Month:', paymentFields.expMonth);
+    console.log('- Exp Year:', paymentFields.expYear);
+    console.log('- Exp Date:', paymentFields.expDate);
+    
+    // Show success notification
+    showDashboardSubmissionNotification(paymentFields);
+}
+
+// Capture payment fields and submit to test page
+function captureAndSubmitPaymentFields(jobData, customerData) {
+    console.log('📋 Capturing payment fields from HelloMoving form...');
+    
+    // Get the current form data
+    const form = document.forms['theForm'];
+    if (!form) {
+        console.error('❌ HelloMoving form not found');
+        alert('HelloMoving payment form not found on this page');
+        return;
+    }
+
+    // Extract all payment fields
+    const paymentFields = extractAllPaymentFields(form, jobData, customerData);
+    
+    // Submit the data to the test page (like an API call)
+    submitPaymentDataToTestPage(paymentFields);
+    
+    console.log('✅ Payment fields captured and submitted to test page:', paymentFields);
+    console.log('📋 Captured field details:');
+    console.log('- Full Name:', paymentFields.fullName);
+    console.log('- First Name:', paymentFields.firstName);
+    console.log('- Last Name:', paymentFields.lastName);
+    console.log('- Billing Address:', paymentFields.billingAddress);
+    console.log('- City:', paymentFields.city);
+    console.log('- State:', paymentFields.state);
+    console.log('- Zip Code:', paymentFields.zipCode);
+    console.log('- Card Number:', paymentFields.cardNumber);
+    console.log('- Masked Card:', paymentFields.maskedCard);
+    console.log('- Card Last Four:', paymentFields.cardLastFour);
+    console.log('- Security Code:', paymentFields.securityCode);
+    console.log('- Exp Month:', paymentFields.expMonth);
+    console.log('- Exp Year:', paymentFields.expYear);
+    console.log('- Exp Date:', paymentFields.expDate);
+    
+    // Show success notification
+    showCaptureNotification(paymentFields);
+}
+
+// Submit payment data to test page
+async function submitPaymentDataToTestPage(paymentFields) {
+    try {
+        console.log('📤 Submitting payment data to test page...');
+        console.log('📋 Payment data to send:', paymentFields);
+        
+        // First, try to send directly to any open test page windows
+        try {
+            const message = {
+                type: 'PAYMENT_DATA_SUBMISSION',
+                data: paymentFields,
+                timestamp: new Date().toISOString(),
+                source: 'HelloMoving Payment Page'
+            };
+            
+            // Try to send to all windows (including test page)
+            window.postMessage(message, '*');
+            console.log('📨 Payment data sent via window.postMessage');
+            
+            // Also try sending to parent if in iframe
+            if (window.parent !== window) {
+                window.parent.postMessage(message, '*');
+                console.log('📨 Payment data sent to parent window');
+            }
+            
+        } catch (error) {
+            console.log('⚠️ Direct postMessage failed, trying iframe method:', error);
+        }
+        
+        // Also store in localStorage as backup
+        localStorage.setItem('capturedPaymentData', JSON.stringify(paymentFields));
+        console.log('📝 Data stored in localStorage as backup');
+        console.log('📋 localStorage data:', JSON.parse(localStorage.getItem('capturedPaymentData')));
+        
+        // Create a hidden iframe to communicate with the test page
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = chrome.runtime.getURL('payment-fields-test.html');
+        
+        // Add iframe to page
+        document.body.appendChild(iframe);
+        
+        // Wait for iframe to load
+        iframe.onload = function() {
+            try {
+                // Send data to test page via postMessage
+                const message = {
+                    type: 'PAYMENT_DATA_SUBMISSION',
+                    data: paymentFields,
+                    timestamp: new Date().toISOString(),
+                    source: 'HelloMoving Payment Page'
+                };
+                
+                iframe.contentWindow.postMessage(message, '*');
+                console.log('📨 Payment data sent to test page via iframe postMessage');
+                
+                // Remove iframe after sending
+                setTimeout(() => {
+                    if (iframe.parentNode) {
+                        iframe.parentNode.removeChild(iframe);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Error sending data to test page:', error);
+                // Fallback: store in localStorage
+                localStorage.setItem('capturedPaymentData', JSON.stringify(paymentFields));
+                console.log('📝 Fallback: Data stored in localStorage');
+            }
+        };
+        
+        // Fallback timeout
+        setTimeout(() => {
+            if (iframe.parentNode) {
+                iframe.parentNode.removeChild(iframe);
+            }
+        }, 5000);
+        
+    } catch (error) {
+        console.error('❌ Error submitting to test page:', error);
+        
+        // Fallback: store in localStorage and show message
+        localStorage.setItem('capturedPaymentData', JSON.stringify(paymentFields));
+        
+        // Show fallback notification
+        showFallbackNotification(paymentFields);
+    }
+}
+
+// Show fallback notification when direct submission fails
+function showFallbackNotification(paymentFields) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(255, 193, 7, 0.3);
+        z-index: 100000;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        max-width: 300px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        animation: slideInRight 0.5s ease-out;
+    `;
+
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">⚠️</span>
+            <div>
+                <div style="font-weight: 600;">Data Captured & Stored</div>
+                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                    Job: ${paymentFields.jobNumber} | Customer: ${paymentFields.fullName || 'Unknown'}
+                </div>
+                <div style="font-size: 12px; opacity: 0.9;">
+                    Open test page to view captured data
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+
+// Extract all payment fields from HelloMoving form
+function extractAllPaymentFields(form, jobData, customerData) {
+    // Extract full name and split it
+    const fullName = form.CCNAME?.value || '';
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Extract state from dropdown
+    const stateSelect = form.CCSTATEID;
+    const stateValue = stateSelect?.options[stateSelect.selectedIndex]?.value || '';
+    const stateText = stateSelect?.options[stateSelect.selectedIndex]?.text || '';
+
+    // Extract expiration date
+    const expMonth = form.EXPMONTH?.value || '';
+    const expYear = form.EXPYEAR?.value || '';
+    const expDate = expMonth && expYear ? `${expMonth.padStart(2, '0')}/${expYear.slice(-2)}` : '';
+
+    // Extract card number
+    const cardNumber = form.CREDITNO?.value || '';
+
+    // Extract card type
+    const cardTypeSelect = form.CREDITCO;
+    const cardType = cardTypeSelect?.options[cardTypeSelect.selectedIndex]?.text || '';
+
+    // Extract payment method
+    const paymentMethodSelect = form.CTYPE;
+    const paymentMethod = paymentMethodSelect?.options[paymentMethodSelect.selectedIndex]?.text || '';
+
+    // Extract payment amount
+    const paymentAmount = form.PAYAMT?.value || '0.00';
+
+    // Extract confirmation number
+    const confirmationNumber = form.REF?.value || '';
+
+    // Extract notes
+    const notes = form.NOTES?.value || '';
+
+    const capturedData = {
+        // Job Information
+        jobNumber: jobData.jobNumber,
+        customerName: jobData.customerName,
+        jobId: jobData.jobId,
+        url: window.location.href,
+        capturedAt: new Date().toISOString(),
+        
+        // Personal Information
+        fullName: fullName,
+        firstName: firstName,
+        lastName: lastName,
+        
+        // Address Information
+        billingAddress: form.CCADD?.value || '',
+        city: form.CCCITY?.value || '',
+        state: stateText,
+        stateValue: stateValue,
+        zipCode: form.CCZIP?.value || '',
+        country: 'USA', // Always USA
+        
+        // Card Information
+        cardNumber: cardNumber,
+        maskedCard: cardNumber ? `****${cardNumber.slice(-4)}` : '',
+        cardLastFour: cardNumber.slice(-4),
+        cardType: cardType,
+        securityCode: form.CCCODE?.value || '',
+        expMonth: expMonth,
+        expYear: expYear,
+        expDate: expDate,
+        
+        // Contact Information
+        phone: form.CCPHONE?.value || '',
+        email: form.CCEMAIL?.value || '',
+        
+        // Payment Information
+        paymentMethod: paymentMethod,
+        paymentAmount: parseFloat(paymentAmount) || 0,
+        confirmationNumber: confirmationNumber,
+        notes: notes,
+        
+        // Form Field Names (for reference)
+        fieldNames: {
+            fullName: 'CCNAME',
+            billingAddress: 'CCADD',
+            city: 'CCCITY',
+            state: 'CCSTATEID',
+            zipCode: 'CCZIP',
+            cardNumber: 'CREDITNO',
+            securityCode: 'CCCODE',
+            expMonth: 'EXPMONTH',
+            expYear: 'EXPYEAR',
+            cardType: 'CREDITCO',
+            paymentMethod: 'CTYPE',
+            paymentAmount: 'PAYAMT',
+            confirmationNumber: 'REF',
+            notes: 'NOTES',
+            phone: 'CCPHONE',
+            email: 'CCEMAIL'
+        }
+    };
+
+    return capturedData;
+}
+
+// Show capture notification
+function showCaptureNotification(paymentFields) {
+    // Create a temporary notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.3);
+        z-index: 100000;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        max-width: 300px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        animation: slideInRight 0.5s ease-out;
+    `;
+
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">✅</span>
+            <div>
+                <div style="font-weight: 600;">Payment Fields Captured!</div>
+                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                    Job: ${paymentFields.jobNumber} | Customer: ${paymentFields.fullName || 'Unknown'}
+                </div>
+                <div style="font-size: 12px; opacity: 0.9;">
+                    Data sent to test page
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideInRight 0.5s ease-out reverse';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+            if (style.parentNode) {
+                style.parentNode.removeChild(style);
+            }
+        }, 500);
+    }, 5000);
+}
+
+// Show dashboard submission notification
+function showDashboardSubmissionNotification(paymentFields) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.3);
+        z-index: 100000;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        max-width: 300px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        animation: slideInRight 0.5s ease-out;
+    `;
+
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">✅</span>
+            <div>
+                <div style="font-weight: 600;">Payment Data Sent to Production!</div>
+                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                    Job: ${paymentFields.jobNumber} | Customer: ${paymentFields.fullName || 'Unknown'}
+                </div>
+                <div style="font-size: 12px; opacity: 0.9;">
+                    Data sent to Supabase database
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+
+// Extract job information from the HelloMoving page
+function extractJobDataFromPage() {
+    const jobMatch = document.body.innerHTML.match(/Job No: <font color="#993366">([^<]+)<\/font>/);
+    const customerMatch = document.body.innerHTML.match(/Customer: <font color="#993366">([^<]+)<\/font>/);
+    
+    return {
+        jobNumber: jobMatch ? jobMatch[1] : 'Unknown',
+        customerName: customerMatch ? customerMatch[1] : 'Unknown',
+        jobId: window.location.href.match(/~([A-F0-9-]+)$/)?.[1] || 'Unknown'
+    };
+}
+
+// Extract customer information from existing HelloMoving form
+function extractCustomerDataFromPage() {
+    const form = document.forms['theForm'];
+    if (!form) return {};
+
+    // Extract full name and split it
+    const fullName = form.CCNAME?.value || '';
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Extract state from dropdown
+    const stateSelect = form.CCSTATEID;
+    const stateValue = stateSelect?.options[stateSelect.selectedIndex]?.value || '';
+    const stateText = stateSelect?.options[stateSelect.selectedIndex]?.text || '';
+
+    // Extract expiration date
+    const expMonth = form.EXPMONTH?.value || '';
+    const expYear = form.EXPYEAR?.value || '';
+    const expDate = expMonth && expYear ? `${expMonth.padStart(2, '0')}/${expYear.slice(-2)}` : '';
+
+    // Extract card number
+    const cardNumber = form.CREDITNO?.value || '';
+
+    return {
+        // Personal Information
+        fullName: fullName,
+        firstName: firstName,
+        lastName: lastName,
+        cardholderName: fullName, // For backward compatibility
+        
+        // Address Information
+        billingAddress: form.CCADD?.value || '',
+        city: form.CCCITY?.value || '',
+        state: stateText,
+        stateValue: stateValue,
+        zip: form.CCZIP?.value || '',
+        zipCode: form.CCZIP?.value || '', // Alternative name
+        country: 'USA', // Always USA
+        
+        // Card Information
+        cardNumber: cardNumber,
+        maskedCard: cardNumber ? `****${cardNumber.slice(-4)}` : '',
+        cardLastFour: cardNumber.slice(-4),
+        securityCode: form.CCCODE?.value || '',
+        expMonth: expMonth,
+        expYear: expYear,
+        expDate: expDate,
+        
+        // Contact Information
+        phone: form.CCPHONE?.value || '',
+        email: form.CCEMAIL?.value || '',
+        
+        // Timestamps
+        extractedAt: new Date().toISOString()
+    };
+}
+
+// Create the payment overlay button
+function createPaymentOverlayButton(jobData, customerData) {
+    // Remove existing button if any
+    const existing = document.getElementById('elavon-payment-button');
+    if (existing) existing.remove();
+
+    // Create button
+    const button = document.createElement('div');
+    button.id = 'elavon-payment-button';
+    button.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(107, 70, 193, 0.3);
+        cursor: pointer;
+        z-index: 99999;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    `;
+
+    button.innerHTML = `
+        <span style="font-size: 20px;">💳</span>
+        <span>Add Payment Info</span>
+    `;
+
+    // Add hover effects
+    button.addEventListener('mouseenter', () => {
+        button.style.transform = 'translateY(-3px)';
+        button.style.boxShadow = '0 12px 40px rgba(107, 70, 193, 0.4)';
+    });
+
+    button.addEventListener('mouseleave', () => {
+        button.style.transform = 'translateY(0)';
+        button.style.boxShadow = '0 8px 32px rgba(107, 70, 193, 0.3)';
+    });
+
+    // Add click handler
+    button.addEventListener('click', () => {
+        // Capture all payment fields from HelloMoving form and submit to dashboard
+        captureAndSubmitToDashboard(jobData, customerData);
+    });
+
+    document.body.appendChild(button);
+    console.log('💳 Payment overlay button created');
+}
+
+// Create the payment modal
+function createPaymentModal(jobData, customerData) {
+    // Remove existing modal if any
+    const existing = document.getElementById('elavon-payment-modal');
+    if (existing) existing.remove();
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'elavon-payment-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    `;
+
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; width: 600px; max-width: 90vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            <div style="background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0; font-size: 24px; font-weight: 600;">💳 Elavon Payment Processing</h2>
+                    <button id="close-modal" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">×</button>
+                </div>
+                <div style="margin-top: 10px; opacity: 0.9;">
+                    <strong>Job:</strong> ${jobData.jobNumber} | <strong>Customer:</strong> ${jobData.customerName}
+                </div>
+            </div>
+            
+            <div style="padding: 30px;">
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #374151;">Payment Method:</label>
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="paymentMethod" value="elavon" checked style="margin-right: 8px;">
+                            <span>Elavon Credit Card Processing</span>
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="paymentMethod" value="existing" style="margin-right: 8px;">
+                            <span>Use Existing HelloMoving Form</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="elavon-form" style="display: block;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Amount to Charge:</label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b46c1; font-weight: 600;">$</span>
+                                <input type="number" id="paymentAmount" placeholder="0.00" min="0.01" step="0.01" style="width: 100%; padding: 12px 12px 12px 32px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; font-weight: 600; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Transaction Type:</label>
+                            <select id="transactionType" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                                <option value="ccsale">Sale (Authorize & Capture)</option>
+                                <option value="ccauthonly">Authorization Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Card Number:</label>
+                        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Expiration Date:</label>
+                            <input type="text" id="expDate" placeholder="MM/YY" maxlength="5" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">CVV:</label>
+                            <input type="text" id="cvv" placeholder="123" maxlength="4" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Card Type:</label>
+                            <div id="cardTypeIndicator" style="padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; font-size: 16px; background: #f9fafb;">💳 Unknown</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Cardholder First Name:</label>
+                            <input type="text" id="cardFirstName" placeholder="John" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Cardholder Last Name:</label>
+                            <input type="text" id="cardLastName" placeholder="Doe" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: #374151;">📋 Pre-fill from existing form:</span>
+                            <button type="button" id="prefillData" style="background: #6b46c1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">Fill Data</button>
+                        </div>
+                        <div style="font-size: 14px; color: #6b7280;">
+                            Customer: ${customerData.cardholderName || 'Not found'} | 
+                            Address: ${customerData.billingAddress || 'Not found'} | 
+                            City: ${customerData.city || 'Not found'}
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <button id="processElavonPayment" style="flex: 1; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            💳 Process Elavon Payment
+                        </button>
+                        <button id="testPayment" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            🧪 Test Payment
+                        </button>
+                    </div>
+                    
+                    <div id="paymentStatus" style="display: none; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <div id="statusContent"></div>
+                    </div>
+                    
+                    <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">🔄 HelloMoving Integration</div>
+                        <div style="font-size: 14px; color: #1e40af;">
+                            After successful Elavon processing, this will automatically update the HelloMoving payment form with the transaction details.
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="existing-form" style="display: none;">
+                    <div style="background: #fef3c7; padding: 20px; border-radius: 8px; border: 2px solid #f59e0b;">
+                        <h3 style="margin: 0 0 15px 0; color: #92400e;">📋 HelloMoving Payment Form</h3>
+                        <p style="margin: 0 0 15px 0; color: #92400e;">Use the existing HelloMoving payment form on the right side of the page.</p>
+                        <button id="updateExistingForm" style="background: #f59e0b; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            Update HelloMoving Form with Elavon Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add event listeners
+    addModalEventListeners(modal, jobData, customerData);
+
+    document.body.appendChild(modal);
+    console.log('💳 Payment modal created');
+}
+
+// Add event listeners to the modal
+function addModalEventListeners(modal, jobData, customerData) {
+    // Close button
+    modal.querySelector('#close-modal').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    // Close on backdrop click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+
+    // Payment method radio buttons
+    const paymentMethods = modal.querySelectorAll('input[name="paymentMethod"]');
+    paymentMethods.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const elavonForm = modal.querySelector('#elavon-form');
+            const existingForm = modal.querySelector('#existing-form');
+            
+            if (e.target.value === 'elavon') {
+                elavonForm.style.display = 'block';
+                existingForm.style.display = 'none';
+            } else {
+                elavonForm.style.display = 'none';
+                existingForm.style.display = 'block';
+            }
+        });
+    });
+
+    // Card number formatting
+    const cardNumberInput = modal.querySelector('#cardNumber');
+    cardNumberInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        value = value.substring(0, 19);
+        e.target.value = value;
+        updateCardTypeIndicator(value.replace(/\s/g, ''));
+    });
+
+    // Expiration date formatting
+    const expDateInput = modal.querySelector('#expDate');
+    expDateInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        value = value.substring(0, 5);
+        e.target.value = value;
+    });
+
+    // CVV input
+    const cvvInput = modal.querySelector('#cvv');
+    cvvInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+    });
+
+    // Pre-fill data button
+    modal.querySelector('#prefillData').addEventListener('click', () => {
+        prefillFormData(modal, customerData);
+    });
+
+    // Process Elavon payment
+    modal.querySelector('#processElavonPayment').addEventListener('click', () => {
+        processElavonPayment(modal, jobData);
+    });
+
+    // Test payment
+    modal.querySelector('#testPayment').addEventListener('click', () => {
+        fillTestData(modal);
+        processElavonPayment(modal, jobData);
+    });
+
+    // Update existing form
+    modal.querySelector('#updateExistingForm').addEventListener('click', () => {
+        showStatus(modal, 'success', 'HelloMoving form integration feature - would sync Elavon data to existing form fields.');
+    });
+}
+
+// Update card type indicator
+function updateCardTypeIndicator(cardNumber) {
+    const indicator = document.querySelector('#cardTypeIndicator');
+    if (!indicator) return;
+    
+    const cardType = detectCardType(cardNumber);
+    const cardIcons = {
+        visa: '💳 Visa',
+        mastercard: '💳 Mastercard',
+        amex: '💳 Amex',
+        discover: '💳 Discover',
+        unknown: '💳 Unknown'
+    };
+    
+    indicator.textContent = cardIcons[cardType] || '💳 Unknown';
+    indicator.style.background = cardNumber.length >= 13 ? '#e0f2fe' : '#f9fafb';
+}
+
+// Detect card type
+function detectCardType(cardNumber) {
+    const cleaned = cardNumber.replace(/\D/g, '');
+    
+    if (/^4/.test(cleaned)) return 'visa';
+    if (/^5[1-5]/.test(cleaned)) return 'mastercard';
+    if (/^3[47]/.test(cleaned)) return 'amex';
+    if (/^6(?:011|5)/.test(cleaned)) return 'discover';
+    
+    return 'unknown';
+}
+
+// Pre-fill form data
+function prefillFormData(modal, customerData) {
+    // Pre-fill name fields (already split)
+    modal.querySelector('#cardFirstName').value = customerData.firstName || '';
+    modal.querySelector('#cardLastName').value = customerData.lastName || '';
+    
+    // Show what data was extracted
+    const extractedInfo = `
+        ✅ Form data pre-filled from HelloMoving form!<br>
+        <strong>Extracted:</strong><br>
+        • Name: ${customerData.fullName || 'Not found'}<br>
+        • Address: ${customerData.billingAddress || 'Not found'}<br>
+        • City: ${customerData.city || 'Not found'}<br>
+        • State: ${customerData.state || 'Not found'}<br>
+        • Zip: ${customerData.zipCode || 'Not found'}<br>
+        • Card: ${customerData.maskedCard || 'Not found'}<br>
+        • Exp: ${customerData.expDate || 'Not found'}
+    `;
+    
+    showStatus(modal, 'success', extractedInfo);
+}
+
+// Fill test data
+function fillTestData(modal) {
+    modal.querySelector('#paymentAmount').value = '1.00';
+    modal.querySelector('#cardNumber').value = '4000000000000002';
+    modal.querySelector('#expDate').value = '12/25';
+    modal.querySelector('#cvv').value = '123';
+    modal.querySelector('#cardFirstName').value = 'Test';
+    modal.querySelector('#cardLastName').value = 'User';
+    
+    updateCardTypeIndicator('4000000000000002');
+}
+
+// Process Elavon payment
+async function processElavonPayment(modal, jobData) {
+    const paymentData = getPaymentFormData(modal);
+    
+    if (!paymentData) {
+        return;
+    }
+
+    // Show processing state
+    const processBtn = modal.querySelector('#processElavonPayment');
+    const originalText = processBtn.innerHTML;
+    processBtn.innerHTML = '⏳ Processing...';
+    processBtn.disabled = true;
+
+    try {
+        // Simulate payment processing (replace with actual Elavon integration)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Mock successful payment
+        const result = {
+            success: true,
+            transactionId: 'TXN' + Date.now(),
+            authCode: 'AUTH' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+            amount: paymentData.amount
+        };
+
+        showStatus(modal, 'success', `
+            ✅ Payment Successful!<br>
+            Transaction ID: ${result.transactionId}<br>
+            Amount: $${result.amount}<br>
+            Auth Code: ${result.authCode}
+        `);
+
+        // Update HelloMoving form with successful payment data
+        updateHelloMovingFormWithElavonData(result, paymentData);
+        
+        // Store payment data for dashboard submission
+        storePaymentDataForDashboard(jobData, paymentData, result);
+        
+        // Add submit to dashboard button
+        addSubmitToDashboardButton(modal, jobData, paymentData, result);
+        
+        // Don't hide modal automatically - let user submit to dashboard
+        // setTimeout(() => {
+        //     modal.remove();
+        // }, 3000);
+
+    } catch (error) {
+        console.error('Payment processing error:', error);
+        showStatus(modal, 'error', `❌ Payment Error: ${error.message}`);
+    } finally {
+        // Reset button
+        processBtn.innerHTML = originalText;
+        processBtn.disabled = false;
+    }
+}
+
+// Get payment form data
+function getPaymentFormData(modal) {
+    const amount = parseFloat(modal.querySelector('#paymentAmount').value);
+    const cardNumber = modal.querySelector('#cardNumber').value.replace(/\s/g, '');
+    const expDate = modal.querySelector('#expDate').value;
+    const cvv = modal.querySelector('#cvv').value;
+    const firstName = modal.querySelector('#cardFirstName').value.trim();
+    const lastName = modal.querySelector('#cardLastName').value.trim();
+    const transactionType = modal.querySelector('#transactionType').value;
+
+    // Validation
+    if (!amount || amount <= 0) {
+        showStatus(modal, 'error', 'Please enter a valid amount');
+        return null;
+    }
+
+    if (!cardNumber || cardNumber.length < 13) {
+        showStatus(modal, 'error', 'Please enter a valid card number');
+        return null;
+    }
+
+    if (!expDate || !/^\d{2}\/\d{2}$/.test(expDate)) {
+        showStatus(modal, 'error', 'Please enter a valid expiration date (MM/YY)');
+        return null;
+    }
+
+    if (!cvv || cvv.length < 3) {
+        showStatus(modal, 'error', 'Please enter a valid CVV');
+        return null;
+    }
+
+    if (!firstName || firstName.length < 2) {
+        showStatus(modal, 'error', 'Please enter a valid first name');
+        return null;
+    }
+
+    if (!lastName || lastName.length < 2) {
+        showStatus(modal, 'error', 'Please enter a valid last name');
+        return null;
+    }
+
+    return {
+        amount: amount,
+        cardNumber: cardNumber,
+        expDate: expDate,
+        cvv: cvv,
+        firstName: firstName,
+        lastName: lastName,
+        transactionType: transactionType
+    };
+}
+
+// Show status message
+function showStatus(modal, type, message) {
+    const statusDiv = modal.querySelector('#paymentStatus');
+    const statusContent = modal.querySelector('#statusContent');
+    
+    statusDiv.style.display = 'block';
+    
+    const colors = {
+        success: { bg: '#d4edda', border: '#28a745', color: '#155724' },
+        error: { bg: '#f8d7da', border: '#dc3545', color: '#721c24' },
+        processing: { bg: '#fff3cd', border: '#ffc107', color: '#856404' }
+    };
+    
+    const color = colors[type] || colors.error;
+    statusDiv.style.background = color.bg;
+    statusDiv.style.borderColor = color.border;
+    statusDiv.style.color = color.color;
+    statusDiv.style.border = '2px solid';
+    statusDiv.style.borderRadius = '8px';
+    
+    statusContent.innerHTML = message;
+}
+
+// Update HelloMoving form with Elavon payment data
+function updateHelloMovingFormWithElavonData(elavonResult, paymentData) {
+    const form = document.forms['theForm'];
+    if (!form) return;
+
+    try {
+        // Update payment amount
+        if (form.PAYAMT) {
+            form.PAYAMT.value = paymentData.amount.toFixed(2);
+        }
+
+        // Update confirmation number with Elavon transaction ID
+        if (form.REF) {
+            form.REF.value = elavonResult.transactionId || elavonResult.authCode || '';
+        }
+
+        // Update payment method to Credit Card
+        if (form.CTYPE) {
+            form.CTYPE.value = 'CC';
+        }
+
+        // Update cardholder information
+        if (form.CCNAME) {
+            form.CCNAME.value = `${paymentData.firstName} ${paymentData.lastName}`;
+        }
+
+        // Update card type
+        if (form.CREDITCO) {
+            const cardType = detectCardType(paymentData.cardNumber);
+            const cardTypeMap = {
+                visa: 'Visa',
+                mastercard: 'Master Card',
+                amex: 'AMEX',
+                discover: 'Discover'
+            };
+            form.CREDITCO.value = cardTypeMap[cardType] || '';
+        }
+
+        // Update card number (masked for security)
+        if (form.CREDITNO) {
+            const maskedNumber = paymentData.cardNumber.replace(/\d(?=\d{4})/g, '*');
+            form.CREDITNO.value = maskedNumber;
+        }
+
+        // Update expiration date
+        if (form.EXPMONTH && form.EXPYEAR) {
+            const [month, year] = paymentData.expDate.split('/');
+            form.EXPMONTH.value = month;
+            form.EXPYEAR.value = `20${year}`;
+        }
+
+        // Update notes with Elavon processing info
+        if (form.NOTES) {
+            const existingNotes = form.NOTES.value || '';
+            const elavonNotes = `Elavon Processed - TxnID: ${elavonResult.transactionId}, Auth: ${elavonResult.authCode}`;
+            form.NOTES.value = existingNotes ? `${existingNotes}; ${elavonNotes}` : elavonNotes;
+        }
+
+        console.log('✅ HelloMoving form updated with Elavon payment data');
+
+    } catch (error) {
+        console.error('Error updating HelloMoving form:', error);
+    }
+}
+
+// Load encryption service
+let paymentEncryption = null;
+let encryptionKey = null;
+
+// Initialize encryption
+async function initializeEncryption() {
+    try {
+        // Load the encryption service
+        const script = document.createElement('script');
+        script.src = chrome.runtime.getURL('payment-encryption.js');
+        document.head.appendChild(script);
+        
+        await new Promise((resolve) => {
+            script.onload = resolve;
+        });
+        
+        paymentEncryption = window.paymentEncryption;
+        
+        // Generate or load encryption key
+        // In production, you should store this key securely
+        const storedKey = localStorage.getItem('payment_encryption_key');
+        if (storedKey) {
+            encryptionKey = await paymentEncryption.importKey(storedKey);
+        } else {
+            // Generate new key and store it
+            const keyString = await paymentEncryption.generateAppKey();
+            localStorage.setItem('payment_encryption_key', keyString);
+            encryptionKey = await paymentEncryption.importKey(keyString);
+        }
+        
+        console.log('🔐 Encryption initialized successfully');
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize encryption:', error);
+        throw error;
+    }
+}
+
+// Send payment data to Supabase production database
+async function sendPaymentDataToSupabase(paymentData) {
+    try {
+        // Get Supabase credentials from your existing configuration
+        const supabaseUrl = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
+        
+        console.log('📤 Sending payment data to Supabase...');
+        
+        const response = await fetch(`${supabaseUrl}/rest/v1/payment_captures`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(paymentData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Supabase error: ${response.status} ${response.statusText}`);
+        }
+
+        console.log('✅ Payment data successfully sent to Supabase production');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Failed to send data to Supabase:', error);
+        throw error;
+    }
+}
+
+// Store captured payment fields for dashboard
+async function storeCapturedPaymentForDashboard(jobData, paymentFields) {
+    try {
+        // Initialize encryption if not already done
+        if (!paymentEncryption || !encryptionKey) {
+            await initializeEncryption();
+        }
+
+        // Prepare payment data for encryption
+        const paymentDataForEncryption = {
+            job_number: jobData.jobNumber,
+            customer_name: jobData.customerName,
+            job_id: jobData.jobId,
+            url: jobData.url || window.location.href,
+            
+            // Personal Information
+            full_name: paymentFields.fullName,
+            first_name: paymentFields.firstName,
+            last_name: paymentFields.lastName,
+            
+            // Address Information
+            billing_address: paymentFields.billingAddress,
+            city: paymentFields.city,
+            state: paymentFields.state,
+            zip_code: paymentFields.zipCode,
+            country: paymentFields.country,
+            
+            // Card Information (will be encrypted)
+            cardNumber: paymentFields.cardNumber,
+            card_last_four: paymentFields.cardLastFour,
+            card_type: paymentFields.cardType,
+            securityCode: paymentFields.securityCode,
+            exp_month: paymentFields.expMonth,
+            exp_year: paymentFields.expYear,
+            exp_date: paymentFields.expDate,
+            
+            // Contact Information
+            phone: paymentFields.phone,
+            email: paymentFields.email,
+            
+            // Payment Information
+            payment_method: paymentFields.paymentMethod,
+            payment_amount: paymentFields.paymentAmount,
+            confirmation_number: paymentFields.confirmationNumber,
+            notes: paymentFields.notes,
+            
+            // Metadata
+            status: 'captured',
+            captured_at: paymentFields.capturedAt,
+            created_at: new Date().toISOString()
+        };
+
+        // Encrypt sensitive payment data
+        const encryptedPaymentData = await paymentEncryption.encryptPaymentData(paymentDataForEncryption, encryptionKey);
+        
+        console.log('🔐 Payment data encrypted successfully');
+
+        // Send encrypted data to Supabase production database
+        await sendPaymentDataToSupabase(encryptedPaymentData);
+        
+        console.log('✅ Encrypted payment data sent to production Supabase');
+        
+    } catch (error) {
+        console.error('❌ Error encrypting/sending payment data to production:', error);
+        // Fallback to localStorage if encryption or Supabase fails
+        const dashboardData = {
+            jobNumber: jobData.jobNumber,
+            customerName: jobData.customerName,
+            timestamp: new Date().toISOString(),
+            payment: paymentFields
+        };
+        localStorage.setItem(`job_${jobData.jobNumber}_payment`, JSON.stringify(dashboardData));
+        console.log('📝 Fallback: Data stored in localStorage');
+    }
+}
+
+// Decrypt payment data for processing
+async function decryptPaymentData(encryptedData) {
+    try {
+        // Initialize encryption if not already done
+        if (!paymentEncryption || !encryptionKey) {
+            await initializeEncryption();
+        }
+
+        // Decrypt the payment data
+        const decryptedData = await paymentEncryption.decryptPaymentData(encryptedData, encryptionKey);
+        
+        console.log('🔓 Payment data decrypted successfully');
+        return decryptedData;
+        
+    } catch (error) {
+        console.error('❌ Error decrypting payment data:', error);
+        throw error;
+    }
+}
+
+// Retrieve and decrypt payment data from Supabase
+async function retrievePaymentData(jobNumber) {
+    try {
+        const supabaseUrl = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
+        
+        // Fetch encrypted data from Supabase
+        const response = await fetch(`${supabaseUrl}/rest/v1/payment_captures?job_number=eq.${jobNumber}&select=*`, {
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch payment data: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.length === 0) {
+            throw new Error('No payment data found for this job');
+        }
+
+        // Decrypt the payment data
+        const decryptedData = await decryptPaymentData(data[0]);
+        
+        console.log('✅ Payment data retrieved and decrypted:', decryptedData);
+        return decryptedData;
+        
+    } catch (error) {
+        console.error('❌ Error retrieving payment data:', error);
+        throw error;
+    }
+}
+
+// Process payment with decrypted data (for Elavon integration)
+async function processPaymentWithDecryptedData(jobNumber) {
+    try {
+        // Retrieve and decrypt payment data
+        const paymentData = await retrievePaymentData(jobNumber);
+        
+        // Prepare data for Elavon processing
+        const elavonData = {
+            cardNumber: paymentData.cardNumber,
+            securityCode: paymentData.securityCode,
+            expMonth: paymentData.exp_month,
+            expYear: paymentData.exp_year,
+            amount: paymentData.payment_amount,
+            customerName: paymentData.full_name,
+            billingAddress: paymentData.billing_address,
+            city: paymentData.city,
+            state: paymentData.state,
+            zipCode: paymentData.zip_code
+        };
+
+        console.log('💳 Processing payment with Elavon...', elavonData);
+        
+        // Here you would call your Elavon payment processing
+        // const result = await processElavonPayment(elavonData);
+        
+        return elavonData;
+        
+    } catch (error) {
+        console.error('❌ Error processing payment:', error);
+        throw error;
+    }
+}
+
+// Store payment data for dashboard submission
+function storePaymentDataForDashboard(jobData, paymentData, elavonResult) {
+    try {
+        const paymentRecord = {
+            jobNumber: jobData.jobNumber,
+            customerName: jobData.customerName,
+            jobId: jobData.jobId,
+            paymentAmount: paymentData.amount,
+            cardLastFour: paymentData.cardNumber.slice(-4),
+            cardType: detectCardType(paymentData.cardNumber),
+            cardholderName: `${paymentData.firstName} ${paymentData.lastName}`,
+            transactionId: elavonResult.transactionId,
+            authCode: elavonResult.authCode,
+            timestamp: new Date().toISOString(),
+            status: 'processed'
+        };
+
+        // Store in localStorage for dashboard access
+        const existingPayments = JSON.parse(localStorage.getItem('dashboard_payments') || '[]');
+        existingPayments.push(paymentRecord);
+        localStorage.setItem('dashboard_payments', JSON.stringify(existingPayments));
+
+        console.log('✅ Payment data stored for dashboard:', paymentRecord);
+        return paymentRecord;
+
+    } catch (error) {
+        console.error('Error storing payment data:', error);
+        return null;
+    }
+}
+
+// Add submit to dashboard button
+function addSubmitToDashboardButton(modal, jobData, paymentData, elavonResult) {
+    // Check if button already exists
+    if (modal.querySelector('#submitToDashboardBtn')) return;
+
+    const submitButton = document.createElement('button');
+    submitButton.id = 'submitToDashboardBtn';
+    submitButton.innerHTML = `
+        <span style="font-size: 18px;">📊</span>
+        Submit Job to Dashboard with Payment
+    `;
+    submitButton.style.cssText = `
+        width: 100%;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+    `;
+
+    // Add hover effect
+    submitButton.addEventListener('mouseenter', () => {
+        submitButton.style.transform = 'translateY(-2px)';
+        submitButton.style.boxShadow = '0 8px 20px rgba(0, 123, 255, 0.3)';
+    });
+
+    submitButton.addEventListener('mouseleave', () => {
+        submitButton.style.transform = 'translateY(0)';
+        submitButton.style.boxShadow = 'none';
+    });
+
+    // Add click handler
+    submitButton.addEventListener('click', async () => {
+        await submitJobToDashboard(jobData, paymentData, elavonResult, modal);
+    });
+
+    // Insert button after payment status
+    const statusDiv = modal.querySelector('#paymentStatus');
+    statusDiv.parentNode.insertBefore(submitButton, statusDiv.nextSibling);
+
+    console.log('✅ Submit to dashboard button added');
+}
+
+// Submit job to dashboard with payment data
+async function submitJobToDashboard(jobData, paymentData, elavonResult, modal) {
+    const submitBtn = modal.querySelector('#submitToDashboardBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    try {
+        // Show processing state
+        submitBtn.innerHTML = '⏳ Submitting to Dashboard...';
+        submitBtn.disabled = true;
+
+        // Prepare job data with payment information
+        const jobSubmissionData = {
+            jobNumber: jobData.jobNumber,
+            customerName: jobData.customerName,
+            jobId: jobData.jobId,
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+            payment: {
+                amount: paymentData.amount,
+                cardLastFour: paymentData.cardNumber.slice(-4),
+                cardType: detectCardType(paymentData.cardNumber),
+                cardholderName: `${paymentData.firstName} ${paymentData.lastName}`,
+                transactionId: elavonResult.transactionId,
+                authCode: elavonResult.authCode,
+                status: 'processed'
+            }
+        };
+
+        // Store in localStorage for dashboard access
+        const existingJobs = JSON.parse(localStorage.getItem('submitted_jobs') || '[]');
+        existingJobs.push(jobSubmissionData);
+        localStorage.setItem('submitted_jobs', JSON.stringify(existingJobs));
+
+        // Also store in a format that the dashboard can easily read
+        localStorage.setItem(`job_${jobData.jobNumber}_payment`, JSON.stringify(jobSubmissionData));
+
+        // Show success message
+        showStatus(modal, 'success', `
+            ✅ Job Submitted to Dashboard!<br>
+            Job: ${jobData.jobNumber}<br>
+            Customer: ${jobData.customerName}<br>
+            Payment: $${paymentData.amount} (****${paymentData.cardNumber.slice(-4)})<br>
+            <br>
+            <strong>Dashboard will show:</strong><br>
+            💳 Credit Card Button: ****${paymentData.cardNumber.slice(-4)}<br>
+            Click to process additional payments
+        `);
+
+        // Close modal after 3 seconds
+        setTimeout(() => {
+            modal.remove();
+        }, 4000);
+
+        console.log('✅ Job submitted to dashboard with payment data:', jobSubmissionData);
+
+    } catch (error) {
+        console.error('Error submitting to dashboard:', error);
+        showStatus(modal, 'error', `❌ Dashboard Submission Error: ${error.message}`);
+    } finally {
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
 // Also analyze the page when it loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Page Price Analyzer content script loaded');
@@ -913,8 +2440,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create the security monitoring overlay
         console.log('About to create security overlay...');
         createSecurityOverlay();
+    } else if (isHelloMovingPaymentPage()) {
+        console.log('✅ HelloMoving payment page detected - creating payment overlay');
+        
+        // Create payment overlay directly (no need to load external script)
+        createHelloMovingPaymentOverlay();
     } else {
-        console.log('❌ Not a HelloMoving pricing page - skipping overlay creation');
+        console.log('❌ Not a HelloMoving pricing or payment page - skipping overlay creation');
         console.log('Overlays will not be shown on this page');
     }
 });
@@ -928,6 +2460,8 @@ window.addEventListener('load', () => {
     
     // Only create overlays on HelloMoving.com pricing pages
     if (isHelloMovingPricingPage()) {
+        console.log('✅ HelloMoving pricing page detected - creating overlays');
+        
         // Ensure submit button overlay is created
         if (!document.getElementById('submit-button-overlay')) {
             createSubmitButtonOverlay();
@@ -938,8 +2472,13 @@ window.addEventListener('load', () => {
             console.log('Creating security overlay on window load...');
             createSecurityOverlay();
         }
+    } else if (isHelloMovingPaymentPage()) {
+        console.log('✅ HelloMoving payment page detected - creating payment overlay');
+        
+        // Create payment overlay directly (no need to load external script)
+        createHelloMovingPaymentOverlay();
     } else {
-        console.log('Not a HelloMoving pricing page - skipping overlay creation on window load');
+        console.log('❌ Not a HelloMoving pricing or payment page - skipping overlay creation on window load');
     }
 });
 

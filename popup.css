@@ -500,4 +500,331 @@ body {
     background: rgba(220, 53, 69, 1);
 }
 
+/* Payment Processing Section Styles */
+.payment-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e6d9ff;
+    margin-top: 20px;
+}
+
+.payment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e6d9ff;
+}
+
+.payment-icon {
+    font-size: 20px;
+    color: #6b46c1;
+}
+
+.payment-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #6b46c1;
+}
+
+.payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Amount Input */
+.amount-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #6b46c1;
+    z-index: 1;
+}
+
+.amount-input {
+    width: 100%;
+    padding: 12px 12px 12px 32px;
+    border: 2px solid #e6d9ff;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.amount-input:focus {
+    outline: none;
+    border-color: #6b46c1;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+}
+
+/* Card Input */
+.card-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e6d9ff;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-input:focus {
+    outline: none;
+    border-color: #6b46c1;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+}
+
+.card-type-indicator {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card-type-indicator.show {
+    opacity: 1;
+}
+
+/* Expiration and CVV Inputs */
+.exp-input, .cvv-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e6d9ff;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.exp-input:focus, .cvv-input:focus {
+    outline: none;
+    border-color: #6b46c1;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+}
+
+/* Name Inputs */
+.name-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e6d9ff;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.name-input:focus {
+    outline: none;
+    border-color: #6b46c1;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+}
+
+/* Transaction Type Select */
+.transaction-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e6d9ff;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.transaction-select:focus {
+    outline: none;
+    border-color: #6b46c1;
+    box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+}
+
+/* Payment Buttons */
+.payment-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.payment-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-btn.primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.payment-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.payment-btn.secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+}
+
+.payment-btn.secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.payment-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* Payment Status */
+.payment-status {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid;
+}
+
+.payment-status.success {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.payment-status.error {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.payment-status.processing {
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.status-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-icon {
+    font-size: 24px;
+}
+
+.status-text {
+    flex: 1;
+}
+
+.status-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.status-message {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Recent Transactions */
+.recent-transactions {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 2px solid #e6d9ff;
+}
+
+.recent-transactions h4 {
+    color: #6b46c1;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.transaction-item {
+    background: #f8f4ff;
+    border-radius: 6px;
+    padding: 12px;
+    border-left: 4px solid #6b46c1;
+    font-size: 12px;
+}
+
+.transaction-item.success {
+    border-left-color: #28a745;
+}
+
+.transaction-item.error {
+    border-left-color: #dc3545;
+}
+
+.transaction-amount {
+    font-weight: 600;
+    color: #6b46c1;
+}
+
+.transaction-time {
+    color: #666;
+    font-size: 11px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-buttons {
+        flex-direction: column;
+    }
+}
+
 
