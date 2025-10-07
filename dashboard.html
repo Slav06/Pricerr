@@ -1363,13 +1363,13 @@
             }
             
             console.log('🔄 Calling displaySubmissions...');
-            await displaySubmissions();
+            displaySubmissions();
             console.log('🔄 Calling updateSubmissionsStats...');
             updateSubmissionsStats();
         }
 
         // Display submissions
-        async function displaySubmissions() {
+        function displaySubmissions() {
             console.log('📊 displaySubmissions called with submissions:', submissions);
             console.log('📊 submissions length:', submissions.length);
             console.log('📊 Current user role:', currentUser.role);
@@ -1495,7 +1495,7 @@
                         '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 8px; font-size: 11px; font-weight: bold; white-space: nowrap; display: inline-block;">⏳ PENDING</span>';
                     
                     // Get payment info for this submission
-                    const paymentHTML = await getPaymentButtonHTML(submission.jobNumber);
+                    const paymentHTML = getPaymentButtonHTML(submission.jobNumber);
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="background-color: #f8f9fa; ${urgentRowStyle}">
@@ -1521,7 +1521,7 @@
                     `;
                 } else if (currentUser.role === 'fronter') {
                     // Read-only view for fronters (can see who was assigned but can't change it)
-                    const paymentHTML = await getPaymentButtonHTML(submission.jobNumber);
+                    const paymentHTML = getPaymentButtonHTML(submission.jobNumber);
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="${urgentRowStyle}">
@@ -1557,7 +1557,7 @@
                     `;
                 } else {
                     // Full control view for admin only
-                    const paymentHTML = await getPaymentButtonHTML(submission.jobNumber);
+                    const paymentHTML = getPaymentButtonHTML(submission.jobNumber);
                     
                     tableHTML += `
                         <tr class="${urgentRowClass}" style="${urgentRowStyle}">
@@ -1747,7 +1747,7 @@
         }
 
         // Get payment button HTML for job
-        async function getPaymentButtonHTML(jobNumber) {
+        function getPaymentButtonHTML(jobNumber) {
             try {
                 console.log('🔍 Checking payment data for job:', jobNumber);
                 
@@ -1755,57 +1755,8 @@
                 const paymentData = localStorage.getItem(`job_${jobNumber}_payment`);
                 console.log('📱 localStorage data:', paymentData ? 'Found' : 'None');
                 
-                // Also check Supabase for encrypted payment data
-                let supabasePaymentData = null;
-                try {
-                    const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
-                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
-                    
-                    console.log('🔍 Checking Supabase for job:', jobNumber);
-                    // Try both job_number and job_id fields since we're not sure which one is used
-                    let response = await fetch(`${SUPABASE_URL}/rest/v1/payment_captures?job_number=eq.${jobNumber}&select=*`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    });
-                    
-                    // If no results by job_number, try job_id
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.length === 0) {
-                            console.log('🔍 No results by job_number, trying job_id...');
-                            response = await fetch(`${SUPABASE_URL}/rest/v1/payment_captures?job_id=eq.${jobNumber}&select=*`, {
-                                headers: {
-                                    'apikey': SUPABASE_ANON_KEY,
-                                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                                }
-                            });
-                        }
-                    }
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    });
-                    
-                    console.log('📡 Supabase response status:', response.status);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('📊 Supabase data:', data);
-                        if (data.length > 0) {
-                            supabasePaymentData = data[0];
-                            console.log('✅ Found Supabase payment data:', supabasePaymentData);
-                        }
-                    } else {
-                        console.log('❌ Supabase error:', response.status, response.statusText);
-                    }
-                } catch (error) {
-                    console.log('❌ Could not fetch from Supabase:', error);
-                }
-                
-                if (paymentData || supabasePaymentData) {
+                // For now, just check localStorage to avoid async issues
+                if (paymentData) {
                     let cardLastFour, cardType, amount, paymentAmount, paymentStatus;
                     
                     if (paymentData) {
