@@ -1748,8 +1748,11 @@
         // Get payment button HTML for job
         async function getPaymentButtonHTML(jobNumber) {
             try {
+                console.log('🔍 Checking payment data for job:', jobNumber);
+                
                 // Check if there's payment data for this job (localStorage fallback)
                 const paymentData = localStorage.getItem(`job_${jobNumber}_payment`);
+                console.log('📱 localStorage data:', paymentData ? 'Found' : 'None');
                 
                 // Also check Supabase for encrypted payment data
                 let supabasePaymentData = null;
@@ -1757,6 +1760,7 @@
                     const SUPABASE_URL = 'https://xlnqqbbyivqlymmgchlw.supabase.co';
                     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbnFxYmJ5aXZxbHltbWdjaGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMDkwOTgsImV4cCI6MjA2NTU4NTA5OH0.kyU2uNqVc6bualjIOUIW9syuAYdS4llPRVcrwBDOOIM';
                     
+                    console.log('🔍 Checking Supabase for job:', jobNumber);
                     const response = await fetch(`${SUPABASE_URL}/rest/v1/payment_captures?job_number=eq.${jobNumber}&select=*`, {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
@@ -1764,14 +1768,20 @@
                         }
                     });
                     
+                    console.log('📡 Supabase response status:', response.status);
+                    
                     if (response.ok) {
                         const data = await response.json();
+                        console.log('📊 Supabase data:', data);
                         if (data.length > 0) {
                             supabasePaymentData = data[0];
+                            console.log('✅ Found Supabase payment data:', supabasePaymentData);
                         }
+                    } else {
+                        console.log('❌ Supabase error:', response.status, response.statusText);
                     }
                 } catch (error) {
-                    console.log('Could not fetch from Supabase:', error);
+                    console.log('❌ Could not fetch from Supabase:', error);
                 }
                 
                 if (paymentData || supabasePaymentData) {
@@ -1849,6 +1859,7 @@
                     `;
                 } else {
                     // No payment data - show add payment button with proper width
+                    console.log('❌ No payment data found for job:', jobNumber);
                     return `
                         <button onclick="openAddPaymentModal('${jobNumber}')" 
                                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
